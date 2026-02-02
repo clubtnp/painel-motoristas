@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Rede Nacional de Motoristas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      background: #020617;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(0,0,0,.5);
+    }
+
+    h1 { font-size: 26px; color: #22c55e; margin-bottom: 5px; text-align: center; }
+    .subtitle { font-size: 14px; opacity: 0.8; margin-bottom: 20px; text-align: center; }
+
+    /* Estilo da Seção de Login */
+    .login-section {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      border: 1px dashed #22c55e;
+      text-align: center;
+    }
+
+    /* CAMPO DE INPUT BRANCO */
+    .input-whatsapp {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 18px;
+      text-align: center;
+      font-weight: bold;
+      color: #0f172a;
+      background: #ffffff;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    .btn-whatsapp {
+      background: #22c55e;
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+    .btn-whatsapp:hover { background: #16a34a; transform: scale(1.02); }
+    .btn-whatsapp:disabled { background: #4b5563; cursor: not-allowed; }
+
+    /* Estilos das Regiões e Estados */
+    .regiao-titulo {
+      display: flex; align-items: center; font-size: 18px; color: #94a3b8;
+      margin: 25px 0 15px 0; border-bottom: 1px solid #1e293b; padding-bottom: 5px;
+    }
+    .grid-estados { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .btn-estado {
+      background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 10px 5px;
+      color: #fff; cursor: pointer; transition: all 0.2s; text-decoration: none;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
+    .sigla { font-size: 16px; font-weight: bold; color: #22c55e; }
+    .nome-estado { font-size: 9px; text-transform: uppercase; opacity: 0.7; margin-top: 2px; }
+    .btn-estado:hover { border-color: #22c55e; background: #0f172a; }
+
+    footer { text-align: center; margin-top: 30px; font-size: 11px; opacity: 0.4; }
+
+    @media (max-width: 450px) {
+      .grid-estados { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🚗 Rede de Motoristas</h1>
+  <p class="subtitle">Acesse o painel da sua região</p>
+
+  <div id="area-login" class="login-section">
+    <p style="margin-top:0; font-size: 14px; margin-bottom: 15px;">Digite seu WhatsApp para acessar:</p>
+    
+    <input type="tel" id="input-tel" class="input-whatsapp" placeholder="(00) 0.0000-0000" maxlength="17">
+    
+    <button id="btn-entrar" class="btn-whatsapp" onclick="solicitarAcesso()">Entrar com WhatsApp</button>
+  </div>
+
+  <div id="conteudo-privado" style="display: none;">
+    
+    <div class="regiao-titulo">🌎 Região Norte</div>
+    <div class="grid-estados">
+      <a href="estados/ac.html" class="btn-estado"><span class="sigla">AC</span><span class="nome-estado">Acre</span></a>
+      <a href="estados/ap.html" class="btn-estado"><span class="sigla">AP</span><span class="nome-estado">Amapá</span></a>
+      <a href="estados/am.html" class="btn-estado"><span class="sigla">AM</span><span class="nome-estado">Amazonas</span></a>
+      <a href="estados/pa.html" class="btn-estado"><span class="sigla">PA</span><span class="nome-estado">Pará</span></a>
+      <a href="estados/ro.html" class="btn-estado"><span class="sigla">RO</span><span class="nome-estado">Rondônia</span></a>
+      <a href="estados/rr.html" class="btn-estado"><span class="sigla">RR</span><span class="nome-estado">Roraima</span></a>
+      <a href="estados/to.html" class="btn-estado"><span class="sigla">TO</span><span class="nome-estado">Tocantins</span></a>
+    </div>
+
+    <div class="regiao-titulo">🌵 Região Nordeste</div>
+    <div class="grid-estados">
+      <a href="estados/al.html" class="btn-estado"><span class="sigla">AL</span><span class="nome-estado">Alagoas</span></a>
+      <a href="estados/ba.html" class="btn-estado"><span class="sigla">BA</span><span class="nome-estado">Bahia</span></a>
+      <a href="estados/ce.html" class="btn-estado"><span class="sigla">CE</span><span class="nome-estado">Ceará</span></a>
+      <a href="estados/ma.html" class="btn-estado"><span class="sigla">MA</span><span class="nome-estado">Maranhão</span></a>
+      <a href="estados/pb.html" class="btn-estado"><span class="sigla">PB</span><span class="nome-estado">Paraíba</span></a>
+      <a href="estados/pe.html" class="btn-estado"><span class="sigla">PE</span><span class="nome-estado">Pernambuco</span></a>
+      <a href="estados/pi.html" class="btn-estado"><span class="sigla">PI</span><span class="nome-estado">Piauí</span></a>
+      <a href="estados/rn.html" class="btn-estado"><span class="sigla">RN</span><span class="nome-estado">R. G. do Norte</span></a>
+      <a href="estados/se.html" class="btn-estado"><span class="sigla">SE</span><span class="nome-estado">Sergipe</span></a>
+    </div>
+
+    <div class="regiao-titulo">🌿 Região Centro-Oeste</div>
+    <div class="grid-estados">
+      <a href="estados/df.html" class="btn-estado"><span class="sigla">DF</span><span class="nome-estado">Distrito Fed.</span></a>
+      <a href="estados/go.html" class="btn-estado"><span class="sigla">GO</span><span class="nome-estado">Goiás</span></a>
+      <a href="estados/mt.html" class="btn-estado"><span class="sigla">MT</span><span class="nome-estado">Mato Grosso</span></a>
+      <a href="estados/ms.html" class="btn-estado"><span class="sigla">MS</span><span class="nome-estado">Mato Grosso Sul</span></a>
+    </div>
+
+    <div class="regiao-titulo">🌊 Região Sudeste</div>
+    <div class="grid-estados">
+      <a href="estados/es.html" class="btn-estado"><span class="sigla">ES</span><span class="nome-estado">Espírito Santo</span></a>
+      <a href="estados/mg.html" class="btn-estado"><span class="sigla">MG</span><span class="nome-estado">Minas Gerais</span></a>
+      <a href="estados/rj.html" class="btn-estado"><span class="sigla">RJ</span><span class="nome-estado">Rio de Janeiro</span></a>
+      <a href="estados/sp.html" class="btn-estado"><span class="sigla">SP</span><span class="nome-estado">São Paulo</span></a>
+    </div>
+
+    <div class="regiao-titulo">❄️ Região Sul</div>
+    <div class="grid-estados">
+      <a href="estados/pr.html" class="btn-estado"><span class="sigla">PR</span><span class="nome-estado">Paraná</span></a>
+      <a href="estados/sc.html" class="btn-estado"><span class="sigla">SC</span><span class="nome-estado">Santa Catarina</span></a>
+      <a href="estados/rs.html" class="btn-estado"><span class="sigla">RS</span><span class="nome-estado">Rio G. do Sul</span></a>
+    </div>
+
+  </div> <footer>Plataforma Nacional • 2026</footer>
+</div>
+
+<script>
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyjv09u0-ttmjKfBWyK9v-7YUWCzdlaqloHoa6mYSjIuiAkLexW2EeRBRlYFRHMBPUspw/exec';
+
+  // MÁSCARA DE TELEFONE AUTOMÁTICA
+  const inputTel = document.getElementById('input-tel');
+  inputTel.addEventListener('input', (e) => {
+    let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,1})(\d{0,4})(\d{0,4})/);
+    e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '.' + x[3] : '') + (x[4] ? '-' + x[4] : '');
+  });
+
+  window.onload = function() {
+    const agora = new Date().getTime();
+    const sessao = JSON.parse(localStorage.getItem('sessao_motorista'));
+    if (sessao && agora < sessao.expira) {
+        liberarSite();
+    } else {
+        verificarURL();
+    }
+  };
+
+  async function solicitarAcesso() {
+    const val = inputTel.value.replace(/\D/g, '');
+    if (val.length < 11) {
+      alert("Por favor, digite o número completo com DDD.");
+      return;
+    }
+
+    const btn = document.getElementById('btn-entrar');
+    btn.innerText = "Validando...";
+    btn.disabled = true;
+
+    try {
+      const response = await fetch(`${SCRIPT_URL}?acao=login&telefone=${val}`);
+      const dados = await response.json();
+
+      if (dados.link) {
+        const msg = window.encodeURIComponent(`Olá! Clique no link para acessar o painel: ${dados.link}`);
+        const waUrl = `https://api.whatsapp.com/send?phone=55${val}&text=${msg}`;
+        
+        // --- SOLUÇÃO PARA GOOGLE SITES ---
+        // Tenta abrir em uma nova aba ignorando as restrições do iframe
+        const novaAba = window.open(waUrl, '_blank');
+        
+        // Se o navegador bloquear o pop-up, ele tenta redirecionar a página inteira
+        if (!novaAba || novaAba.closed || typeof novaAba.closed == 'undefined') {
+             window.top.location.href = waUrl;
+        }
+      }
+    } catch (error) {
+      alert("Erro ao conectar. Verifique sua internet.");
+    } finally {
+      btn.innerText = "Entrar com WhatsApp";
+      btn.disabled = false;
+    }
+  }
+
+  // No seu arquivo HTML, dentro da tag <script>
+
+function verificarURL() {
+  // Altere esta linha:
+  // const params = new URLSearchParams(window.location.search);
+  
+  // Para esta (lendo a partir do #):
+  const params = new URLSearchParams(window.location.hash.substring(1)); // substring(1) remove o '#' inicial
+
+  const tel = params.get('tel');
+  const token = params.get('token');
+
+  if (tel && token) {
+    // O resto da função continua igual
+    fetch(`${SCRIPT_URL}?acao=validar&telefone=${tel}&token=${token}`)
+      .then(r => r.text())
+      .then(res => {
+        if (res.includes("AUTORIZADO")) {
+          const expira = new Date().getTime() + (24 * 60 * 60 * 1000);
+          localStorage.setItem('sessao_motorista', JSON.stringify({status: 'ok', expira: expira}));
+          liberarSite();
+          
+          // Opcional, mas recomendado: Limpa a URL para não deixar o token visível
+          window.history.replaceState({}, document.title, window.location.pathname); 
+        } else {
+          // Opcional: Avisar o usuário que o link é inválido ou expirou
+          alert("Link de acesso inválido ou expirado!");
+        }
+      });
+  }
+}
+
+
+  function liberarSite() {
+    document.getElementById('area-login').style.display = 'none';
+    document.getElementById('conteudo-privado').style.display = 'block';
+  }
+</script>
+
+</body>
+</html>
