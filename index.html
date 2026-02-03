@@ -178,78 +178,98 @@
   };
 
   async function solicitarAcesso() {
-    const val = inputTel.value.replace(/\D/g, '');
-    if (val.length < 11) {
-      alert("Por favor, digite o número completo com DDD.");
-      return;
-    }
-
-    const btn = document.getElementById('btn-entrar');
-    btn.innerText = "Validando...";
-    btn.disabled = true;
-
-    try {
-      const response = await fetch(`${SCRIPT_URL}?acao=login&telefone=${val}`);
-      const dados = await response.json();
-
-      if (dados.link) {
-        const msg = window.encodeURIComponent(`Olá! Clique no link para acessar o painel: ${dados.link}`);
-        const waUrl = `https://api.whatsapp.com/send?phone=55${val}&text=${msg}`;
-        
-        // --- SOLUÇÃO PARA GOOGLE SITES ---
-        // Tenta abrir em uma nova aba ignorando as restrições do iframe
-        const novaAba = window.open(waUrl, '_blank');
-        
-        // Se o navegador bloquear o pop-up, ele tenta redirecionar a página inteira
-        if (!novaAba || novaAba.closed || typeof novaAba.closed == 'undefined') {
-             window.top.location.href = waUrl;
-        }
-      }
-    } catch (error) {
-      alert("Erro ao conectar. Verifique sua internet.");
-    } finally {
-      btn.innerText = "Entrar com WhatsApp";
-      btn.disabled = false;
-    }
+  const val = inputTel.value.replace(/\D/g, '');
+  if (val.length < 11) { 
+    alert("Por favor, digite seu WhatsApp completo com DDD."); 
+    return; 
   }
+
+  const btn = document.getElementById('btn-entrar');
+  btn.innerText = "Validando..."; 
+  btn.disabled = true;
+
+  try {
+    const response = await fetch(`${SCRIPT_URL}?acao=login&telefone=${val}`);
+    const dados = await response.json();
+    
+    if (dados.link) {
+      // Montagem da mensagem personalizada
+      const mensagemTexto = 
+        `Olá! Quero acessar o painel.\n\n` +
+        `Link de Acesso: ${dados.link}\n\n` +
+        `--- 📢 INFORMAÇÕES TNP ---\n` +
+        `TNP_Todos Nós Podemos\n` +
+        `Quem 👇 compra\n` +
+        `Cashback 💰\n` +
+        `Quem 👇 indica\n` +
+        `Comissão 💸\n` +
+        `Quem 👇 Vende\n` +
+        `Clientes 🚀\n\n` +
+        `Acesse o link e veja as lojas patrocinadoras da sua cidade:\n` +
+        `https://app.todosnospodemos.com.br/cadastro/125752`;
+
+      const msgEncoded = window.encodeURIComponent(mensagemTexto);
+      
+      // REDIRECIONAMENTO PARA O SEU NÚMERO FIXO: 31996645814
+      const waUrl = `https://api.whatsapp.com/send?phone=5531996645814&text=${msgEncoded}`;
+      
+      const novaAba = window.open(waUrl, '_blank');
+      if (!novaAba || novaAba.closed || typeof novaAba.closed == 'undefined') {
+          window.top.location.href = waUrl;
+      }
+    }
+  } catch (error) { 
+    alert("Erro de conexão. Verifique sua internet."); 
+  } finally { 
+    btn.innerText = "Entrar com WhatsApp"; 
+    btn.disabled = false; 
+  }
+}
 
   // No seu arquivo HTML, dentro da tag <script>
 
 function verificarURL() {
-  // Altere esta linha:
-  // const params = new URLSearchParams(window.location.search);
-  
-  // Para esta (lendo a partir do #):
-  const params = new URLSearchParams(window.location.hash.substring(1)); // substring(1) remove o '#' inicial
+  // Lendo os parâmetros a partir do '#' (fragmento da URL)
+  const params = new URLSearchParams(window.location.hash.substring(1)); 
 
   const tel = params.get('tel');
   const token = params.get('token');
 
   if (tel && token) {
-    // O resto da função continua igual
     fetch(`${SCRIPT_URL}?acao=validar&telefone=${tel}&token=${token}`)
       .then(r => r.text())
       .then(res => {
         if (res.includes("AUTORIZADO")) {
-          const expira = new Date().getTime() + (24 * 60 * 60 * 1000);
-          localStorage.setItem('sessao_motorista', JSON.stringify({status: 'ok', expira: expira}));
+          // --- CONFIGURAÇÃO DE 6 MESES ---
+          // 180 dias * 24 horas * 60 min * 60 seg * 1000 ms
+          const tempoSessao = 180 * 24 * 60 * 60 * 1000;
+          const expiraSessao = new Date().getTime() + tempoSessao;
+
+          // Salva no navegador do motorista por 6 meses
+          localStorage.setItem('sessao_motorista', JSON.stringify({
+            status: 'ok', 
+            expira: expiraSessao 
+          }));
+
           liberarSite();
           
-          // Opcional, mas recomendado: Limpa a URL para não deixar o token visível
+          // Limpa a URL para o motorista não ver o token e evita re-validação ao atualizar
           window.history.replaceState({}, document.title, window.location.pathname); 
         } else {
-          // Opcional: Avisar o usuário que o link é inválido ou expirou
           alert("Link de acesso inválido ou expirado!");
         }
+      })
+      .catch(error => {
+        console.error("Erro na validação:", error);
+        alert("Erro ao validar acesso. Tente novamente.");
       });
   }
 }
 
-
-  function liberarSite() {
-    document.getElementById('area-login').style.display = 'none';
-    document.getElementById('conteudo-privado').style.display = 'block';
-  }
+function liberarSite() {
+  document.getElementById('area-login').style.display = 'none';
+  document.getElementById('conteudo-privado').style.display = 'block';
+}
 </script>
 
 </body>
