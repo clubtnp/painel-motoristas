@@ -278,14 +278,45 @@
       <div id="carrossel-instagram" class="carrossel-container"></div>
       <div id="dots-instagram" class="carrossel-dots"></div>
     </div>
-  </div>
 
+    <!-- NOVO QUADRO "VOLTAR AO INÍCIO" COLADO AQUI -->
+    <div class="box" style="text-align: center;">
+        <p style="margin-bottom: 15px; font-size: 14px; opacity: 0.8;">Deseja retornar ao mapa principal?</p>
+        <a href="../index.html" style="text-decoration: none;">
+            <button style="
+                background: #22c55e; 
+                color: #020617; 
+                font-weight: bold; 
+                border-radius: 12px; 
+                border: none; 
+                padding: 16px; 
+                width: 100%; 
+                cursor: pointer; 
+                display: flex; 
+                align-items: center; 
+                justify-content: center; 
+                gap: 10px;
+                font-size: 16px;
+                box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+                transition: transform 0.2s;
+            " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+                <span style="font-size: 20px;">⬅</span> Voltar ao Início
+            </button>
+        </a>
+        <div style="margin-top: 15px; font-size: 10px; opacity: 0.5;">
+            Plataforma Nacional • 2026
+        </div>
+    </div>
+
+  </div> <!-- Fim do container principal -->
+
+  <!-- O resto do código (modal, script) continua aqui embaixo, intacto -->
   <div class="modal-overlay" id="modal-overlay">
     <div class="modal-content" id="modal-content"></div>
   </div>
   
-
   <script>
+
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzIsmfQTV5OO1ubdGsTeCPHYSd5JzIp1NVIVvBlPIHRXkSC_FpO_gx-nuu05cpTXdIC/exec";
     const ADMIN_WHATSAPP = "+5511999999999"; 
     const FORM_URL_CADASTRO_ARVORE = "https://docs.google.com/forms/d/e/1FAIpQLSekq7ntpdLLrjK0tLy8Sm0DQ9uY_HRSxQPTQwJ68xuhaHHYfw/viewform";
