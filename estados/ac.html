@@ -272,17 +272,23 @@
       <button class="btn-secondary" id="btnCadastrarComercio">Cadastrar grupo comercial</button>
     </div>
 
-       <!-- Quadro do Instagram -->
     <div class="box">
       <h1>Instagram</h1>
       <p>Nossas Redes Oficiais</p>
       <div id="carrossel-instagram" class="carrossel-container"></div>
       <div id="dots-instagram" class="carrossel-dots"></div>
     </div>
+  </div>
 
-    <!-- BOTÃO "VOLTAR" AGORA É UM NOVO QUADRO DENTRO DO CONTAINER -->
-    <div class="box" style="text-align: center;">
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal-content" id="modal-content"></div>
+  </div>
+  <div style="clear: both; width: 100%; display: flex; justify-content: center; margin-top: 30px; padding-bottom: 50px;">
+    
+    <div class="box" style="width: 100%; max-width: 400px; text-align: center; margin: 0 auto;">
+        
         <p style="margin-bottom: 15px; font-size: 14px; opacity: 0.8;">Deseja retornar ao mapa principal?</p>
+        
         <a href="../index.html" style="text-decoration: none;">
             <button style="
                 background: #22c55e; 
@@ -304,17 +310,14 @@
                 <span style="font-size: 20px;">⬅</span> Voltar ao Início
             </button>
         </a>
+        
         <div style="margin-top: 15px; font-size: 10px; opacity: 0.5;">
             Plataforma Nacional • 2026
         </div>
     </div>
 
-  </div> <!-- FIM DO CONTAINER PRINCIPAL -->
+</div>
 
-  <!-- O modal e o script continuam aqui fora, o que está correto -->
-  <div class="modal-overlay" id="modal-overlay">
-    <div class="modal-content" id="modal-content"></div>
-  </div>
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzIsmfQTV5OO1ubdGsTeCPHYSd5JzIp1NVIVvBlPIHRXkSC_FpO_gx-nuu05cpTXdIC/exec";
     const ADMIN_WHATSAPP = "+5511999999999"; 
