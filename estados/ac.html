@@ -602,25 +602,6 @@ function fecharModal() {
     document.body.style.overflow = 'auto'; // DEVOLVE O SCROLL (O segredo está aqui!)
   }
 }
-function mudarSlide(tipo, direcao, total) {
-  let novoIndex = carrosselState[tipo].index + direcao;
-  if (novoIndex >= total) novoIndex = 0;
-  if (novoIndex < 0) novoIndex = total - 1;
-  irParaSlide(tipo, novoIndex, total);
-}
-
-function irParaSlide(tipo, index, total) {
-  carrosselState[tipo].index = index;
-  const container = document.getElementById(`carrossel-${tipo}`);
-  const dots = document.getElementById(`dots-${tipo}`);
-  
-  const itens = container.querySelectorAll('.carrossel-item');
-  itens.forEach((el, i) => el.style.display = i === index ? 'flex' : 'none');
-  
-  const todosDots = dots.querySelectorAll('.num-page');
-  todosDots.forEach((d, i) => d.classList.toggle('active', i === index));
-}
-
 /* --- FUNÇÃO DA ÁRVORE ATUALIZADA --- */
 
 function renderizarArvorePorNiveis(arvore) {
