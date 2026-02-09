@@ -661,7 +661,6 @@ function atualizarFiltrosCategorias(dados) {
     const select = document.getElementById(item.id);
     if (!select) return;
 
-    // Extrai categorias únicas e organiza em ordem alfabética
     const categorias = [...new Set(item.lista.map(i => i.categoria))]
       .filter(c => c && c.trim() !== "")
       .sort((a, b) => a.localeCompare(b, 'pt-BR'));
@@ -674,18 +673,19 @@ function atualizarFiltrosCategorias(dados) {
       select.appendChild(option);
     });
 
-    // Filtra e renderiza o carrossel novamente ao mudar a seleção
+    // Resetar o select para a primeira opção ao fazer uma nova busca
+    select.selectedIndex = 0;
+
     select.onchange = () => {
       const selecionada = select.value;
       const filtrados = selecionada 
         ? item.lista.filter(i => i.categoria === selecionada)
         : item.lista;
-      
-      // Chama a sua função de renderização original
       renderizarCarrossel(filtrados, item.container, item.dots);
     };
   });
 }
+
 
   </script>
 </body>
