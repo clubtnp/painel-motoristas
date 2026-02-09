@@ -396,63 +396,67 @@
       } catch (e) { document.getElementById('status').innerText = "Erro ao carregar"; }
     });
 
-    function renderizarCarrossel(tipo, itens) {
-      const container = document.getElementById(`carrossel-${tipo}`);
-      const dotsContainer = document.getElementById(`dots-${tipo}`);
+    function renderizarCarrossel(lista, containerId, dotsId) {
+  const container = document.getElementById(containerId);
+  const dots = document.getElementById(dotsId);
+  
+  // CORREÇÃO: Limpa completamente o container e os pontos antes de renderizar
+  container.innerHTML = ''; 
+  dots.innerHTML = '';
+
+  if (!lista || lista.length === 0) {
+    container.innerHTML = '<p class="carrossel-vazio">Nenhum item encontrado nesta categoria.</p>';
+    return;
+  }
+
+  // Cria o wrapper interno se não existir (necessário para a sua estrutura de carrossel)
+  const wrapper = document.createElement('div');
+  wrapper.className = 'carrossel-wrapper';
+  container.appendChild(wrapper);
+
+  lista.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'carrossel-item';
+    // Garante que apenas o primeiro item filtrado apareça
+    div.style.display = idx === 0 ? 'flex' : 'none';
+    div.style.opacity = idx === 0 ? '1' : '0';
+    div.style.transform = 'translateX(0)';
+
+    // Aqui montamos o conteúdo do item (mantendo sua estrutura original)
+    div.innerHTML = `
+      <img src="${item.imagem || 'https://via.placeholder.com/150'}" class="grupo-imagem" onerror="this.src='https://via.placeholder.com/150'">
+      <div class="grupo-info">
+        <div class="grupo-nome" onclick="abrirModal('${item.nome}', '${item.descricao.replace(/'/g, "\\'" )}')">${item.nome}</div>
+        <div class="grupo-categoria">${item.categoria || 'Geral'}</div>
+        <div class="grupo-botao">
+          <button onclick="window.open('${item.link}', '_blank')">${item.textoBotao || 'Entrar no Grupo'}</button>
+        </div>
+        <button class="btn-ver-mais" onclick="abrirModal('${item.nome}', '${item.descricao.replace(/'/g, "\\'")}')">Ver descrição</button>
+      </div>
+    `;
+    wrapper.appendChild(div);
+
+    // Cria a paginação numérica apenas para os itens filtrados
+    const dot = document.createElement('div');
+    dot.className = `num-page ${idx === 0 ? 'active' : ''}`;
+    dot.textContent = idx + 1;
+    dot.onclick = () => {
+      const todosItens = wrapper.querySelectorAll('.carrossel-item');
+      const todosDots = dots.querySelectorAll('.num-page');
       
-      if (!itens || itens.length === 0) {
-        container.innerHTML = '<div class="carrossel-vazio">Nenhum item cadastrado</div>';
-        dotsContainer.innerHTML = '';
-        return;
-      }
-
-      carrosselState[tipo].total = itens.length;
-      carrosselState[tipo].index = 0;
-
-      const wrapper = document.createElement('div');
-      wrapper.className = 'carrossel-wrapper';
-      wrapper.id = `wrapper-${tipo}`;
-
-itens.forEach((item, idx) => {
-        const div = document.createElement('div');
-        div.className = 'carrossel-item';
-        div.style.transform = `translateX(${idx * 100}%)`;
-        
-        const imgUrl = item.imagem || 'https://cdn-icons-png.flaticon.com/512/174/174855.png';
-        const nomeItem = item.nome || (tipo === 'instagram' ? 'Siga no Instagram' : 'Sem nome');
-        
-        // CORREÇÃO: Definindo o texto do botão com uma proteção (fallback)
-        // Se item.textoBotao vier vazio da planilha, ele usa o padrão definido abaixo
-        let textoAcao = item.textoBotao; 
-        
-        if (!textoAcao || textoAcao.trim() === "") {
-          textoAcao = (tipo === 'instagram' ? 'Ver Instagram' : 'Entrar no grupo');
-        }
-
-        div.innerHTML = `
-          <img class="grupo-imagem" src="${imgUrl}">
-          <div class="grupo-info">
-            <div class="grupo-nome">${nomeItem}</div>
-            <div class="grupo-categoria">${item.categoria || ''}</div>
-            <button class="btn-ver-mais" onclick='abrirModalGrupo(${JSON.stringify(item)})'>Ver descrição</button>
-            <button class="grupo-botao" onclick="window.open('${item.link}', '_blank')">${textoAcao}</button>
-          </div>
-        `;
-        wrapper.appendChild(div);
+      todosItens.forEach((c, i) => {
+        c.style.display = i === idx ? 'flex' : 'none';
+        c.style.opacity = i === idx ? '1' : '0';
       });
+      
+      todosDots.forEach((d, i) => {
+        d.classList.toggle('active', i === idx);
+      });
+    };
+    dots.appendChild(dot);
+  });
+}
 
-      container.innerHTML = '';
-      container.appendChild(wrapper);
-
-      if (itens.length > 1) {
-        const prev = document.createElement('button');
-        prev.className = 'carrossel-nav prev'; prev.innerText = '‹';
-        prev.onclick = () => mudarCarrossel(tipo, -1);
-        const next = document.createElement('button');
-        next.className = 'carrossel-nav next'; next.innerText = '›';
-        next.onclick = () => mudarCarrossel(tipo, 1);
-        container.appendChild(prev); container.appendChild(next);
-      }
 
       dotsContainer.innerHTML = '';
       // Chama a função que desenha os números
@@ -693,6 +697,6 @@ function atualizarFiltrosCategorias(dados) {
 
   </script>
 </body>
-</html
+</html>
 
 
