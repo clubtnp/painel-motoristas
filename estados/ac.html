@@ -36,23 +36,23 @@
       box-sizing: border-box;
       position: relative;
     }
-	  
-/* Estilo para os filtros de categoria */
-.filtro-categoria {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 8px;
-  background: #1e293b;
-  color: #fff;
-  border: 1px solid #334155;
-  font-size: 14px;
-  outline: none;
-}
-	  
-.filtro-categoria:focus {
-  border-color: #22c55e;
-}
+		  
+	/* Estilo para os filtros de categoria */
+	.filtro-categoria {
+	  width: 100%;
+	  padding: 10px;
+	  margin-top: 10px;
+	  border-radius: 8px;
+	  background: #1e293b;
+	  color: #fff;
+	  border: 1px solid #334155;
+	  font-size: 14px;
+	  outline: none;
+	}
+		  
+	.filtro-categoria:focus {
+	  border-color: #22c55e;
+	}
 
     
     #wrapper-arvore { 
@@ -250,7 +250,7 @@
     .modal-descricao-scroll::-webkit-scrollbar-thumb:hover { 
       background: #16a34a; 
     }
-	
+		
   </style>
 </head>
 <body>
@@ -318,36 +318,27 @@
                 color: #020617; 
                 font-weight: bold; 
                 border-radius: 12px; 
-                border: none; 
-                padding: 16px; 
-                width: 100%; 
-                cursor: pointer; 
-                display: flex; 
-                align-items: center; 
-                justify-content: center; 
-                gap: 10px;
+                padding: 14px 24px; 
+                width: 100%;
+                border: none;
+                cursor: pointer;
+                transition: opacity 0.2s;
                 font-size: 16px;
-                box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
-                transition: transform 0.2s;
-            " onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
-                <span style="font-size: 20px;">⬅</span> Voltar ao Início
+            ">
+                Voltar ao Mapa Principal
             </button>
         </a>
-        <div style="margin-top: 15px; font-size: 10px; opacity: 0.5;">
-            Plataforma Nacional • 2026
-        </div>
     </div>
 
-  </div> <!-- Fim do container principal -->
-
-  <!-- O resto do código (modal, script) continua aqui embaixo, intacto -->
-  <div class="modal-overlay" id="modal-overlay">
-    <div class="modal-content" id="modal-content"></div>
   </div>
-  
-  <script>
 
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzIsmfQTV5OO1ubdGsTeCPHYSd5JzIp1NVIVvBlPIHRXkSC_FpO_gx-nuu05cpTXdIC/exec";
+  <!-- Modal -->
+  <div id="modal-overlay" class="modal-overlay">
+    <div id="modal-content" class="modal-content"></div>
+  </div>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz_V7fMv7v6PzXv7v6PzXv7v6PzXv7v6PzXv7v6PzXv7v6PzXv7v6PzXv7v6PzXv7v6/exec";
     const ADMIN_WHATSAPP = "+5511999999999"; 
     const FORM_URL_CADASTRO_ARVORE = "https://docs.google.com/forms/d/e/1FAIpQLSekq7ntpdLLrjK0tLy8Sm0DQ9uY_HRSxQPTQwJ68xuhaHHYfw/viewform";
 
@@ -356,6 +347,9 @@
       comercio: { index: 0, total: 0 },
       instagram: { index: 0, total: 0 }
     };
+
+    // Variável global para armazenar os dados carregados e permitir filtragem
+    let dadosAtuais = null;
 
     window.onload = carregarCidades;
 
@@ -383,13 +377,13 @@
       try {
         const response = await fetch(`${SCRIPT_URL}?estado=AC&cidade=${encodeURIComponent(cidade)}`);
         const data = await response.json();
-		
-		
+        dadosAtuais = data; // Salva os dados globalmente
+			
         atualizarFiltrosCategorias(data);
         renderizarArvorePorNiveis(data.arvore);
         renderizarCarrossel('motoristas', data.gruposMotoristas);
         renderizarCarrossel('comercio', data.gruposComercio);
-        renderizarCarrossel('instagram', data.instagram); // Instagram agora é carrossel!
+        renderizarCarrossel('instagram', data.instagram);
         
         document.getElementById('status').innerText = "Sucesso!";
         setTimeout(() => document.getElementById('status').style.display = "none", 2000);
@@ -413,7 +407,7 @@
       wrapper.className = 'carrossel-wrapper';
       wrapper.id = `wrapper-${tipo}`;
 
-itens.forEach((item, idx) => {
+      itens.forEach((item, idx) => {
         const div = document.createElement('div');
         div.className = 'carrossel-item';
         div.style.transform = `translateX(${idx * 100}%)`;
@@ -421,10 +415,7 @@ itens.forEach((item, idx) => {
         const imgUrl = item.imagem || 'https://cdn-icons-png.flaticon.com/512/174/174855.png';
         const nomeItem = item.nome || (tipo === 'instagram' ? 'Siga no Instagram' : 'Sem nome');
         
-        // CORREÇÃO: Definindo o texto do botão com uma proteção (fallback)
-        // Se item.textoBotao vier vazio da planilha, ele usa o padrão definido abaixo
         let textoAcao = item.textoBotao; 
-        
         if (!textoAcao || textoAcao.trim() === "") {
           textoAcao = (tipo === 'instagram' ? 'Ver Instagram' : 'Entrar no grupo');
         }
@@ -448,248 +439,191 @@ itens.forEach((item, idx) => {
         const prev = document.createElement('button');
         prev.className = 'carrossel-nav prev'; prev.innerText = '‹';
         prev.onclick = () => mudarCarrossel(tipo, -1);
+        container.appendChild(prev);
+
         const next = document.createElement('button');
         next.className = 'carrossel-nav next'; next.innerText = '›';
         next.onclick = () => mudarCarrossel(tipo, 1);
-        container.appendChild(prev); container.appendChild(next);
+        container.appendChild(next);
+      }
+      renderizarPaginacaoNumerica(tipo);
+    }
+
+    function mudarCarrossel(tipo, direcao) {
+      const state = carrosselState[tipo];
+      let novoIndex = state.index + direcao;
+      if (novoIndex < 0) novoIndex = state.total - 1;
+      if (novoIndex >= state.total) novoIndex = 0;
+      irParaCarrossel(tipo, novoIndex);
+    }
+
+    function irParaCarrossel(tipo, index) {
+      carrosselState[tipo].index = index;
+      const wrapper = document.getElementById(`wrapper-${tipo}`);
+      if (wrapper) {
+        const itens = wrapper.querySelectorAll('.carrossel-item');
+        itens.forEach((item, i) => {
+          item.style.transform = `translateX(${(i - index) * 100}%)`;
+        });
+      }
+      renderizarPaginacaoNumerica(tipo);
+    }
+
+    function renderizarPaginacaoNumerica(tipo) {
+      const dotsContainer = document.getElementById(`dots-${tipo}`);
+      const total = carrosselState[tipo].total;
+      const atual = carrosselState[tipo].index;
+      dotsContainer.innerHTML = '';
+      if (total <= 1) return;
+
+      const paginas = [];
+      paginas.push(0); 
+      if (atual > 2) paginas.push('...');
+      
+      for (let i = Math.max(1, atual - 1); i <= Math.min(total - 2, atual + 1); i++) {
+        if (!paginas.includes(i)) paginas.push(i);
       }
 
-      dotsContainer.innerHTML = '';
-      // Chama a função que desenha os números
-renderizarPaginacaoNumerica(tipo);
-}
+      if (atual < total - 3) paginas.push('...');
+      if (total > 1 && !paginas.includes(total - 1)) paginas.push(total - 1);
 
-    function mudarCarrossel(tipo, dir) {
-      let newIdx = carrosselState[tipo].index + dir;
-      if (newIdx >= 0 && newIdx < carrosselState[tipo].total) irParaCarrossel(tipo, newIdx);
+      paginas.forEach(p => {
+        const btn = document.createElement('div');
+        if (p === '...') {
+          btn.className = 'num-page dots';
+          btn.innerText = '...';
+        } else {
+          btn.className = `num-page ${p === atual ? 'active' : ''}`;
+          btn.innerText = p + 1;
+          btn.onclick = () => irParaCarrossel(tipo, p);
+        }
+        dotsContainer.appendChild(btn);
+      });
     }
 
-    function irParaCarrossel(tipo, idx) {
-  carrosselState[tipo].index = idx;
-  const items = document.getElementById(`wrapper-${tipo}`).querySelectorAll('.carrossel-item');
-  items.forEach((item, i) => {
-    item.style.transform = `translateX(${(i - idx) * 100}%)`;
-  });
-  // ISSO É O MAIS IMPORTANTE:
-  renderizarPaginacaoNumerica(tipo); 
-}
+    function atualizarFiltrosCategorias(dados) {
+      const mapeamento = [
+        { id: 'filtro-motoristas', tipo: 'motoristas', lista: dados.gruposMotoristas, label: 'Motoristas' },
+        { id: 'filtro-comercio', tipo: 'comercio', lista: dados.gruposComercio, label: 'Comércio' },
+        { id: 'filtro-instagram', tipo: 'instagram', lista: dados.instagram, label: 'Instagram' }
+      ];
 
-function abrirModalMotorista(m) {
-  const modal = document.getElementById('modal-overlay');
-  const content = document.getElementById('modal-content');
+      mapeamento.forEach(item => {
+        const select = document.getElementById(item.id);
+        if (!select) return;
 
-  const nome = m.nome || 'Motorista';
+        const categorias = [...new Set(item.lista.map(i => i.categoria))]
+          .filter(c => c && c.trim() !== "")
+          .sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
-  let numeroLimpo = String(m.icone || '').replace(/\D/g, '');
-  const podeMostrar = m.telefoneVisivel === true && numeroLimpo.length >= 10;
+        select.innerHTML = `<option value="">Todas as Categorias (${item.label})</option>`;
+        categorias.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat;
+          option.textContent = cat;
+          select.appendChild(option);
+        });
 
-  let corpo = '';
-
-  if (podeMostrar) {
-    const ddd = numeroLimpo.substring(0, 2);
-    const ini = numeroLimpo.substring(2, 7);
-    const fim = numeroLimpo.substring(7);
-    const numeroFormatado = `(${ddd}) ${ini}-${fim}`;
-
-    corpo = `
-      <div style="font-size:22px;font-weight:bold;color:#22c55e;">${nome}</div>
-      <p style="font-size:13px;color:#94a3b8;margin:6px 0 18px 0;">Motorista da rede</p>
-
-      <div style="font-size:20px;font-weight:bold;margin-bottom:20px;">
-        📞 ${numeroFormatado}
-      </div>
-
-      <button class="grupo-botao"
-        onclick="window.open('https://wa.me/55${numeroLimpo}','_blank')"
-        style="cursor:pointer;background:#22c55e;color:#020617;width:100%;padding:14px;border-radius:10px;">
-        Chamar no WhatsApp
-      </button>
-    `;
-  } else {
-    corpo = `
-      <div style="font-size:22px;font-weight:bold;">${nome}</div>
-      <p style="font-size:13px;color:#94a3b8;margin:10px 0 20px 0;">Motorista da rede</p>
-
-      <div style="background:#0f172a;padding:16px;border-radius:10px;border:1px solid #334155;">
-        <strong style="color:#ef4444;">Número privado</strong>
-        <p style="font-size:12px;color:#94a3b8;margin-top:6px;">
-          Este motorista optou por não exibir o contato.
-        </p>
-      </div>
-    `;
-  }
-
-  content.innerHTML = `
-    ${corpo}
-    <button class="btn-secondary"
-      onclick="fecharModal()"
-      style="margin-top:16px;width:100%;padding:14px;">
-      Voltar
-    </button>
-  `;
-
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-
-  setTimeout(() => {
-    content.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 100);
-}
-
-    /* --- FUNÇÕES DO MODAL UNIFICADAS E CORRIGIDAS --- */
-
-function abrirModalGrupo(item) {
-  const modal = document.getElementById('modal-overlay');
-  const content = document.getElementById('modal-content');
-  
-  content.innerHTML = `
-    <h2 style="margin: 0 0 10px 0; color: #22c55e; font-size: 20px; flex-shrink: 0;">Descrição</h2>
-    <div class="modal-descricao-scroll">
-        <p>${item.descricao || 'Sem descrição disponível.'}</p>
-    </div>
-    <button class="btn-secondary" onclick="fecharModal()" style="cursor: pointer; width: 100%; flex-shrink: 0; margin-top: 10px; padding: 14px;">Fechar</button>
-  `;
-
-  modal.style.display = 'flex';
-  document.body.style.overflow = 'hidden'; // Trava o scroll do fundo
-
-  // Garante que o modal apareça no centro da visão do usuário no Google Sites
-  setTimeout(() => {
-    content.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 100);
-}
-
-// FUNÇÃO ÚNICA PARA FECHAR (Certifique-se de que não existam outras abaixo desta)
-function fecharModal() {
-  const modal = document.getElementById('modal-overlay');
-  if (modal) {
-    modal.style.display = 'none';
-    document.body.style.overflow = 'auto'; // DEVOLVE O SCROLL (O segredo está aqui!)
-  }
-}
-
-/* --- FUNÇÃO DA ÁRVORE ATUALIZADA --- */
-
-function renderizarArvorePorNiveis(arvore) {
-  const wrapper = document.getElementById('wrapper-arvore');
-  wrapper.innerHTML = "";
-
-  if (!arvore || arvore.length === 0) {
-    wrapper.innerHTML = "<p style='opacity:0.5;'>Nenhum motorista.</p>";
-    return;
-  }
-
-  arvore.forEach((nivelLista, indexNivel) => {
-    const divNivel = document.createElement('div');
-    divNivel.className = 'nivel-arvore';
-
-    const label = document.createElement('div');
-    label.className = 'label-nivel';
-    label.innerText = `Nível ${indexNivel + 1}`;
-    divNivel.appendChild(label);
-
-    nivelLista.forEach(m => {
-  const item = document.createElement('div');
-  item.className = 'item-motorista';
-  item.innerHTML = `<span>${(m.nome || "Motorista").split(" ")[0]}</span>`;
-
-  item.onclick = () => abrirModalMotorista(m);
-
-  divNivel.appendChild(item);
-});
-
-    const labelFim = label.cloneNode(true);
-    divNivel.appendChild(labelFim);
-
-    wrapper.appendChild(divNivel);
-  });
-}
-
-
-function renderizarPaginacaoNumerica(tipo) {
-  const dotsContainer = document.getElementById(`dots-${tipo}`);
-  const total = carrosselState[tipo].total;
-  const atual = carrosselState[tipo].index;
-  dotsContainer.innerHTML = '';
-  if (total <= 1) return;
-
-  const paginas = [];
-  // Lógica para mostrar: Primeiro, Anterior, Atual, Próximo, Último
-  paginas.push(0); // Sempre mostra o 1º
-  if (atual > 2) paginas.push('...');
-  
-  for (let i = Math.max(1, atual - 1); i <= Math.min(total - 2, atual + 1); i++) {
-    if (!paginas.includes(i)) paginas.push(i);
-  }
-
-  if (atual < total - 3) paginas.push('...');
-  if (total > 1 && !paginas.includes(total - 1)) paginas.push(total - 1); // Sempre mostra o Último
-
-  paginas.forEach(p => {
-    const btn = document.createElement('div');
-    if (p === '...') {
-      btn.className = 'num-page dots';
-      btn.innerText = '...';
-    } else {
-      btn.className = `num-page ${p === atual ? 'active' : ''}`;
-      btn.innerText = p + 1;
-      btn.onclick = () => irParaCarrossel(tipo, p);
+        select.onchange = () => {
+          const selecionada = select.value;
+          const listaOriginal = item.tipo === 'motoristas' ? dadosAtuais.gruposMotoristas : 
+                                item.tipo === 'comercio' ? dadosAtuais.gruposComercio : 
+                                dadosAtuais.instagram;
+          
+          const filtrados = selecionada 
+            ? listaOriginal.filter(i => i.categoria === selecionada)
+            : listaOriginal;
+          
+          renderizarCarrossel(item.tipo, filtrados);
+        };
+      });
     }
-    dotsContainer.appendChild(btn);
-  });
-}
-/* --- ACESSIBILIDADE E FECHAMENTO (ESC E CLIQUE FORA) --- */
 
-// 1. Fecha o modal ao pressionar a tecla ESC
-document.addEventListener('keydown', function(event) {
-  if (event.key === 'Escape') {
-    fecharModal();
-  }
-});
+    function renderizarArvorePorNiveis(arvore) {
+      const wrapper = document.getElementById('wrapper-arvore');
+      wrapper.innerHTML = "";
+      if (!arvore || arvore.length === 0) {
+        wrapper.innerHTML = "<p style='opacity:0.5;'>Nenhum motorista.</p>";
+        return;
+      }
+      arvore.forEach((nivelLista, indexNivel) => {
+        const divNivel = document.createElement('div');
+        divNivel.className = 'nivel-arvore';
+        const label = document.createElement('div');
+        label.className = 'label-nivel';
+        label.innerText = `Nível ${indexNivel + 1}`;
+        divNivel.appendChild(label);
+        nivelLista.forEach(m => {
+          const item = document.createElement('div');
+          item.className = 'item-motorista';
+          item.innerHTML = `<span>${(m.nome || "Motorista").split(" ")[0]}</span>`;
+          item.onclick = () => abrirModalMotorista(m);
+          divNivel.appendChild(item);
+        });
+        const labelFim = label.cloneNode(true);
+        divNivel.appendChild(labelFim);
+        wrapper.appendChild(divNivel);
+      });
+    }
 
-// 2. Fecha o modal ao clicar na parte escura (fora da caixa do modal)
-document.getElementById('modal-overlay').addEventListener('click', function(event) {
-  // Se o clique foi no fundo (overlay) e não dentro da caixa (content), fecha
-  if (event.target.id === 'modal-overlay') {
-    fecharModal();
-  }
-});
-function atualizarFiltrosCategorias(dados) {
-  const mapeamento = [
-    { id: 'filtro-motoristas', lista: dados.gruposMotoristas, container: 'carrossel-motoristas', dots: 'dots-motoristas', label: 'Motoristas' },
-    { id: 'filtro-comercio', lista: dados.gruposComercio, container: 'carrossel-comercio', dots: 'dots-comercio', label: 'Comércio' },
-    { id: 'filtro-instagram', lista: dados.instagram, container: 'carrossel-instagram', dots: 'dots-instagram', label: 'Instagram' }
-  ];
+    function abrirModalGrupo(item) {
+      const modal = document.getElementById('modal-overlay');
+      const content = document.getElementById('modal-content');
+      content.innerHTML = `
+        <h2 style="margin: 0 0 10px 0; color: #22c55e; font-size: 20px; flex-shrink: 0;">Descrição</h2>
+        <div class="modal-descricao-scroll">
+            <p>${item.descricao || 'Sem descrição disponível.'}</p>
+        </div>
+        <button class="btn-secondary" onclick="fecharModal()" style="cursor: pointer; width: 100%; flex-shrink: 0; margin-top: 10px; padding: 14px;">Fechar</button>
+      `;
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => { content.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+    }
 
-  mapeamento.forEach(item => {
-    const select = document.getElementById(item.id);
-    if (!select) return;
+    function abrirModalMotorista(m) {
+      const modal = document.getElementById('modal-overlay');
+      const content = document.getElementById('modal-content');
+      const nome = m.nome || "Motorista";
+      const numero = m.numero || "";
+      const numeroLimpo = numero.replace(/\D/g, '');
+      let corpo = "";
+      if (numeroLimpo) {
+        corpo = `
+          <div style="font-size:22px;font-weight:bold;">${nome}</div>
+          <p style="font-size:13px;color:#94a3b8;margin:10px 0 20px 0;">Motorista da rede</p>
+          <button class="grupo-botao"
+            onclick="window.open('https://wa.me/55${numeroLimpo}','_blank')"
+            style="cursor:pointer;background:#22c55e;color:#020617;width:100%;padding:14px;border-radius:10px;">
+            Chamar no WhatsApp
+          </button>
+        `;
+      } else {
+        corpo = `
+          <div style="font-size:22px;font-weight:bold;">${nome}</div>
+          <p style="font-size:13px;color:#94a3b8;margin:10px 0 20px 0;">Motorista da rede</p>
+          <div style="background:#0f172a;padding:16px;border-radius:10px;border:1px solid #334155;">
+            <strong style="color:#ef4444;">Número privado</strong>
+            <p style="font-size:12px;color:#94a3b8;margin-top:6px;">Este motorista optou por não exibir o contato.</p>
+          </div>
+        `;
+      }
+      content.innerHTML = `${corpo}<button class="btn-secondary" onclick="fecharModal()" style="margin-top:16px;width:100%;padding:14px;">Voltar</button>`;
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => { content.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+    }
 
-    // Extrai categorias únicas e organiza em ordem alfabética
-    const categorias = [...new Set(item.lista.map(i => i.categoria))]
-      .filter(c => c && c.trim() !== "")
-      .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    function fecharModal() {
+      const modal = document.getElementById('modal-overlay');
+      if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
+    }
 
-    select.innerHTML = `<option value="">Todas as Categorias (${item.label})</option>`;
-    categorias.forEach(cat => {
-      const option = document.createElement('option');
-      option.value = cat;
-      option.textContent = cat;
-      select.appendChild(option);
-    });
-
-    // Filtra e renderiza o carrossel novamente ao mudar a seleção
-    select.onchange = () => {
-      const selecionada = select.value;
-      const filtrados = selecionada 
-        ? item.lista.filter(i => i.categoria === selecionada)
-        : item.lista;
-      
-      // Chama a sua função de renderização original
-      renderizarCarrossel(filtrados, item.container, item.dots);
-    };
-  });
-}
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fecharModal(); });
+    document.getElementById('modal-overlay').addEventListener('click', (e) => { if (e.target.id === 'modal-overlay') fecharModal(); });
 
   </script>
 </body>
