@@ -36,6 +36,24 @@
       box-sizing: border-box;
       position: relative;
     }
+	  
+/* Estilo para os filtros de categoria */
+.filtro-categoria {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 8px;
+  background: #1e293b;
+  color: #fff;
+  border: 1px solid #334155;
+  font-size: 14px;
+  outline: none;
+}
+	  
+.filtro-categoria:focus {
+  border-color: #22c55e;
+}
+
     
     #wrapper-arvore { 
       display: flex; 
@@ -262,6 +280,10 @@
       <h1>Grupo de Motoristas</h1>
       <div id="carrossel-motoristas" class="carrossel-container"></div>
       <div id="dots-motoristas" class="carrossel-dots"></div>
+      <!-- SELETOR DE CATEGORIA MOTORISTAS -->
+      <select id="filtro-motoristas" class="filtro-categoria">
+        <option value="">Filtrar por Categoria (Motoristas )</option>
+      </select>
       <button class="btn-secondary" id="btnCadastrarGrupo">Cadastrar meu grupo</button>
     </div>
 
@@ -269,6 +291,10 @@
       <h1>Grupos de Comércios</h1>
       <div id="carrossel-comercio" class="carrossel-container"></div>
       <div id="dots-comercio" class="carrossel-dots"></div>
+      <!-- SELETOR DE CATEGORIA COMÉRCIO -->
+      <select id="filtro-comercio" class="filtro-categoria">
+        <option value="">Filtrar por Categoria (Comércio)</option>
+      </select>
       <button class="btn-secondary" id="btnCadastrarComercio">Cadastrar grupo comercial</button>
     </div>
 
@@ -277,6 +303,10 @@
       <p>Nossas Redes Oficiais</p>
       <div id="carrossel-instagram" class="carrossel-container"></div>
       <div id="dots-instagram" class="carrossel-dots"></div>
+      <!-- SELETOR DE CATEGORIA INSTAGRAM -->
+      <select id="filtro-instagram" class="filtro-categoria">
+        <option value="">Filtrar por Categoria (Instagram)</option>
+      </select>
     </div>
 
     <!-- NOVO QUADRO "VOLTAR AO INÍCIO" COLADO AQUI -->
@@ -353,7 +383,9 @@
       try {
         const response = await fetch(`${SCRIPT_URL}?estado=AC&cidade=${encodeURIComponent(cidade)}`);
         const data = await response.json();
-        
+		
+		
+        atualizarFiltrosCategorias(data);
         renderizarArvorePorNiveis(data.arvore);
         renderizarCarrossel('motoristas', data.gruposMotoristas);
         renderizarCarrossel('comercio', data.gruposComercio);
@@ -622,6 +654,43 @@ document.getElementById('modal-overlay').addEventListener('click', function(even
     fecharModal();
   }
 });
+function atualizarFiltrosCategorias(dados) {
+  const mapeamento = [
+    { id: 'filtro-motoristas', lista: dados.gruposMotoristas, container: 'carrossel-motoristas', dots: 'dots-motoristas', label: 'Motoristas' },
+    { id: 'filtro-comercio', lista: dados.gruposComercio, container: 'carrossel-comercio', dots: 'dots-comercio', label: 'Comércio' },
+    { id: 'filtro-instagram', lista: dados.instagram, container: 'carrossel-instagram', dots: 'dots-instagram', label: 'Instagram' }
+  ];
+
+  mapeamento.forEach(item => {
+    const select = document.getElementById(item.id);
+    if (!select) return;
+
+    // Extrai categorias únicas e organiza em ordem alfabética
+    const categorias = [...new Set(item.lista.map(i => i.categoria))]
+      .filter(c => c && c.trim() !== "")
+      .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
+    select.innerHTML = `<option value="">Todas as Categorias (${item.label})</option>`;
+    categorias.forEach(cat => {
+      const option = document.createElement('option');
+      option.value = cat;
+      option.textContent = cat;
+      select.appendChild(option);
+    });
+
+    // Filtra e renderiza o carrossel novamente ao mudar a seleção
+    select.onchange = () => {
+      const selecionada = select.value;
+      const filtrados = selecionada 
+        ? item.lista.filter(i => i.categoria === selecionada)
+        : item.lista;
+      
+      // Chama a sua função de renderização original
+      renderizarCarrossel(filtrados, item.container, item.dots);
+    };
+  });
+}
+
   </script>
 </body>
-</html>
+</html</html>
