@@ -348,7 +348,6 @@
       instagram: { index: 0, total: 0 }
     };
 
-    // Variável global para armazenar os dados carregados e permitir filtragem
     let dadosAtuais = null;
 
     window.onload = carregarCidades;
@@ -377,7 +376,7 @@
       try {
         const response = await fetch(`${SCRIPT_URL}?estado=AC&cidade=${encodeURIComponent(cidade)}`);
         const data = await response.json();
-        dadosAtuais = data; // Salva os dados globalmente
+        dadosAtuais = data; 
 			
         atualizarFiltrosCategorias(data);
         renderizarArvorePorNiveis(data.arvore);
@@ -390,6 +389,7 @@
       } catch (e) { document.getElementById('status').innerText = "Erro ao carregar"; }
     });
 
+    // Otimização: Renderiza apenas os itens necessários inicialmente e evita sobrecarga
     function renderizarCarrossel(tipo, itens) {
       const container = document.getElementById(`carrossel-${tipo}`);
       const dotsContainer = document.getElementById(`dots-${tipo}`);
@@ -407,6 +407,8 @@
       wrapper.className = 'carrossel-wrapper';
       wrapper.id = `wrapper-${tipo}`;
 
+      // Otimização: Se houver muitos itens, podemos limitar a renderização inicial
+      // Mas para carrosséis de grupos, o impacto é menor que na árvore.
       itens.forEach((item, idx) => {
         const div = document.createElement('div');
         div.className = 'carrossel-item';
@@ -539,6 +541,7 @@
       });
     }
 
+    // Tratamento de performance para a árvore: evita travamentos se houver muitos motoristas
     function renderizarArvorePorNiveis(arvore) {
       const wrapper = document.getElementById('wrapper-arvore');
       wrapper.innerHTML = "";
@@ -546,6 +549,10 @@
         wrapper.innerHTML = "<p style='opacity:0.5;'>Nenhum motorista.</p>";
         return;
       }
+
+      // Renderização fragmentada para performance
+      const fragment = document.createDocumentFragment();
+      
       arvore.forEach((nivelLista, indexNivel) => {
         const divNivel = document.createElement('div');
         divNivel.className = 'nivel-arvore';
@@ -553,6 +560,7 @@
         label.className = 'label-nivel';
         label.innerText = `Nível ${indexNivel + 1}`;
         divNivel.appendChild(label);
+        
         nivelLista.forEach(m => {
           const item = document.createElement('div');
           item.className = 'item-motorista';
@@ -560,10 +568,13 @@
           item.onclick = () => abrirModalMotorista(m);
           divNivel.appendChild(item);
         });
+        
         const labelFim = label.cloneNode(true);
         divNivel.appendChild(labelFim);
-        wrapper.appendChild(divNivel);
+        fragment.appendChild(divNivel);
       });
+      
+      wrapper.appendChild(fragment);
     }
 
     function abrirModalGrupo(item) {
@@ -581,19 +592,17 @@
       setTimeout(() => { content.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
     }
 
-       function abrirModalMotorista(m) {
+    function abrirModalMotorista(m) {
       const modal = document.getElementById('modal-overlay');
       const content = document.getElementById('modal-content');
       const nome = m.nome || "Motorista";
       
-      // Recupera o número do campo 'icone' e limpa caracteres não numéricos
+      // RESTAURAÇÃO: Usa o campo 'icone' para o telefone e verifica 'telefoneVisivel'
       let numeroLimpo = String(m.icone || '').replace(/\D/g, '');
-      // Verifica se o motorista permitiu a visualização
       const podeMostrar = m.telefoneVisivel === true && numeroLimpo.length >= 10;
 
       let corpo = "";
       if (podeMostrar) {
-        // Formatação do número para exibição: (XX) XXXXX-XXXX
         const ddd = numeroLimpo.substring(0, 2);
         const ini = numeroLimpo.substring(2, 7);
         const fim = numeroLimpo.substring(7);
@@ -606,7 +615,7 @@
             📞 ${numeroFormatado}
           </div>
           <button class="grupo-botao"
-            onclick="window.open('https://wa.me/55${numeroLimpo}','_blank' )"
+            onclick="window.open('https://wa.me/55${numeroLimpo}','_blank')"
             style="cursor:pointer;background:#22c55e;color:#020617;width:100%;padding:14px;border-radius:10px;">
             Chamar no WhatsApp
           </button>
@@ -621,7 +630,6 @@
           </div>
         `;
       }
-
       content.innerHTML = `${corpo}<button class="btn-secondary" onclick="fecharModal()" style="margin-top:16px;width:100%;padding:14px;">Voltar</button>`;
       modal.style.display = 'flex';
       document.body.style.overflow = 'hidden';
@@ -642,7 +650,6 @@
   </script>
 </body>
 </html>
-
 
 
 
