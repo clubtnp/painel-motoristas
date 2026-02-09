@@ -654,8 +654,45 @@ document.getElementById('modal-overlay').addEventListener('click', function(even
     fecharModal();
   }
 });
+function atualizarFiltrosCategorias(dados) {
+  const mapeamento = [
+    { id: 'filtro-motoristas', lista: dados.gruposMotoristas, container: 'carrossel-motoristas', dots: 'dots-motoristas', label: 'Motoristas' },
+    { id: 'filtro-comercio', lista: dados.gruposComercio, container: 'carrossel-comercio', dots: 'dots-comercio', label: 'Comércio' },
+    { id: 'filtro-instagram', lista: dados.instagram, container: 'carrossel-instagram', dots: 'dots-instagram', label: 'Instagram' }
+  ];
+
+  mapeamento.forEach(item => {
+    const select = document.getElementById(item.id);
+    if (!select) return;
+
+    // Extrai categorias únicas e organiza em ordem alfabética
+    const categorias = [...new Set(item.lista.map(i => i.categoria))]
+      .filter(c => c && c.trim() !== "")
+      .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
+    select.innerHTML = `<option value="">Todas as Categorias (${item.label})</option>`;
+    categorias.forEach(cat => {
+      const option = document.createElement('option');
+      option.value = cat;
+      option.textContent = cat;
+      select.appendChild(option);
+    });
+
+    // Filtra e renderiza o carrossel novamente ao mudar a seleção
+    select.onchange = () => {
+      const selecionada = select.value;
+      const filtrados = selecionada 
+        ? item.lista.filter(i => i.categoria === selecionada)
+        : item.lista;
+      
+      // Chama a sua função de renderização original
+      renderizarCarrossel(filtrados, item.container, item.dots);
+    };
+  });
+}
+
   </script>
 </body>
-</html>
+</html
 
 
