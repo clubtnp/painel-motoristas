@@ -582,37 +582,66 @@
     }
 
     function abrirModalMotorista(m) {
-      const modal = document.getElementById('modal-overlay');
-      const content = document.getElementById('modal-content');
-      const nome = m.nome || "Motorista";
-      const numero = m.numero || "";
-      const numeroLimpo = numero.replace(/\D/g, '');
-      let corpo = "";
-      if (numeroLimpo) {
-        corpo = `
-          <div style="font-size:22px;font-weight:bold;">${nome}</div>
-          <p style="font-size:13px;color:#94a3b8;margin:10px 0 20px 0;">Motorista da rede</p>
-          <button class="grupo-botao"
-            onclick="window.open('https://wa.me/55${numeroLimpo}','_blank')"
-            style="cursor:pointer;background:#22c55e;color:#020617;width:100%;padding:14px;border-radius:10px;">
-            Chamar no WhatsApp
-          </button>
-        `;
-      } else {
-        corpo = `
-          <div style="font-size:22px;font-weight:bold;">${nome}</div>
-          <p style="font-size:13px;color:#94a3b8;margin:10px 0 20px 0;">Motorista da rede</p>
-          <div style="background:#0f172a;padding:16px;border-radius:10px;border:1px solid #334155;">
-            <strong style="color:#ef4444;">Número privado</strong>
-            <p style="font-size:12px;color:#94a3b8;margin-top:6px;">Este motorista optou por não exibir o contato.</p>
-          </div>
-        `;
-      }
-      content.innerHTML = `${corpo}<button class="btn-secondary" onclick="fecharModal()" style="margin-top:16px;width:100%;padding:14px;">Voltar</button>`;
-      modal.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-      setTimeout(() => { content.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
-    }
+  const modal = document.getElementById('modal-overlay');
+  const content = document.getElementById('modal-content');
+
+  const nome = m.nome || 'Motorista';
+
+  let numeroLimpo = String(m.icone || '').replace(/\D/g, '');
+  const podeMostrar = m.telefoneVisivel === true && numeroLimpo.length >= 10;
+
+  let corpo = '';
+
+  if (podeMostrar) {
+    const ddd = numeroLimpo.substring(0, 2);
+    const ini = numeroLimpo.substring(2, 7);
+    const fim = numeroLimpo.substring(7);
+    const numeroFormatado = `(${ddd}) ${ini}-${fim}`;
+
+    corpo = `
+      <div style="font-size:22px;font-weight:bold;color:#22c55e;">${nome}</div>
+      <p style="font-size:13px;color:#94a3b8;margin:6px 0 18px 0;">Motorista da rede</p>
+
+      <div style="font-size:20px;font-weight:bold;margin-bottom:20px;">
+        📞 ${numeroFormatado}
+      </div>
+
+      <button class="grupo-botao"
+        onclick="window.open('https://wa.me/55${numeroLimpo}','_blank')"
+        style="cursor:pointer;background:#22c55e;color:#020617;width:100%;padding:14px;border-radius:10px;">
+        Chamar no WhatsApp
+      </button>
+    `;
+  } else {
+    corpo = `
+      <div style="font-size:22px;font-weight:bold;">${nome}</div>
+      <p style="font-size:13px;color:#94a3b8;margin:10px 0 20px 0;">Motorista da rede</p>
+
+      <div style="background:#0f172a;padding:16px;border-radius:10px;border:1px solid #334155;">
+        <strong style="color:#ef4444;">Número privado</strong>
+        <p style="font-size:12px;color:#94a3b8;margin-top:6px;">
+          Este motorista optou por não exibir o contato.
+        </p>
+      </div>
+    `;
+  }
+
+  content.innerHTML = `
+    ${corpo}
+    <button class="btn-secondary"
+      onclick="fecharModal()"
+      style="margin-top:16px;width:100%;padding:14px;">
+      Voltar
+    </button>
+  `;
+
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  setTimeout(() => {
+    content.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 100);
+
 
     function fecharModal() {
       const modal = document.getElementById('modal-overlay');
