@@ -457,13 +457,7 @@
   });
 }
 
-
-      dotsContainer.innerHTML = '';
-      // Chama a função que desenha os números
-renderizarPaginacaoNumerica(tipo);
-}
-
-    function mudarCarrossel(tipo, dir) {
+   function mudarCarrossel(tipo, dir) {
       let newIdx = carrosselState[tipo].index + dir;
       if (newIdx >= 0 && newIdx < carrosselState[tipo].total) irParaCarrossel(tipo, newIdx);
     }
