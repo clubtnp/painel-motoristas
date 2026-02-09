@@ -403,37 +403,42 @@ function renderizarCarrossel(tipo, lista) {
   
   if (!container || !dots) return;
 
-  // Limpa o conteúdo anterior
+  // Limpa tudo e reseta o índice do carrossel para começar do primeiro
   container.innerHTML = '';
   dots.innerHTML = '';
+  if (carrosselState[tipo]) carrosselState[tipo].index = 0;
 
   if (!lista || lista.length === 0) {
     container.innerHTML = '<p class="carrossel-vazio">Nenhum item encontrado.</p>';
     return;
   }
 
+  // 1. Recria as SETAS de navegação
+  const btnPrev = document.createElement('button');
+  btnPrev.className = 'carrossel-nav prev';
+  btnPrev.innerHTML = '&#10094;';
+  btnPrev.onclick = () => mudarSlide(tipo, -1, lista.length);
+
+  const btnNext = document.createElement('button');
+  btnNext.className = 'carrossel-nav next';
+  btnNext.innerHTML = '&#10095;';
+  btnNext.onclick = () => mudarSlide(tipo, 1, lista.length);
+
+  // 2. Cria o wrapper dos itens
   const wrapper = document.createElement('div');
   wrapper.className = 'carrossel-wrapper';
-  // IMPORTANTE: Garante que o wrapper seja visível
-  wrapper.style.display = 'block'; 
-  wrapper.style.position = 'relative';
-  wrapper.style.minHeight = '330px';
+  
+  container.appendChild(btnPrev);
   container.appendChild(wrapper);
+  container.appendChild(btnNext);
 
+  // 3. Renderiza os itens
   lista.forEach((item, idx) => {
     const div = document.createElement('div');
     div.className = 'carrossel-item';
-    
-    // FORÇAR EXIBIÇÃO DO PRIMEIRO ITEM
-    if (idx === 0) {
-      div.style.display = 'flex';
-      div.style.opacity = '1';
-      div.style.position = 'relative';
-    } else {
-      div.style.display = 'none';
-      div.style.opacity = '0';
-      div.style.position = 'absolute';
-    }
+    // FORÇA O PRIMEIRO ITEM A APARECER NA HORA
+    div.style.display = idx === 0 ? 'flex' : 'none';
+    div.style.transform = 'translateX(0)';
     
     const desc = (item.descricao || '').replace(/'/g, "\\'");
     
@@ -450,24 +455,11 @@ function renderizarCarrossel(tipo, lista) {
     `;
     wrapper.appendChild(div);
 
+    // 4. Recria a paginação numérica
     const dot = document.createElement('div');
     dot.className = `num-page ${idx === 0 ? 'active' : ''}`;
     dot.textContent = idx + 1;
-    dot.onclick = () => {
-      const todosItens = wrapper.querySelectorAll('.carrossel-item');
-      todosItens.forEach((el, i) => {
-        if (i === idx) {
-          el.style.display = 'flex';
-          el.style.opacity = '1';
-          el.style.position = 'relative';
-        } else {
-          el.style.display = 'none';
-          el.style.opacity = '0';
-          el.style.position = 'absolute';
-        }
-      });
-      dots.querySelectorAll('.num-page').forEach((d, i) => d.classList.toggle('active', i === idx));
-    };
+    dot.onclick = () => irParaSlide(tipo, idx, lista.length);
     dots.appendChild(dot);
   });
 }
@@ -609,6 +601,24 @@ function fecharModal() {
     modal.style.display = 'none';
     document.body.style.overflow = 'auto'; // DEVOLVE O SCROLL (O segredo está aqui!)
   }
+}
+function mudarSlide(tipo, direcao, total) {
+  let novoIndex = carrosselState[tipo].index + direcao;
+  if (novoIndex >= total) novoIndex = 0;
+  if (novoIndex < 0) novoIndex = total - 1;
+  irParaSlide(tipo, novoIndex, total);
+}
+
+function irParaSlide(tipo, index, total) {
+  carrosselState[tipo].index = index;
+  const container = document.getElementById(`carrossel-${tipo}`);
+  const dots = document.getElementById(`dots-${tipo}`);
+  
+  const itens = container.querySelectorAll('.carrossel-item');
+  itens.forEach((el, i) => el.style.display = i === index ? 'flex' : 'none');
+  
+  const todosDots = dots.querySelectorAll('.num-page');
+  todosDots.forEach((d, i) => d.classList.toggle('active', i === index));
 }
 
 /* --- FUNÇÃO DA ÁRVORE ATUALIZADA --- */
