@@ -280,10 +280,6 @@
       <h1>Grupo de Motoristas</h1>
       <div id="carrossel-motoristas" class="carrossel-container"></div>
       <div id="dots-motoristas" class="carrossel-dots"></div>
-      <!-- SELETOR DE CATEGORIA MOTORISTAS -->
-      <select id="filtro-motoristas" class="filtro-categoria">
-        <option value="">Filtrar por Categoria (Motoristas )</option>
-      </select>
       <button class="btn-secondary" id="btnCadastrarGrupo">Cadastrar meu grupo</button>
     </div>
 
@@ -291,10 +287,6 @@
       <h1>Grupos de Comércios</h1>
       <div id="carrossel-comercio" class="carrossel-container"></div>
       <div id="dots-comercio" class="carrossel-dots"></div>
-      <!-- SELETOR DE CATEGORIA COMÉRCIO -->
-      <select id="filtro-comercio" class="filtro-categoria">
-        <option value="">Filtrar por Categoria (Comércio)</option>
-      </select>
       <button class="btn-secondary" id="btnCadastrarComercio">Cadastrar grupo comercial</button>
     </div>
 
@@ -303,10 +295,6 @@
       <p>Nossas Redes Oficiais</p>
       <div id="carrossel-instagram" class="carrossel-container"></div>
       <div id="dots-instagram" class="carrossel-dots"></div>
-      <!-- SELETOR DE CATEGORIA INSTAGRAM -->
-      <select id="filtro-instagram" class="filtro-categoria">
-        <option value="">Filtrar por Categoria (Instagram)</option>
-      </select>
     </div>
 
     <!-- NOVO QUADRO "VOLTAR AO INÍCIO" COLADO AQUI -->
@@ -383,9 +371,7 @@
       try {
         const response = await fetch(`${SCRIPT_URL}?estado=AC&cidade=${encodeURIComponent(cidade)}`);
         const data = await response.json();
-		
-		
-        atualizarFiltrosCategorias(data);
+        
         renderizarArvorePorNiveis(data.arvore);
         renderizarCarrossel('motoristas', data.gruposMotoristas);
         renderizarCarrossel('comercio', data.gruposComercio);
@@ -396,78 +382,82 @@
       } catch (e) { document.getElementById('status').innerText = "Erro ao carregar"; }
     });
 
-    // 1. FUNÇÃO PRINCIPAL: Ela limpa tudo e inicia a nova renderização
-function renderizarCarrossel(lista, containerId, dotsId) {
-  const container = document.getElementById(containerId);
-  const dots = document.getElementById(dotsId);
+    function renderizarCarrossel(tipo, itens) {
+      const container = document.getElementById(`carrossel-${tipo}`);
+      const dotsContainer = document.getElementById(`dots-${tipo}`);
+      
+      if (!itens || itens.length === 0) {
+        container.innerHTML = '<div class="carrossel-vazio">Nenhum item cadastrado</div>';
+        dotsContainer.innerHTML = '';
+        return;
+      }
 
-  // LIMPEZA: Remove tudo o que existia antes (itens e números)
-  container.innerHTML = '';
-  dots.innerHTML = '';
+      carrosselState[tipo].total = itens.length;
+      carrosselState[tipo].index = 0;
 
-  if (!lista || lista.length === 0) {
-    container.innerHTML = '<p class="carrossel-vazio">Nenhum item encontrado.</p>';
-    return;
-  }
+      const wrapper = document.createElement('div');
+      wrapper.className = 'carrossel-wrapper';
+      wrapper.id = `wrapper-${tipo}`;
 
-  // Cria o wrapper que segura os itens
-  const wrapper = document.createElement('div');
-  wrapper.className = 'carrossel-wrapper';
-  container.appendChild(wrapper);
+itens.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = 'carrossel-item';
+        div.style.transform = `translateX(${idx * 100}%)`;
+        
+        const imgUrl = item.imagem || 'https://cdn-icons-png.flaticon.com/512/174/174855.png';
+        const nomeItem = item.nome || (tipo === 'instagram' ? 'Siga no Instagram' : 'Sem nome');
+        
+        // CORREÇÃO: Definindo o texto do botão com uma proteção (fallback)
+        // Se item.textoBotao vier vazio da planilha, ele usa o padrão definido abaixo
+        let textoAcao = item.textoBotao; 
+        
+        if (!textoAcao || textoAcao.trim() === "") {
+          textoAcao = (tipo === 'instagram' ? 'Ver Instagram' : 'Entrar no grupo');
+        }
 
-  // Renderiza os novos itens e a nova paginação
-  lista.forEach((item, idx) => {
-    const divItem = criarItemCarrossel(item, idx);
-    wrapper.appendChild(divItem);
-    
-    const dot = criarPaginacao(idx, wrapper, dots);
-    dots.appendChild(dot);
+        div.innerHTML = `
+          <img class="grupo-imagem" src="${imgUrl}">
+          <div class="grupo-info">
+            <div class="grupo-nome">${nomeItem}</div>
+            <div class="grupo-categoria">${item.categoria || ''}</div>
+            <button class="btn-ver-mais" onclick='abrirModalGrupo(${JSON.stringify(item)})'>Ver descrição</button>
+            <button class="grupo-botao" onclick="window.open('${item.link}', '_blank')">${textoAcao}</button>
+          </div>
+        `;
+        wrapper.appendChild(div);
+      });
+
+      container.innerHTML = '';
+      container.appendChild(wrapper);
+
+      if (itens.length > 1) {
+        const prev = document.createElement('button');
+        prev.className = 'carrossel-nav prev'; prev.innerText = '‹';
+        prev.onclick = () => mudarCarrossel(tipo, -1);
+        const next = document.createElement('button');
+        next.className = 'carrossel-nav next'; next.innerText = '›';
+        next.onclick = () => mudarCarrossel(tipo, 1);
+        container.appendChild(prev); container.appendChild(next);
+      }
+
+      dotsContainer.innerHTML = '';
+      // Chama a função que desenha os números
+renderizarPaginacaoNumerica(tipo);
+}
+
+    function mudarCarrossel(tipo, dir) {
+      let newIdx = carrosselState[tipo].index + dir;
+      if (newIdx >= 0 && newIdx < carrosselState[tipo].total) irParaCarrossel(tipo, newIdx);
+    }
+
+    function irParaCarrossel(tipo, idx) {
+  carrosselState[tipo].index = idx;
+  const items = document.getElementById(`wrapper-${tipo}`).querySelectorAll('.carrossel-item');
+  items.forEach((item, i) => {
+    item.style.transform = `translateX(${(i - idx) * 100}%)`;
   });
-}
-
-// 2. FUNÇÃO DE CRIAÇÃO DO ITEM: Mantém sua estrutura visual
-function criarItemCarrossel(item, idx) {
-  const div = document.createElement('div');
-  div.className = 'carrossel-item';
-  div.style.display = idx === 0 ? 'flex' : 'none';
-  
-  // Escapa aspas simples na descrição para não quebrar o HTML
-  const descricaoEscapada = (item.descricao || '').replace(/'/g, "\\'");
-  
-  div.innerHTML = `
-    <img src="${item.imagem || ''}" class="grupo-imagem" onerror="this.src='https://via.placeholder.com/150'">
-    <div class="grupo-info">
-      <div class="grupo-nome" onclick="abrirModal('${item.nome}', '${descricaoEscapada}' )">${item.nome}</div>
-      <div class="grupo-categoria">${item.categoria || ''}</div>
-      <div class="grupo-botao">
-        <button onclick="window.open('${item.link}', '_blank')">${item.textoBotao || 'Entrar no Grupo'}</button>
-      </div>
-      <button class="btn-ver-mais" onclick="abrirModal('${item.nome}', '${descricaoEscapada}')">Ver descrição</button>
-    </div>
-  `;
-  return div;
-}
-
-// 3. FUNÇÃO DE PAGINAÇÃO: Controla o que aparece ao clicar nos números
-function criarPaginacao(idx, wrapper, dotsContainer) {
-  const dot = document.createElement('div');
-  dot.className = `num-page ${idx === 0 ? 'active' : ''}`;
-  dot.textContent = idx + 1;
-
-  dot.onclick = () => {
-    // Esconde todos os itens do wrapper atual
-    const itens = wrapper.querySelectorAll('.carrossel-item');
-    itens.forEach((item, i) => {
-      item.style.display = i === idx ? 'flex' : 'none';
-    });
-
-    // Atualiza a cor do número ativo
-    const todosDots = dotsContainer.querySelectorAll('.num-page');
-    todosDots.forEach((d, i) => {
-      d.classList.toggle('active', i === idx);
-    });
-  };
-  return dot;
+  // ISSO É O MAIS IMPORTANTE:
+  renderizarPaginacaoNumerica(tipo); 
 }
 
 function abrirModalMotorista(m) {
@@ -650,43 +640,6 @@ document.getElementById('modal-overlay').addEventListener('click', function(even
     fecharModal();
   }
 });
-function atualizarFiltrosCategorias(dados) {
-  const mapeamento = [
-    { id: 'filtro-motoristas', lista: dados.gruposMotoristas, container: 'carrossel-motoristas', dots: 'dots-motoristas', label: 'Motoristas' },
-    { id: 'filtro-comercio', lista: dados.gruposComercio, container: 'carrossel-comercio', dots: 'dots-comercio', label: 'Comércio' },
-    { id: 'filtro-instagram', lista: dados.instagram, container: 'carrossel-instagram', dots: 'dots-instagram', label: 'Instagram' }
-  ];
-
-  mapeamento.forEach(item => {
-    const select = document.getElementById(item.id);
-    if (!select) return;
-
-    const categorias = [...new Set(item.lista.map(i => i.categoria))]
-      .filter(c => c && c.trim() !== "")
-      .sort((a, b) => a.localeCompare(b, 'pt-BR'));
-
-    select.innerHTML = `<option value="">Todas as Categorias (${item.label})</option>`;
-    categorias.forEach(cat => {
-      const option = document.createElement('option');
-      option.value = cat;
-      option.textContent = cat;
-      select.appendChild(option);
-    });
-
-    // Resetar o select para a primeira opção ao fazer uma nova busca
-    select.selectedIndex = 0;
-
-    select.onchange = () => {
-      const selecionada = select.value;
-      const filtrados = selecionada 
-        ? item.lista.filter(i => i.categoria === selecionada)
-        : item.lista;
-      renderizarCarrossel(filtrados, item.container, item.dots);
-    };
-  });
-}
-
-
   </script>
 </body>
 </html>
