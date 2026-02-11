@@ -4,12 +4,11 @@
   <meta charset="UTF-8">
   <title>Rede de Motoristas</title>
   <style>
-    /* Estilos Gerais */
+    /* Seus estilos CSS existentes aqui */
     body { font-family: Arial, sans-serif; background: #0f172a; color: #fff; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; padding: 40px 16px; box-sizing: border-box; }
     .container { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 24px; }
     .box { background: #020617; padding: 24px; border-radius: 16px; box-shadow: 0 0 20px rgba(0,0,0,.5); }
     
-    /* Estilo da Capa */
     .capa-container { text-align: center; margin-bottom: 8px; }
     .capa-img { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #22c55e; object-fit: cover; box-shadow: 0 0 15px rgba(34, 197, 94, 0.3); }
     .capa-titulo { margin-top: 12px; font-size: 18px; font-weight: bold; color: #22c55e; }
@@ -24,7 +23,6 @@
     button:disabled { opacity: 0.5; cursor: not-allowed; }
     #status { text-align: center; font-size: 12px; margin-top: 8px; color: #22c55e; display: none; }
 
-    /* Estilos da Árvore Vertical Atualizados */
     #container-arvore { 
       margin-top: 20px; 
       overflow: auto; 
@@ -36,25 +34,23 @@
       box-sizing: border-box;
       position: relative;
     }
-		  
-	/* Estilo para os filtros de categoria */
-	.filtro-categoria {
-	  width: 100%;
-	  padding: 10px;
-	  margin-top: 10px;
-	  border-radius: 8px;
-	  background: #1e293b;
-	  color: #fff;
-	  border: 1px solid #334155;
-	  font-size: 14px;
-	  outline: none;
-	}
-		  
-	.filtro-categoria:focus {
-	  border-color: #22c55e;
-	}
-
     
+    .filtro-categoria {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 8px;
+      background: #1e293b;
+      color: #fff;
+      border: 1px solid #334155;
+      font-size: 14px;
+      outline: none;
+    }
+          
+    .filtro-categoria:focus {
+      border-color: #22c55e;
+    }
+
     #wrapper-arvore { 
       display: flex; 
       flex-direction: column; 
@@ -65,7 +61,6 @@
       align-items: center; 
     }
 
-    /* Estilização da Barra de Rolagem (Scrollbar) */
     #container-arvore::-webkit-scrollbar { width: 8px; height: 8px; }
     #container-arvore::-webkit-scrollbar-track { background: #020617; border-radius: 10px; }
     #container-arvore::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
@@ -120,7 +115,6 @@
       border-color: #22c55e; 
       box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
     }
-    /* Estilos do Carrossel (Unificado para Grupos e Instagram) */
     .carrossel-container { position: relative; margin-top: 16px; background: #1e293b; border-radius: 12px; padding: 16px; border: 1px solid #334155; min-height: 370px; display: flex; align-items: center; justify-content: center; }
     .carrossel-wrapper { display: flex; overflow: hidden; width: 100%; border-radius: 8px; position: relative; min-height: 330px; }
     .carrossel-item { flex: 0 0 100%; display: flex; flex-direction: column; gap: 12px; transition: transform 0.3s ease; align-items: center; text-align: center; position: absolute; top: 0; left: 0; width: 100%; }
@@ -135,48 +129,44 @@
       align-items: center;
       justify-content: center }
     
-    /* Navegação Carrossel */
-.carrossel-nav { 
-  position: absolute; top: 50%; transform: translateY(-50%); 
-  background: rgba(34, 197, 94, 0.8); color: #020617; border: none; 
-  width: 36px; height: 36px; border-radius: 50%; cursor: pointer; 
-  font-size: 18px; font-weight: bold; z-index: 10; 
-  display: flex; align-items: center; justify-content: center; 
-}
-.carrossel-nav.prev { left: 8px; }
-.carrossel-nav.next { right: 8px; }
+    .carrossel-nav { 
+      position: absolute; top: 50%; transform: translateY(-50%); 
+      background: rgba(34, 197, 94, 0.8); color: #020617; border: none; 
+      width: 36px; height: 36px; border-radius: 50%; cursor: pointer; 
+      font-size: 18px; font-weight: bold; z-index: 10; 
+      display: flex; align-items: center; justify-content: center; 
+    }
+    .carrossel-nav.prev { left: 8px; }
+    .carrossel-nav.next { right: 8px; }
 
-/* Nova Paginação Numérica */
-.carrossel-dots { 
-  display: flex; justify-content: center; align-items: center; 
-  gap: 6px; margin-top: 14px; min-height: 32px; flex-wrap: wrap;
-}
+    .carrossel-dots { 
+      display: flex; justify-content: center; align-items: center; 
+      gap: 6px; margin-top: 14px; min-height: 32px; flex-wrap: wrap;
+    }
 
-.num-page { 
-  min-width: 30px; height: 30px; padding: 0 4px; border-radius: 6px; 
-  background: #1e293b; color: #fff; font-size: 12px; font-weight: bold;
-  display: flex; align-items: center; justify-content: center; cursor: pointer;
-  border: 1px solid #334155; transition: 0.2s;
-}
+    .num-page { 
+      min-width: 30px; height: 30px; padding: 0 4px; border-radius: 6px; 
+      background: #1e293b; color: #fff; font-size: 12px; font-weight: bold;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      border: 1px solid #334155; transition: 0.2s;
+    }
 
-.num-page.active { 
-  background: #22c55e; color: #020617; border-color: #22c55e; 
-}
+    .num-page.active { 
+      background: #22c55e; color: #020617; border-color: #22c55e; 
+    }
 
-.num-page.dots { 
-  background: transparent; border: none; cursor: default; color: #94a3b8; 
-}
+    .num-page.dots { 
+      background: transparent; border: none; cursor: default; color: #94a3b8; 
+    }
 
-.num-page:hover:not(.dots):not(.active) { 
-  background: #334155; border-color: #22c55e; 
-}
+    .num-page:hover:not(.dots):not(.active) { 
+      background: #334155; border-color: #22c55e; 
+    }
 
-.carrossel-vazio { 
-  text-align: center; color: #94a3b8; font-style: italic; padding: 20px; 
-}
+    .carrossel-vazio { 
+      text-align: center; color: #94a3b8; font-style: italic; padding: 20px; 
+    }
 
-   /* Modal Modernizado com Quebra de Texto */
-    /* Modal Corrigido e Centralizado */
     .modal-overlay { 
       position: fixed; 
       top: 0; 
@@ -203,7 +193,7 @@
       border: 1px solid #334155; 
       display: flex; 
       flex-direction: column; 
-      max-height: 85vh; /* Altura máxima para não sumir no mobile */
+      max-height: 85vh; 
       box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
       position: relative;
       margin: auto;
@@ -211,7 +201,7 @@
 
     .modal-descricao-scroll { 
       flex: 1; 
-      overflow-y: scroll !important; /* Força a barra de rolagem a existir */
+      overflow-y: scroll !important; 
       overflow-x: hidden; 
       padding: 15px; 
       background: #0f172a; 
@@ -219,7 +209,6 @@
       text-align: left; 
       margin: 15px 0; 
       border: 1px solid #334155;
-      /* Previne que o conteúdo "cole" nas bordas */
       -webkit-overflow-scrolling: touch; 
     }
 
@@ -233,7 +222,6 @@
       white-space: pre-wrap;
     }
 
-    /* Scrollbar Visível (Estilo Mobile/Moderno) */
     .modal-descricao-scroll::-webkit-scrollbar { 
       width: 8px !important; 
       display: block !important;
@@ -245,12 +233,11 @@
     .modal-descricao-scroll::-webkit-scrollbar-thumb { 
       background: #22c55e; 
       border-radius: 10px;
-      border: 2px solid #0f172a; /* Dá um efeito de espaçamento */
+      border: 2px solid #0f172a; 
     }
     .modal-descricao-scroll::-webkit-scrollbar-thumb:hover { 
       background: #16a34a; 
     }
-		
   </style>
 </head>
 <body>
@@ -263,7 +250,12 @@
 
     <div class="box">
       <h1>Buscar motoristas</h1>
-      <p>Escolha sua cidade</p>
+      <p>Escolha seu estado e cidade</p>
+      <!-- Adicione este select se você não tiver um para o estado -->
+      <select id="estado-select">
+          <option value="AC">Acre</option>
+          <!-- Adicione outros estados conforme necessário -->
+      </select>
       <select id="selectCidade"><option value="">Carregando cidades...</option></select>
       <button id="btnBuscar">Buscar motoristas</button>
       <div id="status"></div>
@@ -280,7 +272,6 @@
       <h1>Grupo de Motoristas</h1>
       <div id="carrossel-motoristas" class="carrossel-container"></div>
       <div id="dots-motoristas" class="carrossel-dots"></div>
-      <!-- SELETOR DE CATEGORIA MOTORISTAS -->
       <select id="filtro-motoristas" class="filtro-categoria">
         <option value="">Filtrar por Categoria (Motoristas )</option>
       </select>
@@ -291,268 +282,319 @@
       <h1>Grupos de Comércios</h1>
       <div id="carrossel-comercio" class="carrossel-container"></div>
       <div id="dots-comercio" class="carrossel-dots"></div>
-      <!-- SELETOR DE CATEGORIA COMÉRCIO -->
       <select id="filtro-comercio" class="filtro-categoria">
         <option value="">Filtrar por Categoria (Comércio)</option>
       </select>
-      <button class="btn-secondary" id="btnCadastrarComercio">Cadastrar grupo comercial</button>
     </div>
 
     <div class="box">
       <h1>Instagram</h1>
-      <p>Nossas Redes Oficiais</p>
       <div id="carrossel-instagram" class="carrossel-container"></div>
       <div id="dots-instagram" class="carrossel-dots"></div>
-      <!-- SELETOR DE CATEGORIA INSTAGRAM -->
       <select id="filtro-instagram" class="filtro-categoria">
         <option value="">Filtrar por Categoria (Instagram)</option>
       </select>
     </div>
 
-    <!-- NOVO QUADRO "VOLTAR AO INÍCIO" COLADO AQUI -->
-    <div class="box" style="text-align: center;">
-        <p style="margin-bottom: 15px; font-size: 14px; opacity: 0.8;">Deseja retornar ao mapa principal?</p>
-        <a href="../index.html" style="text-decoration: none;">
-            <button style="
-                background: #22c55e; 
-                color: #020617; 
-                font-weight: bold; 
-                border-radius: 12px; 
-                padding: 14px 24px; 
-                width: 100%;
-                border: none;
-                cursor: pointer;
-                transition: opacity 0.2s;
-                font-size: 16px;
-            ">
-                Voltar ao Mapa Principal
-            </button>
-        </a>
+    <!-- Modal para detalhes -->
+    <div id="modal-overlay" class="modal-overlay">
+      <div id="modal-content" class="modal-content"></div>
     </div>
 
-  </div>
-
-  <!-- Modal -->
-  <div id="modal-overlay" class="modal-overlay">
-    <div id="modal-content" class="modal-content"></div>
-  </div>
-
   <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzIsmfQTV5OO1ubdGsTeCPHYSd5JzIp1NVIVvBlPIHRXkSC_FpO_gx-nuu05cpTXdIC/exec";
-    const ADMIN_WHATSAPP = "+5511999999999"; 
-    const FORM_URL_CADASTRO_ARVORE = "https://docs.google.com/forms/d/e/1FAIpQLSekq7ntpdLLrjK0tLy8Sm0DQ9uY_HRSxQPTQwJ68xuhaHHYfw/viewform";
+    const WEB_APP_URL = 'SEU_URL_DE_IMPLANTACAO_DO_APPS_SCRIPT'; // **ATUALIZE COM O SEU URL**
+    let estadoAtual = 'AC'; // Pode ser dinâmico se você tiver um seletor de estado
+    let cidadeAtual = '';
 
-    const carrosselState = {
-      motoristas: { index: 0, total: 0 },
-      comercio: { index: 0, total: 0 },
-      instagram: { index: 0, total: 0 }
-    };
+    // Variáveis para paginação e estado
+    const motoristasState = { page: 1, pageSize: 200, total: 0, loading: false, allMotoristas: [] };
+    const gruposMotoristasState = { page: 1, pageSize: 5, total: 0, loading: false, allGrupos: [] };
+    const gruposComercioState = { page: 1, pageSize: 5, total: 0, loading: false, allGrupos: [] };
+    const instagramState = { page: 1, pageSize: 5, total: 0, loading: false, allItems: [] };
 
-    let dadosAtuais = null;
+    document.addEventListener('DOMContentLoaded', () => {
+      const selectCidade = document.getElementById('selectCidade');
+      const btnBuscar = document.getElementById('btnBuscar');
+      const selectEstado = document.getElementById('estado-select'); // Obter o seletor de estado
 
-    window.onload = carregarCidades;
-
-    async function carregarCidades() {
-      try {
-        const response = await fetch(`${SCRIPT_URL}?listar=cidades`);
-        const cidades = await response.json();
-        const select = document.getElementById('selectCidade');
-        select.innerHTML = '<option value="">Selecione a cidade</option>';
-        cidades.forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = opt.textContent = c;
-          select.appendChild(opt);
+      // Atualiza estadoAtual se o seletor de estado existir
+      if (selectEstado) {
+        estadoAtual = selectEstado.value;
+        selectEstado.addEventListener('change', () => {
+          estadoAtual = selectEstado.value;
+          if (cidadeAtual) { // Se já houver uma cidade selecionada, busca os dados novamente
+            buscarTodosDadosPaginados();
+          }
         });
-      } catch (e) { console.error(e); }
-    }
+      }
 
-    document.getElementById('btnBuscar').addEventListener('click', async () => {
-      const cidade = document.getElementById('selectCidade').value;
-      if (!cidade) return alert("Selecione uma cidade");
-      
-      document.getElementById('status').style.display = "block";
-      document.getElementById('status').innerText = "Carregando...";
-      
-      try {
-        const response = await fetch(`${SCRIPT_URL}?estado=AC&cidade=${encodeURIComponent(cidade)}`);
-        const data = await response.json();
-        dadosAtuais = data; 
-			
-        atualizarFiltrosCategorias(data);
-        renderizarArvorePorNiveis(data.arvore);
-        renderizarCarrossel('motoristas', data.gruposMotoristas);
-        renderizarCarrossel('comercio', data.gruposComercio);
-        renderizarCarrossel('instagram', data.instagram);
-        
-        document.getElementById('status').innerText = "Sucesso!";
-        setTimeout(() => document.getElementById('status').style.display = "none", 2000);
-      } catch (e) { document.getElementById('status').innerText = "Erro ao carregar"; }
+      carregarCidades();
+      selectCidade.addEventListener('change', () => {
+        cidadeAtual = selectCidade.value;
+        if (cidadeAtual) {
+          buscarTodosDadosPaginados();
+        } else {
+          limparResultados();
+        }
+      });
+      btnBuscar.addEventListener('click', buscarTodosDadosPaginados);
+
+      // Evento de scroll para carregamento incremental da árvore
+      const containerArvore = document.getElementById('container-arvore');
+      containerArvore.addEventListener('scroll', () => {
+        if (containerArvore.scrollTop + containerArvore.clientHeight >= containerArvore.scrollHeight - 50) { // 50px antes do final
+          carregarMaisMotoristas();
+        }
+      });
+
+      // Eventos do modal
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fecharModal(); });
+      document.getElementById('modal-overlay').addEventListener('click', (e) => { if (e.target.id === 'modal-overlay') fecharModal(); });
     });
 
-    // Otimização: Renderiza apenas os itens necessários inicialmente e evita sobrecarga
-    function renderizarCarrossel(tipo, itens) {
-      const container = document.getElementById(`carrossel-${tipo}`);
-      const dotsContainer = document.getElementById(`dots-${tipo}`);
+    function showLoading(message = 'Carregando...') {
+      const statusDiv = document.getElementById('status');
+      const btnBuscar = document.getElementById('btnBuscar');
+      const selectCidade = document.getElementById('selectCidade');
+      const selectEstado = document.getElementById('estado-select');
       
-      if (!itens || itens.length === 0) {
-        container.innerHTML = '<div class="carrossel-vazio">Nenhum item cadastrado</div>';
-        dotsContainer.innerHTML = '';
+      statusDiv.style.display = 'block';
+      statusDiv.innerText = message;
+      btnBuscar.disabled = true;
+      selectCidade.disabled = true;
+      if (selectEstado) selectEstado.disabled = true;
+      // Adicionar um spinner ou ícone de carregamento aqui
+    }
+
+    function hideLoading() {
+      const statusDiv = document.getElementById('status');
+      const btnBuscar = document.getElementById('btnBuscar');
+      const selectCidade = document.getElementById('selectCidade');
+      const selectEstado = document.getElementById('estado-select');
+
+      statusDiv.style.display = 'none';
+      statusDiv.innerText = '';
+      btnBuscar.disabled = false;
+      selectCidade.disabled = false;
+      if (selectEstado) selectEstado.disabled = false;
+      // Remover spinner ou ícone de carregamento
+    }
+
+    function limparResultados() {
+      document.getElementById('wrapper-arvore').innerHTML = '';
+      document.getElementById('carrossel-motoristas').innerHTML = '';
+      document.getElementById('dots-motoristas').innerHTML = '';
+      document.getElementById('filtro-motoristas').innerHTML = '<option value="">Filtrar por Categoria (Motoristas )</option>';
+      document.getElementById('carrossel-comercio').innerHTML = '';
+      document.getElementById('dots-comercio').innerHTML = '';
+      document.getElementById('filtro-comercio').innerHTML = '<option value="">Filtrar por Categoria (Comércio)</option>';
+      document.getElementById('carrossel-instagram').innerHTML = '';
+      document.getElementById('dots-instagram').innerHTML = '';
+      document.getElementById('filtro-instagram').innerHTML = '<option value="">Filtrar por Categoria (Instagram)</option>';
+
+      // Resetar estados de paginação
+      motoristasState.page = 1; motoristasState.allMotoristas = []; motoristasState.total = 0; motoristasState.loading = false;
+      gruposMotoristasState.page = 1; gruposMotoristasState.allGrupos = []; gruposMotoristasState.total = 0; gruposMotoristasState.loading = false;
+      gruposComercioState.page = 1; gruposComercioState.allGrupos = []; gruposComercioState.total = 0; gruposComercioState.loading = false;
+      instagramState.page = 1; instagramState.allItems = []; instagramState.total = 0; instagramState.loading = false;
+    }
+
+    async function carregarCidades() {
+      const cidadeSelect = document.getElementById('selectCidade');
+      cidadeSelect.innerHTML = '<option value="">Carregando cidades...</option>';
+      showLoading('Carregando cidades...');
+      try {
+        const response = await fetch(`${WEB_APP_URL}?action=listCidades`);
+        const cidades = await response.json();
+        cidadeSelect.innerHTML = '<option value="">Selecione uma cidade</option>';
+        cidades.forEach(cidade => {
+          const option = document.createElement('option');
+          option.value = cidade;
+          option.textContent = cidade;
+          cidadeSelect.appendChild(option);
+        });
+        if (cidades.length > 0) {
+          cidadeAtual = cidades[0]; // Seleciona a primeira cidade por padrão
+          selectCidade.value = cidadeAtual;
+          buscarTodosDadosPaginados(); // Busca dados para a primeira cidade
+        }
+      } catch (error) {
+        console.error('Erro ao carregar cidades:', error);
+        cidadeSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+        document.getElementById('status').innerText = 'Erro ao carregar cidades.';
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function buscarTodosDadosPaginados() {
+      if (!cidadeAtual) {
+        document.getElementById('status').innerText = 'Por favor, selecione uma cidade.';
         return;
       }
 
-      carrosselState[tipo].total = itens.length;
-      carrosselState[tipo].index = 0;
+      limparResultados(); // Limpa resultados anteriores e reseta estados
+      showLoading('Buscando dados...');
 
-      const wrapper = document.createElement('div');
-      wrapper.className = 'carrossel-wrapper';
-      wrapper.id = `wrapper-${tipo}`;
+      try {
+        // Carregar motoristas (primeira página)
+        await carregarMotoristas(true);
 
-      // Otimização: Se houver muitos itens, podemos limitar a renderização inicial
-      // Mas para carrosséis de grupos, o impacto é menor que na árvore.
-      itens.forEach((item, idx) => {
-        const div = document.createElement('div');
-        div.className = 'carrossel-item';
-        div.style.transform = `translateX(${idx * 100}%)`;
-        
-        const imgUrl = item.imagem || 'https://cdn-icons-png.flaticon.com/512/174/174855.png';
-        const nomeItem = item.nome || (tipo === 'instagram' ? 'Siga no Instagram' : 'Sem nome');
-        
-        let textoAcao = item.textoBotao; 
-        if (!textoAcao || textoAcao.trim() === "") {
-          textoAcao = (tipo === 'instagram' ? 'Ver Instagram' : 'Entrar no grupo');
+        // Carregar grupos de motoristas (primeira página)
+        await carregarGrupos('motoristas', true);
+
+        // Carregar grupos de comércio (primeira página)
+        await carregarGrupos('comercio', true);
+
+        // Carregar Instagram (primeira página)
+        await carregarInstagram(true);
+
+      } catch (error) {
+        console.error('Erro ao buscar todos os dados:', error);
+        document.getElementById('status').innerText = `Erro ao buscar dados: ${error.message}`;
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function carregarMotoristas(reset = false) {
+      if (motoristasState.loading) return;
+      if (!reset && motoristasState.allMotoristas.length >= motoristasState.total && motoristasState.total > 0) return; // Já carregou tudo
+
+      motoristasState.loading = true;
+      showLoading('Carregando motoristas...');
+
+      try {
+        const response = await fetch(`${WEB_APP_URL}?action=listMotoristas&estado=${estadoAtual}&cidade=${cidadeAtual}&page=${motoristasState.page}&pageSize=${motoristasState.pageSize}`);
+        const data = await response.json();
+
+        if (data.erro) {
+          console.error('Erro ao carregar motoristas:', data.mensagem);
+          document.getElementById('status').innerText = `Erro: ${data.mensagem}`;
+          return;
         }
 
-        div.innerHTML = `
-          <img class="grupo-imagem" src="${imgUrl}">
-          <div class="grupo-info">
-            <div class="grupo-nome">${nomeItem}</div>
-            <div class="grupo-categoria">${item.categoria || ''}</div>
-            <button class="btn-ver-mais" onclick='abrirModalGrupo(${JSON.stringify(item)})'>Ver descrição</button>
-            <button class="grupo-botao" onclick="window.open('${item.link}', '_blank')">${textoAcao}</button>
-          </div>
-        `;
-        wrapper.appendChild(div);
-      });
-
-      container.innerHTML = '';
-      container.appendChild(wrapper);
-
-      if (itens.length > 1) {
-        const prev = document.createElement('button');
-        prev.className = 'carrossel-nav prev'; prev.innerText = '‹';
-        prev.onclick = () => mudarCarrossel(tipo, -1);
-        container.appendChild(prev);
-
-        const next = document.createElement('button');
-        next.className = 'carrossel-nav next'; next.innerText = '›';
-        next.onclick = () => mudarCarrossel(tipo, 1);
-        container.appendChild(next);
-      }
-      renderizarPaginacaoNumerica(tipo);
-    }
-
-    function mudarCarrossel(tipo, direcao) {
-      const state = carrosselState[tipo];
-      let novoIndex = state.index + direcao;
-      if (novoIndex < 0) novoIndex = state.total - 1;
-      if (novoIndex >= state.total) novoIndex = 0;
-      irParaCarrossel(tipo, novoIndex);
-    }
-
-    function irParaCarrossel(tipo, index) {
-      carrosselState[tipo].index = index;
-      const wrapper = document.getElementById(`wrapper-${tipo}`);
-      if (wrapper) {
-        const itens = wrapper.querySelectorAll('.carrossel-item');
-        itens.forEach((item, i) => {
-          item.style.transform = `translateX(${(i - index) * 100}%)`;
-        });
-      }
-      renderizarPaginacaoNumerica(tipo);
-    }
-
-    function renderizarPaginacaoNumerica(tipo) {
-      const dotsContainer = document.getElementById(`dots-${tipo}`);
-      const total = carrosselState[tipo].total;
-      const atual = carrosselState[tipo].index;
-      dotsContainer.innerHTML = '';
-      if (total <= 1) return;
-
-      const paginas = [];
-      paginas.push(0); 
-      if (atual > 2) paginas.push('...');
-      
-      for (let i = Math.max(1, atual - 1); i <= Math.min(total - 2, atual + 1); i++) {
-        if (!paginas.includes(i)) paginas.push(i);
-      }
-
-      if (atual < total - 3) paginas.push('...');
-      if (total > 1 && !paginas.includes(total - 1)) paginas.push(total - 1);
-
-      paginas.forEach(p => {
-        const btn = document.createElement('div');
-        if (p === '...') {
-          btn.className = 'num-page dots';
-          btn.innerText = '...';
-        } else {
-          btn.className = `num-page ${p === atual ? 'active' : ''}`;
-          btn.innerText = p + 1;
-          btn.onclick = () => irParaCarrossel(tipo, p);
+        if (reset) {
+          motoristasState.allMotoristas = [];
+          document.getElementById('wrapper-arvore').innerHTML = '';
         }
-        dotsContainer.appendChild(btn);
-      });
+
+        motoristasState.allMotoristas = motoristasState.allMotoristas.concat(data.motoristas);
+        motoristasState.total = data.total;
+        motoristasState.page++;
+
+        renderizarArvorePorNiveis(motoristasState.allMotoristas); // Renderiza a árvore com todos os motoristas carregados
+
+      } catch (error) {
+        console.error('Erro ao carregar motoristas:', error);
+        document.getElementById('status').innerText = `Erro ao carregar motoristas: ${error.message}`;
+      } finally {
+        motoristasState.loading = false;
+        hideLoading();
+      }
     }
 
-    function atualizarFiltrosCategorias(dados) {
-      const mapeamento = [
-        { id: 'filtro-motoristas', tipo: 'motoristas', lista: dados.gruposMotoristas, label: 'Motoristas' },
-        { id: 'filtro-comercio', tipo: 'comercio', lista: dados.gruposComercio, label: 'Comércio' },
-        { id: 'filtro-instagram', tipo: 'instagram', lista: dados.instagram, label: 'Instagram' }
-      ];
-
-      mapeamento.forEach(item => {
-        const select = document.getElementById(item.id);
-        if (!select) return;
-
-        const categorias = [...new Set(item.lista.map(i => i.categoria))]
-          .filter(c => c && c.trim() !== "")
-          .sort((a, b) => a.localeCompare(b, 'pt-BR'));
-
-        select.innerHTML = `<option value="">Todas as Categorias (${item.label})</option>`;
-        categorias.forEach(cat => {
-          const option = document.createElement('option');
-          option.value = cat;
-          option.textContent = cat;
-          select.appendChild(option);
-        });
-
-        select.onchange = () => {
-          const selecionada = select.value;
-          const listaOriginal = item.tipo === 'motoristas' ? dadosAtuais.gruposMotoristas : 
-                                item.tipo === 'comercio' ? dadosAtuais.gruposComercio : 
-                                dadosAtuais.instagram;
-          
-          const filtrados = selecionada 
-            ? listaOriginal.filter(i => i.categoria === selecionada)
-            : listaOriginal;
-          
-          renderizarCarrossel(item.tipo, filtrados);
-        };
-      });
+    function carregarMaisMotoristas() {
+      if (motoristasState.loading || motoristasState.allMotoristas.length >= motoristasState.total) return;
+      carregarMotoristas();
     }
 
-    // Tratamento de performance para a árvore: evita travamentos se houver muitos motoristas
-    function renderizarArvorePorNiveis(arvore) {
+    async function carregarGrupos(tipo, reset = false, page = 1) {
+      const state = tipo === 'motoristas' ? gruposMotoristasState : gruposComercioState;
+      const containerId = tipo === 'motoristas' ? 'carrossel-motoristas' : 'carrossel-comercio';
+      const dotsId = tipo === 'motoristas' ? 'dots-motoristas' : 'dots-comercio';
+      const filtroId = tipo === 'motoristas' ? 'filtro-motoristas' : 'filtro-comercio';
+
+      if (state.loading) return;
+      // Verifica se já carregou tudo ou se a página solicitada já está no cache local
+      if (!reset && page > 1 && state.allGrupos.length >= state.total && state.total > 0) return; 
+
+      state.loading = true;
+      showLoading(`Carregando grupos de ${tipo}...`);
+
+      try {
+        const response = await fetch(`${WEB_APP_URL}?action=listGrupos&type=${tipo}&estado=${estadoAtual}&cidade=${cidadeAtual}&page=${page}&pageSize=${state.pageSize}`);
+        const data = await response.json();
+
+        if (data.erro) {
+          console.error(`Erro ao carregar grupos de ${tipo}:`, data.mensagem);
+          document.getElementById('status').innerText = `Erro: ${data.mensagem}`;
+          return;
+        }
+
+        if (reset) {
+          state.allGrupos = [];
+        }
+        state.allGrupos = state.allGrupos.concat(data.grupos);
+        state.total = data.total;
+        state.page = page + 1; // Atualiza para a próxima página a ser carregada
+
+        renderizarCarrossel(tipo, state.allGrupos, containerId, dotsId, filtroId);
+        atualizarFiltrosCategoriasCarrossel(tipo, state.allGrupos, filtroId);
+
+      } catch (error) {
+        console.error(`Erro ao carregar grupos de ${tipo}:`, error);
+        document.getElementById('status').innerText = `Erro ao carregar grupos de ${tipo}: ${error.message}`;
+      } finally {
+        state.loading = false;
+        hideLoading();
+      }
+    }
+
+    async function carregarInstagram(reset = false, page = 1) {
+      const state = instagramState;
+      const containerId = 'carrossel-instagram';
+      const dotsId = 'dots-instagram';
+      const filtroId = 'filtro-instagram';
+
+      if (state.loading) return;
+      // Verifica se já carregou tudo ou se a página solicitada já está no cache local
+      if (!reset && page > 1 && state.allItems.length >= state.total && state.total > 0) return; 
+
+      state.loading = true;
+      showLoading('Carregando Instagram...');
+
+      try {
+        const response = await fetch(`${WEB_APP_URL}?action=listInstagram&estado=${estadoAtual}&cidade=${cidadeAtual}&page=${page}&pageSize=${state.pageSize}`);
+        const data = await response.json();
+
+        if (data.erro) {
+          console.error('Erro ao carregar Instagram:', data.mensagem);
+          document.getElementById('status').innerText = `Erro: ${data.mensagem}`;
+          return;
+        }
+
+        if (reset) {
+          state.allItems = [];
+        }
+        state.allItems = state.allItems.concat(data.instagram);
+        state.total = data.total;
+        state.page = page + 1; // Atualiza para a próxima página a ser carregada
+
+        renderizarCarrossel('instagram', state.allItems, containerId, dotsId, filtroId);
+        atualizarFiltrosCategoriasCarrossel('instagram', state.allItems, filtroId);
+
+      } catch (error) {
+        console.error('Erro ao carregar Instagram:', error);
+        document.getElementById('status').innerText = `Erro ao carregar Instagram: ${error.message}`;
+      } finally {
+        state.loading = false;
+        hideLoading();
+      }
+    }
+
+    // Função para renderizar a árvore (adaptada para receber a lista completa de motoristas)
+    function renderizarArvorePorNiveis(motoristasList) {
       const wrapper = document.getElementById('wrapper-arvore');
-      wrapper.innerHTML = "";
-      if (!arvore || arvore.length === 0) {
+      wrapper.innerHTML = ""; // Limpa antes de renderizar tudo
+      if (!motoristasList || motoristasList.length === 0) {
         wrapper.innerHTML = "<p style='opacity:0.5;'>Nenhum motorista.</p>";
         return;
       }
 
-      // Renderização fragmentada para performance
       const fragment = document.createDocumentFragment();
-      
+      const arvore = montarArvoreLocal(motoristasList); // Adaptação: montar a árvore no frontend
+
       arvore.forEach((nivelLista, indexNivel) => {
         const divNivel = document.createElement('div');
         divNivel.className = 'nivel-arvore';
@@ -565,7 +607,7 @@
           const item = document.createElement('div');
           item.className = 'item-motorista';
           item.innerHTML = `<span>${(m.nome || "Motorista").split(" ")[0]}</span>`;
-          item.onclick = () => abrirModalMotorista(m);
+          item.onclick = () => abrirModalMotorista(m.id); // Passa apenas o ID
           divNivel.appendChild(item);
         });
         
@@ -577,6 +619,165 @@
       wrapper.appendChild(fragment);
     }
 
+    // Função para montar a árvore (agora no frontend, para otimizar)
+    function montarArvoreLocal(lista) {
+      const niveis = [];
+      let indiceAtual = 0;
+      let tamanhoDoNivel = 3; // Começa com 3
+
+      while (indiceAtual < lista.length) {
+        const nivel = lista.slice(indiceAtual, indiceAtual + tamanhoDoNivel);
+        niveis.push(nivel);
+        indiceAtual += tamanhoDoNivel;
+        tamanhoDoNivel += 2; // Aumenta de 2 em 2
+      }
+      return niveis;
+    }
+
+    // Função para renderizar carrossel (adaptada para paginação)
+    function renderizarCarrossel(tipo, items, containerId, dotsId, filtroId) {
+      const container = document.getElementById(containerId);
+      const dotsContainer = document.getElementById(dotsId);
+      container.innerHTML = '';
+      dotsContainer.innerHTML = '';
+
+      if (!items || items.length === 0) {
+        container.innerHTML = '<div class="carrossel-vazio">Nenhum item encontrado.</div>';
+        return;
+      }
+
+      const state = tipo === 'motoristas' ? gruposMotoristasState : 
+                    tipo === 'comercio' ? gruposComercioState : instagramState;
+      const totalPages = Math.ceil(state.total / state.pageSize);
+
+      // Determina qual página de itens exibir no carrossel
+      // state.page já foi incrementado para a próxima busca, então usamos (state.page - 1) para a página atual
+      const currentPage = state.page - 1;
+      const startIndex = (currentPage - 1) * state.pageSize;
+      const endIndex = startIndex + state.pageSize;
+      const itemsToRender = items.slice(startIndex, endIndex);
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'carrossel-wrapper';
+
+      itemsToRender.forEach((item, index) => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'carrossel-item';
+        itemDiv.style.transform = `translateX(${index * 100}%)`; // Ajuste para mostrar um por vez
+        
+        let contentHTML = '';
+        if (tipo === 'instagram') {
+          contentHTML = `
+            <img src="${item.imagem}" alt="${item.nome}" class="grupo-imagem">
+            <div class="grupo-info">
+              <span class="grupo-categoria">${item.categoria}</span>
+              <h3 class="grupo-nome">${item.nome}</h3>
+              <p class="grupo-descricao">${item.descricao}</p>
+              <a href="${item.link}" target="_blank" class="btn-ver-mais grupo-botao">${item.textoBotao}</a>
+            </div>
+          `;
+        } else { // Grupos de motoristas e comércio
+          contentHTML = `
+            <img src="${item.imagem || 'https://via.placeholder.com/150?text=Grupo'}" alt="${item.nome}" class="grupo-imagem">
+            <div class="grupo-info">
+              <span class="grupo-categoria">${item.categoria}</span>
+              <h3 class="grupo-nome">${item.nome}</h3>
+              <p class="grupo-descricao">${item.descricao}</p>
+              <button class="btn-ver-mais grupo-botao" onclick="abrirModalGrupo(${JSON.stringify(item).replace(/'/g, '&apos;')})">Ver Descrição</button>
+              <a href="${item.link}" target="_blank" class="btn-ver-mais grupo-botao">Acessar Grupo</a>
+            </div>
+          `;
+        }
+        itemDiv.innerHTML = contentHTML;
+        wrapper.appendChild(itemDiv);
+      });
+
+      container.appendChild(wrapper);
+
+      // Botões de navegação (prev/next)
+      const prevBtn = document.createElement('button');
+      prevBtn.className = 'carrossel-nav prev';
+      prevBtn.innerHTML = '&#10094;';
+      prevBtn.onclick = () => navegarCarrossel(tipo, -1);
+      container.appendChild(prevBtn);
+
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'carrossel-nav next';
+      nextBtn.innerHTML = '&#10095;';
+      nextBtn.onclick = () => navegarCarrossel(tipo, 1);
+      container.appendChild(nextBtn);
+
+      // Paginação numérica (dots)
+      for (let i = 1; i <= totalPages; i++) {
+        const dot = document.createElement('button');
+        dot.className = `num-page ${i === currentPage ? 'active' : ''}`;
+        dot.innerText = i;
+        dot.onclick = () => navegarCarrossel(tipo, 0, i);
+        dotsContainer.appendChild(dot);
+      }
+    }
+
+    // Função para navegar no carrossel
+    async function navegarCarrossel(tipo, direction, specificPage = null) {
+      const state = tipo === 'motoristas' ? gruposMotoristasState : 
+                    tipo === 'comercio' ? gruposComercioState : instagramState;
+      const totalPages = Math.ceil(state.total / state.pageSize);
+
+      let newPage = specificPage || (state.page - 1) + direction;
+      if (newPage < 1) newPage = totalPages;
+      if (newPage > totalPages) newPage = 1;
+
+      // Se a página já foi carregada, apenas renderiza
+      // Verifica se a página que queremos exibir já está no array allGrupos/allItems
+      if (state.allGrupos.length >= newPage * state.pageSize || state.allItems.length >= newPage * state.pageSize || newPage === 1) {
+        state.page = newPage + 1; // Ajusta o estado para a próxima página a ser carregada
+        renderizarCarrossel(tipo, state.allGrupos || state.allItems, 
+                            tipo === 'motoristas' ? 'carrossel-motoristas' : tipo === 'comercio' ? 'carrossel-comercio' : 'carrossel-instagram',
+                            tipo === 'motoristas' ? 'dots-motoristas' : tipo === 'comercio' ? 'dots-comercio' : 'dots-instagram',
+                            tipo === 'motoristas' ? 'filtro-motoristas' : tipo === 'comercio' ? 'filtro-comercio' : 'filtro-instagram');
+      } else { // Caso contrário, busca a nova página
+        await carregarGrupos(tipo, false, newPage);
+      }
+    }
+
+    // Adaptação da função de filtros de categoria para usar os dados paginados
+    function atualizarFiltrosCategoriasCarrossel(tipo, items, filtroId) {
+      const select = document.getElementById(filtroId);
+      if (!select) return;
+
+      const categorias = [...new Set(items.map(i => i.categoria))]
+        .filter(c => c && c.trim() !== "")
+        .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
+      select.innerHTML = `<option value="">Todas as Categorias (${tipo === 'motoristas' ? 'Motoristas' : tipo === 'comercio' ? 'Comércio' : 'Instagram'})</option>`;
+      categorias.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = cat;
+        select.appendChild(option);
+      });
+
+      select.onchange = () => {
+        const selecionada = select.value;
+        const listaOriginal = items; // Já é a lista completa carregada até o momento
+        
+        const filtrados = selecionada 
+          ? listaOriginal.filter(i => i.categoria === selecionada)
+          : listaOriginal;
+        
+        // Ao filtrar, renderizamos a primeira página dos itens filtrados
+        const state = tipo === 'motoristas' ? gruposMotoristasState : 
+                      tipo === 'comercio' ? gruposComercioState : instagramState;
+        state.page = 2; // Resetar para a primeira página (1) + 1 para o cálculo do renderizarCarrossel
+
+        renderizarCarrossel(tipo, filtrados, 
+                            tipo === 'motoristas' ? 'carrossel-motoristas' : tipo === 'comercio' ? 'carrossel-comercio' : 'carrossel-instagram',
+                            tipo === 'motoristas' ? 'dots-motoristas' : tipo === 'comercio' ? 'dots-comercio' : 'dots-instagram',
+                            filtroId);
+      };
+    }
+
+    // Função para abrir modal de grupo (inalterada)
     function abrirModalGrupo(item) {
       const modal = document.getElementById('modal-overlay');
       const content = document.getElementById('modal-content');
@@ -592,48 +793,66 @@
       setTimeout(() => { content.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
     }
 
-    function abrirModalMotorista(m) {
-      const modal = document.getElementById('modal-overlay');
-      const content = document.getElementById('modal-content');
-      const nome = m.nome || "Motorista";
-      
-      // RESTAURAÇÃO: Usa o campo 'icone' para o telefone e verifica 'telefoneVisivel'
-      let numeroLimpo = String(m.icone || '').replace(/\D/g, '');
-      const podeMostrar = m.telefoneVisivel === true && numeroLimpo.length >= 10;
+    // Função para abrir modal de motorista (agora busca detalhes sob demanda)
+    async function abrirModalMotorista(motoristaId) {
+      showLoading('Carregando detalhes do motorista...');
+      try {
+        const response = await fetch(`${WEB_APP_URL}?action=getMotoristaDetails&id=${motoristaId}`);
+        const m = await response.json();
 
-      let corpo = "";
-      if (podeMostrar) {
-        const ddd = numeroLimpo.substring(0, 2);
-        const ini = numeroLimpo.substring(2, 7);
-        const fim = numeroLimpo.substring(7);
-        const numeroFormatado = `(${ddd}) ${ini}-${fim}`;
+        if (m.erro) {
+          console.error('Erro ao carregar detalhes do motorista:', m.mensagem);
+          document.getElementById('status').innerText = `Erro: ${m.mensagem}`;
+          return;
+        }
 
-        corpo = `
-          <div style="font-size:22px;font-weight:bold;color:#22c55e;">${nome}</div>
-          <p style="font-size:13px;color:#94a3b8;margin:6px 0 18px 0;">Motorista da rede</p>
-          <div style="font-size:20px;font-weight:bold;margin-bottom:20px;">
-            📞 ${numeroFormatado}
-          </div>
-          <button class="grupo-botao"
-            onclick="window.open('https://wa.me/55${numeroLimpo}','_blank')"
-            style="cursor:pointer;background:#22c55e;color:#020617;width:100%;padding:14px;border-radius:10px;">
-            Chamar no WhatsApp
-          </button>
-        `;
-      } else {
-        corpo = `
-          <div style="font-size:22px;font-weight:bold;">${nome}</div>
-          <p style="font-size:13px;color:#94a3b8;margin:10px 0 20px 0;">Motorista da rede</p>
-          <div style="background:#0f172a;padding:16px;border-radius:10px;border:1px solid #334155;">
-            <strong style="color:#ef4444;">Número privado</strong>
-            <p style="font-size:12px;color:#94a3b8;margin-top:6px;">Este motorista optou por não exibir o contato.</p>
-          </div>
-        `;
+        const modal = document.getElementById('modal-overlay');
+        const content = document.getElementById('modal-content');
+        const nome = m.nome || "Motorista";
+        
+        let numeroLimpo = String(m.icone || '').replace(/\D/g, '');
+        const podeMostrar = m.telefoneVisivel === true && numeroLimpo.length >= 10;
+
+        let corpo = "";
+        if (podeMostrar) {
+          const ddd = numeroLimpo.substring(0, 2);
+          const ini = numeroLimpo.substring(2, 7);
+          const fim = numeroLimpo.substring(7);
+          const numeroFormatado = `(${ddd}) ${ini}-${fim}`;
+
+          corpo = `
+            <div style="font-size:22px;font-weight:bold;color:#22c55e;">${nome}</div>
+            <p style="font-size:13px;color:#94a3b8;margin:6px 0 18px 0;">Motorista da rede</p>
+            <div style="font-size:20px;font-weight:bold;margin-bottom:20px;">
+              📞 ${numeroFormatado}
+            </div>
+            <button class="grupo-botao"
+              onclick="window.open('https://wa.me/55${numeroLimpo}','_blank')"
+              style="cursor:pointer;background:#22c55e;color:#020617;width:100%;padding:14px;border-radius:10px;">
+              Chamar no WhatsApp
+            </button>
+          `;
+        } else {
+          corpo = `
+            <div style="font-size:22px;font-weight:bold;">${nome}</div>
+            <p style="font-size:13px;color:#94a3b8;margin:10px 0 20px 0;">Motorista da rede</p>
+            <div style="background:#0f172a;padding:16px;border-radius:10px;border:1px solid #334155;">
+              <strong style="color:#ef4444;">Número privado</strong>
+              <p style="font-size:12px;color:#94a3b8;margin-top:6px;">Este motorista optou por não exibir o contato.</p>
+            </div>
+          `;
+        }
+        content.innerHTML = `${corpo}<button class="btn-secondary" onclick="fecharModal()" style="margin-top:16px;width:100%;padding:14px;">Voltar</button>`;
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => { content.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+
+      } catch (error) {
+        console.error('Erro ao carregar detalhes do motorista:', error);
+        document.getElementById('status').innerText = `Erro ao carregar detalhes: ${error.message}`;
+      } finally {
+        hideLoading();
       }
-      content.innerHTML = `${corpo}<button class="btn-secondary" onclick="fecharModal()" style="margin-top:16px;width:100%;padding:14px;">Voltar</button>`;
-      modal.style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-      setTimeout(() => { content.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
     }
 
     function fecharModal() {
@@ -644,12 +863,6 @@
       }
     }
 
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fecharModal(); });
-    document.getElementById('modal-overlay').addEventListener('click', (e) => { if (e.target.id === 'modal-overlay') fecharModal(); });
-
   </script>
 </body>
 </html>
-
-
-
