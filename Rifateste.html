@@ -108,7 +108,7 @@
     <header class="promo-card">
         <h1>Sorteio do Botijão de Gás</h1>
         <p>Garanta sua cozinha cheia por muito tempo!</p>
-        <div class="price-tag">APENAS R$ 10,00</div>
+        <div class="price-tag">APENAS R$ 2,00</div>
         
         <div class="progress-container">
             <div class="progress-bar" id="bar"></div>
@@ -187,93 +187,88 @@
 </div>
 
 <script>
-    // Banco de dados simulado (Em um site real, isso viria do seu banco de dados)
-    let participants = JSON.parse(localStorage.getItem('rifaData')) || [
-    { num: 5, name: "Carlos Oliveira", phone: "(11) 98888-1111" },
-    { num: 12, name: "Maria Santos", phone: "(21) 97777-2222" },
-    { num: 45, name: "Pedro Souza", phone: "(31) 96666-3333" }
-];
 
-    const grid = document.getElementById('grid');
-    let selected = null;
-    let isAdmin = false;
+const API_URL = "https://script.google.com/macros/s/AKfycbzrLUmy_zpV_wdhuzl-e3J8BkBU_J8g1fOuwp5esPapANJ4SYpDrh1YWgE1V3ChU255/exec";
 
-    function render() {
-    // =========================
-    // Renderizar Grid
-    // =========================
+let participants = [];
+let selected = null;
+let isAdmin = false;
+
+// ===============================
+// BUSCAR DADOS DO BACKEND
+// ===============================
+async function carregarDados() {
+    const res = await fetch(API_URL + "?acao=listar");
+    participants = await res.json();
+    render();
+}
+
+// ===============================
+// RENDER
+// ===============================
+function render() {
+
     grid.innerHTML = '';
-    const soldNums = participants.map(p => p.num);
+
+    const soldNums = participants
+        .filter(p => p.status === "pago" || p.status === "aguardando")
+        .map(p => p.num);
 
     for (let i = 0; i < 100; i++) {
-        const btn = document.createElement('button');
-        const isSold = soldNums.includes(i);
 
-        btn.className = 'num-btn' + (isSold ? ' sold' : '');
+        const btn = document.createElement('button');
+        const item = participants.find(p => p.num === i);
+
+        btn.className = "num-btn";
+
+        if (item) {
+            if (item.status === "pago") {
+                btn.classList.add("sold");
+            }
+            if (item.status === "aguardando") {
+                btn.style.background = "#f39c12";
+                btn.style.color = "#000";
+            }
+        }
+
         btn.innerText = i.toString().padStart(2, '0');
 
-        if (!isSold) {
+        if (!item) {
             btn.onclick = () => selecionar(i, btn);
         }
 
         grid.appendChild(btn);
     }
 
-    // =========================
-    // Renderizar Tabela
-    // =========================
-    const list = document.getElementById('participants-list');
-    list.innerHTML = '';
+    const pagos = participants.filter(p => p.status === "pago").length;
+    const percent = (pagos / 100) * 100;
 
-    participants
-        .sort((a, b) => a.num - b.num)
-        .forEach(p => {
-            const tr = document.createElement('tr');
-
-            tr.innerHTML = `
-                <td><span class="badge-num">${p.num.toString().padStart(2, '0')}</span></td>
-                <td>${p.name}</td>
-                <td class="phone-cell">
-                    ${isAdmin ? p.phone : '<span style="color:#333">Oculto</span>'}
-                </td>
-                <td>
-                    ${isAdmin ? `
-                        <button onclick="removerNumero(${p.num})"
-                            style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:16px;">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    ` : ''}
-                </td>
-            `;
-
-            list.appendChild(tr);
-        });
-
-    // =========================
-    // Atualizar Barra
-    // =========================
-    const percent = (participants.length / 100) * 100;
     document.getElementById('bar').style.width = percent + '%';
-    document.getElementById('sold-count').innerText = participants.length;
-
-    // =========================
-    // Salvar no localStorage
-    // =========================
-    localStorage.setItem('rifaData', JSON.stringify(participants));
+    document.getElementById('sold-count').innerText = pagos;
 }
 
-        
-    function selecionar(num, btn) {
-        const prev = document.querySelector('.num-btn.selected');
-        if (prev) prev.classList.remove('selected');
-        selected = num;
-        btn.classList.add('selected');
-        document.getElementById('no-selection').style.display = 'none';
-        document.getElementById('selection-area').style.display = 'block';
-        document.getElementById('selected-num').innerText = num.toString().padStart(2, '0');
-    }
+// ===============================
+// SELECIONAR
+// ===============================
+function selecionar(num, btn) {
 
-    function registrarVenda() {
+    const prev = document.querySelector('.num-btn.selected');
+    if (prev) prev.classList.remove('selected');
+
+    selected = num;
+    btn.classList.add('selected');
+
+    document.getElementById('no-selection').style.display = 'none';
+    document.getElementById('selection-area').style.display = 'block';
+    document.getElementById('selected-num').innerText =
+        num.toString().padStart(2, '0');
+}
+
+// ===============================
+// REGISTRAR PEDIDO
+// ===============================
+async function registrarVenda() {
+
     if (selected === null) return;
 
     const name = document.getElementById('user-name').value.trim();
@@ -284,70 +279,36 @@
         return;
     }
 
-    // Impede número duplicado
-    if (participants.some(p => p.num === selected)) {
-        alert("Esse número já foi vendido!");
-        render();
-        return;
-    }
+    const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({
+            acao: "reservar",
+            num: selected,
+            name: name,
+            phone: phone
+        })
+    });
 
-    participants.push({ num: selected, name, phone });
+    const data = await res.json();
 
-    alert("Pedido registrado! Pague via TNP para validar.");
-
-    selected = null;
-    document.getElementById('selection-area').style.display = 'none';
-    document.getElementById('no-selection').style.display = 'block';
-    document.getElementById('user-name').value = '';
-    document.getElementById('user-phone').value = '';
-
-    render();
-}
-	function removerNumero(num) {
-    if (!confirm("Deseja realmente excluir esse número?")) return;
-
-    participants = participants.filter(p => p.num !== num);
-
-    alert("Número liberado novamente!");
-    render();
-	}
-	
-
-    function checkAdmin(val) {
-    if (val === "TNP123") {
-        isAdmin = true;
-        document.getElementById('clear-admin').style.display = 'inline';
-        render();
+    if (data.status === "ok") {
+        alert("Pedido criado! Pague o PIX para confirmar.");
+        selected = null;
+        document.getElementById('selection-area').style.display = 'none';
+        document.getElementById('no-selection').style.display = 'block';
+        carregarDados();
     } else {
-        isAdmin = false;
-        document.getElementById('clear-admin').style.display = 'none';
-        render();
+        alert(data.message);
     }
-	}
-	
-   render();
-   function logoutAdmin() {
-    isAdmin = false;
-    document.getElementById('admin-pass').value = '';
-    document.getElementById('clear-admin').style.display = 'none';
-    alert("Admin deslogado.");
-    render();
-	}
-	
-	document.getElementById('user-phone').addEventListener('input', function(e) {
-    let v = e.target.value.replace(/\D/g, '');
+}
 
-    if (v.length > 11) v = v.slice(0, 11);
+// ===============================
+// AUTO ATUALIZAR A CADA 5 SEG
+// ===============================
+setInterval(carregarDados, 5000);
 
-    if (v.length > 6)
-        v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
-    else if (v.length > 2)
-        v = `(${v.slice(0,2)}) ${v.slice(2)}`;
-    else
-        v = `(${v}`;
+carregarDados();
 
-    e.target.value = v;
-});
 </script>
 
 </body>
