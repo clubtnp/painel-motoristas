@@ -292,7 +292,7 @@
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzIsmfQTV5OO1ubdGsTeCPHYSd5JzIp1NVIVvBlPIHRXkSC_FpO_gx-nuu05cpTXdIC/exec"; // **ATUALIZE COM O SEU URL**
     let cidadeAtual = '';
 
-    // Estados para paginação
+    // Estados para paginação e controle
     const motoristasState = { page: 1, pageSize: 200, total: 0, loading: false, allItems: [] };
     const gruposMotoristasState = { page: 1, pageSize: 5, total: 0, loading: false, allItems: [], index: 0 };
     const gruposComercioState = { page: 1, pageSize: 5, total: 0, loading: false, allItems: [], index: 0 };
@@ -318,10 +318,11 @@
       });
     });
 
-    function showStatus(msg) {
+    function showStatus(msg, isError = false) {
       const status = document.getElementById('status');
       status.innerText = msg;
       status.style.display = 'block';
+      status.style.color = isError ? '#ef4444' : '#22c55e';
     }
 
     function hideStatus() {
@@ -352,10 +353,11 @@
     }
 
     async function buscarTodosDados() {
-      if (!cidadeAtual) return showStatus('Selecione uma cidade primeiro.');
+      if (!cidadeAtual) return showStatus('Selecione uma cidade primeiro.', true);
       limparTudo();
       showStatus('Buscando dados...');
       try {
+        // Busca paralela para ser mais rápido
         await Promise.all([
           carregarMotoristas(true),
           carregarGrupos('motoristas', true),
@@ -364,7 +366,7 @@
         ]);
         hideStatus();
       } catch (e) {
-        showStatus('Erro ao carregar dados.');
+        showStatus('Erro ao carregar dados.', true);
       }
     }
 
@@ -374,10 +376,14 @@
       try {
         const res = await fetch(`${WEB_APP_URL}?action=listMotoristas&cidade=${cidadeAtual}&page=${motoristasState.page}`);
         const data = await res.json();
+        if (data.erro) throw new Error(data.mensagem);
+        
         motoristasState.allItems = motoristasState.allItems.concat(data.motoristas);
         motoristasState.total = data.total;
         motoristasState.page++;
         renderizarArvore();
+      } catch (e) {
+        console.error('Erro motoristas:', e);
       } finally {
         motoristasState.loading = false;
       }
@@ -401,7 +407,7 @@
         nivel.forEach(m => {
           const item = document.createElement('div');
           item.className = 'item-motorista';
-          item.innerHTML = `<span>${m.nome.split(' ')[0]}</span>`;
+          item.innerHTML = `<span>${(m.nome || 'Motorista').split(' ')[0]}</span>`;
           item.onclick = () => abrirModalMotorista(m.id);
           div.appendChild(item);
         });
@@ -418,11 +424,15 @@
       try {
         const res = await fetch(`${WEB_APP_URL}?action=listGrupos&type=${tipo}&cidade=${cidadeAtual}&page=${state.page}`);
         const data = await res.json();
+        if (data.erro) throw new Error(data.mensagem);
+
         state.allItems = state.allItems.concat(data.grupos);
         state.total = data.total;
         state.page++;
         renderizarCarrossel(tipo);
         atualizarFiltros(tipo);
+      } catch (e) {
+        console.error(`Erro grupos ${tipo}:`, e);
       } finally {
         state.loading = false;
       }
@@ -434,11 +444,15 @@
       try {
         const res = await fetch(`${WEB_APP_URL}?action=listInstagram&page=${instagramState.page}`);
         const data = await res.json();
+        if (data.erro) throw new Error(data.mensagem);
+
         instagramState.allItems = instagramState.allItems.concat(data.instagram);
         instagramState.total = data.total;
         instagramState.page++;
         renderizarCarrossel('instagram');
         atualizarFiltros('instagram');
+      } catch (e) {
+        console.error('Erro instagram:', e);
       } finally {
         instagramState.loading = false;
       }
@@ -456,7 +470,7 @@
       dots.innerHTML = '';
 
       if (state.allItems.length === 0) {
-        container.innerHTML = '<div class="carrossel-vazio">Nenhum item.</div>';
+        container.innerHTML = '<div class="carrossel-vazio">Nenhum item encontrado.</div>';
         return;
       }
 
@@ -474,11 +488,11 @@
       
       if (tipo !== 'instagram') {
         html += `<p class="grupo-descricao">${item.descricao.substring(0, 60)}...</p>
-                 <button class="btn-ver-mais" onclick='abrirModalDescricao(${JSON.stringify(item.descricao)})'>Ver Descrição</button>
-                 <a href="${item.link}" target="_blank" class="button" style="background:#22c55e;color:#020617;padding:10px;border-radius:8px;text-decoration:none;margin-top:10px;font-weight:bold;">Acessar Grupo</a>`;
+                 <button class="btn-ver-mais" onclick='abrirModalDescricao(${JSON.stringify(item.descricao).replace(/'/g, '&apos;')})'>Ver Descrição</button>
+                 <a href="${item.link}" target="_blank" class="button" style="background:#22c55e;color:#020617;padding:12px;border-radius:10px;text-decoration:none;margin-top:10px;font-weight:bold;display:block;">Acessar Grupo</a>`;
       } else {
         html += `<p class="grupo-descricao">${item.descricao}</p>
-                 <a href="${item.link}" target="_blank" class="button" style="background:#22c55e;color:#020617;padding:10px;border-radius:8px;text-decoration:none;margin-top:10px;font-weight:bold;">Ver no Instagram</a>`;
+                 <a href="${item.link}" target="_blank" class="button" style="background:#22c55e;color:#020617;padding:12px;border-radius:10px;text-decoration:none;margin-top:10px;font-weight:bold;display:block;">Ver no Instagram</a>`;
       }
       
       div.innerHTML = html + `</div>`;
@@ -496,8 +510,7 @@
       next.onclick = () => mudarSlide(tipo, 1);
       container.appendChild(next);
 
-      // Dots (Páginas)
-      const totalPaginas = Math.ceil(state.total / 1); // 1 por vez
+      // Dots
       for (let p = 0; p < state.allItems.length; p++) {
         const dot = document.createElement('div');
         dot.className = `num-page ${p === state.index ? 'active' : ''}`;
@@ -534,10 +547,8 @@
       });
       select.onchange = (e) => {
         const cat = e.target.value;
-        const itemsFiltrados = cat ? state.allItems.filter(i => i.categoria === cat) : state.allItems;
-        // Simplificação: apenas renderiza o primeiro da categoria
-        state.index = state.allItems.findIndex(i => !cat || i.categoria === cat);
-        renderizarCarrossel(tipo);
+        const idx = state.allItems.findIndex(i => !cat || i.categoria === cat);
+        if (idx !== -1) { state.index = idx; renderizarCarrossel(tipo); }
       };
     }
 
