@@ -459,66 +459,80 @@
     }
 
     function renderizarCarrossel(tipo) {
-      const state = tipo === 'motoristas' ? gruposMotoristasState : (tipo === 'comercio' ? gruposComercioState : instagramState);
-      const containerId = tipo === 'motoristas' ? 'carrossel-motoristas' : (tipo === 'comercio' ? 'carrossel-comercio' : 'carrossel-instagram');
-      const dotsId = tipo === 'motoristas' ? 'dots-motoristas' : (tipo === 'comercio' ? 'dots-comercio' : 'dots-instagram');
-      
-      const container = document.getElementById(containerId);
-      const dots = document.getElementById(dotsId);
-      
-      container.innerHTML = '';
-      dots.innerHTML = '';
+    const state = tipo === 'motoristas' ? gruposMotoristasState : (tipo === 'comercio' ? gruposComercioState : instagramState);
+    const containerId = tipo === 'motoristas' ? 'carrossel-motoristas' : (tipo === 'comercio' ? 'carrossel-comercio' : 'carrossel-instagram');
+    const dotsId = tipo === 'motoristas' ? 'dots-motoristas' : (tipo === 'comercio' ? 'dots-comercio' : 'dots-instagram');
+    
+    const container = document.getElementById(containerId);
+    const dots = document.getElementById(dotsId);
+    
+    container.innerHTML = '';
+    dots.innerHTML = '';
 
-      if (state.allItems.length === 0) {
-        container.innerHTML = '<div class="carrossel-vazio">Nenhum item encontrado.</div>';
+    // VERIFICAÇÃO PRINCIPAL: Se não há itens, mostre a mensagem de vazio e pare.
+    if (state.allItems.length === 0) {
+        container.innerHTML = '<div class="carrossel-vazio">Nenhum item encontrado para esta cidade.</div>';
         return;
-      }
+    }
 
-      const wrapper = document.createElement('div');
-      wrapper.className = 'carrossel-wrapper';
-      
-      const item = state.allItems[state.index];
-      const div = document.createElement('div');
-      div.className = 'carrossel-item';
-      
-      let html = `<img src="${item.imagem || 'https://via.placeholder.com/150'}" class="grupo-imagem">
-                  <div class="grupo-info">
-                    <span class="grupo-categoria">${item.categoria}</span>
-                    <h3 class="grupo-nome">${item.nome}</h3>`;
-      
-      if (tipo !== 'instagram') {
-        html += `<p class="grupo-descricao">${item.descricao.substring(0, 60)}...</p>
-                 <button class="btn-ver-mais" onclick='abrirModalDescricao(${JSON.stringify(item.descricao).replace(/'/g, '&apos;')})'>Ver Descrição</button>
+    // Garante que o índice seja válido
+    if (state.index < 0 || state.index >= state.allItems.length) {
+        state.index = 0;
+    }
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'carrossel-wrapper';
+    
+    const item = state.allItems[state.index];
+    const div = document.createElement('div');
+    div.className = 'carrossel-item';
+    
+    // CORREÇÃO: Usar 'display: block' e 'text-decoration: none' para o link se parecer com um botão
+    let html = `<img src="${item.imagem || 'https://via.placeholder.com/150/020617/FFFFFF?text=Sem+Imagem'}" class="grupo-imagem" alt="Imagem de ${item.nome}">
+                <div class="grupo-info">
+                  <span class="grupo-categoria">${item.categoria || 'Sem Categoria'}</span>
+                  <h3 class="grupo-nome">${item.nome}</h3>`;
+    
+    if (tipo !== 'instagram' ) {
+        // CORREÇÃO: Simplificando a chamada do modal e garantindo que a descrição seja passada corretamente
+        html += `<p class="grupo-descricao">${(item.descricao || '').substring(0, 60)}${item.descricao.length > 60 ? '...' : ''}</p>
+                 <div class="grupo-botao">
+                    ${item.descricao ? `<button class="btn-ver-mais" onclick='abrirModalDescricao(${JSON.stringify(item)})'>Ver Descrição</button>` : ''}
+                 </div>
                  <a href="${item.link}" target="_blank" class="button" style="background:#22c55e;color:#020617;padding:12px;border-radius:10px;text-decoration:none;margin-top:10px;font-weight:bold;display:block;">Acessar Grupo</a>`;
-      } else {
+    } else {
         html += `<p class="grupo-descricao">${item.descricao}</p>
                  <a href="${item.link}" target="_blank" class="button" style="background:#22c55e;color:#020617;padding:12px;border-radius:10px;text-decoration:none;margin-top:10px;font-weight:bold;display:block;">Ver no Instagram</a>`;
-      }
-      
-      div.innerHTML = html + `</div>`;
-      wrapper.appendChild(div);
-      container.appendChild(wrapper);
+    }
+    
+    div.innerHTML = html + `</div>`;
+    
+    // Adiciona o item ao wrapper DEPOIS de montar o HTML
+    wrapper.appendChild(div);
+    // Adiciona o wrapper ao container
+    container.appendChild(wrapper);
 
-      // Nav
-      const prev = document.createElement('button');
-      prev.className = 'carrossel-nav prev'; prev.innerHTML = '&#10094;';
-      prev.onclick = () => mudarSlide(tipo, -1);
-      container.appendChild(prev);
+    // Adiciona a navegação (setas)
+    const prev = document.createElement('button');
+    prev.className = 'carrossel-nav prev'; prev.innerHTML = '&#10094;';
+    prev.onclick = () => mudarSlide(tipo, -1);
+    container.appendChild(prev);
 
-      const next = document.createElement('button');
-      next.className = 'carrossel-nav next'; next.innerHTML = '&#10095;';
-      next.onclick = () => mudarSlide(tipo, 1);
-      container.appendChild(next);
+    const next = document.createElement('button');
+    next.className = 'carrossel-nav next'; next.innerHTML = '&#10095;';
+    next.onclick = () => mudarSlide(tipo, 1);
+    container.appendChild(next);
 
-      // Dots
-      for (let p = 0; p < state.allItems.length; p++) {
+    // Adiciona os pontos de paginação (dots)
+    for (let p = 0; p < state.allItems.length; p++) {
         const dot = document.createElement('div');
         dot.className = `num-page ${p === state.index ? 'active' : ''}`;
         dot.innerText = p + 1;
         dot.onclick = () => { state.index = p; renderizarCarrossel(tipo); };
         dots.appendChild(dot);
-      }
     }
+}
+
 
     async function mudarSlide(tipo, dir) {
       const state = tipo === 'motoristas' ? gruposMotoristasState : (tipo === 'comercio' ? gruposComercioState : instagramState);
@@ -577,14 +591,14 @@
       }
     }
 
-    function abrirModalDescricao(desc) {
-      const modal = document.getElementById('modal-overlay');
-      const content = document.getElementById('modal-content');
-      content.innerHTML = `<h2>Descrição</h2>
-                           <div class="modal-descricao-scroll"><p>${desc}</p></div>
+    function abrirModalDescricao(item) {
+    const modal = document.getElementById('modal-overlay');
+    const content = document.getElementById('modal-content');
+    content.innerHTML = `<h2>${item.nome}</h2>
+                           <div class="modal-descricao-scroll"><p>${item.descricao}</p></div>
                            <button class="btn-secondary" onclick="fecharModal()">Fechar</button>`;
-      modal.style.display = 'flex';
-    }
+    modal.style.display = 'flex';
+}
 
     function fecharModal() {
       document.getElementById('modal-overlay').style.display = 'none';
