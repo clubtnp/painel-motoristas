@@ -267,8 +267,10 @@ function selecionar(num, btn) {
 // ===============================
 // REGISTRAR PEDIDO
 // ===============================
+// ===============================
+// REGISTRAR PEDIDO
+// ===============================
 async function registrarVenda() {
-
     if (selected === null) return;
 
     const name = document.getElementById('user-name').value.trim();
@@ -279,28 +281,60 @@ async function registrarVenda() {
         return;
     }
 
-    const res = await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify({
-            acao: "reservar",
-            num: selected,
-            name: name,
-            phone: phone
-        })
-    });
+    // Mostra um feedback de carregamento para o usuário saber que algo está acontecendo
+    const btn = document.querySelector('.btn-pay');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> GERANDO PIX...';
+    btn.disabled = true;
 
-    const data = await res.json();
+    try {
+        const res = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({
+                acao: "reservar",
+                num: selected,
+                name: name,
+                phone: phone
+            })
+        });
 
-    if (data.status === "ok") {
-        alert("Pedido criado! Pague o PIX para confirmar.");
-        selected = null;
-        document.getElementById('selection-area').style.display = 'none';
-        document.getElementById('no-selection').style.display = 'block';
-        carregarDados();
-    } else {
-        alert(data.message);
+        const data = await res.json();
+
+        if (data.status === "ok" && data.pix_key) {
+            // SUCESSO! A chave PIX foi recebida.
+            // Agora, vamos substituir o formulário pelo QR Code e a chave.
+            document.getElementById('selection-area').innerHTML = `
+                <h3 style="margin-bottom:15px; text-align:center; color: var(--accent);">Pague para Confirmar!</h3>
+                <p style="font-size:0.8rem; text-align:center; color:var(--text-muted); margin-bottom: 15px;">Leia o QR Code ou copie a chave abaixo.</p>
+                
+                <img src="https://gerarqrcodepix.com.br/api/v1?chave=${data.pix_key}&valor=2.00" 
+                     alt="QR Code PIX" 
+                     style="width:100%; max-width:250px; margin:15px auto; display:block; border-radius:10px; border: 2px solid white;">
+                
+                <input type="text" value="${data.pix_key}" readonly 
+                       style="width:100%; text-align:center; background:#222; border:1px dashed #444; padding:10px; margin-bottom:10px; font-size: 0.8rem;">
+                
+                <button onclick="navigator.clipboard.writeText('${data.pix_key}' )" 
+                        style="width:100%; padding:12px; background:var(--accent); border:none; color:#000; border-radius:8px; cursor:pointer; font-weight: bold;">
+                    <i class="fas fa-copy"></i> COPIAR CHAVE PIX
+                </button>
+                
+                <p style="font-size:0.75rem; text-align:center; color:#555; margin-top:20px;">Após o pagamento, seu número será confirmado automaticamente nesta página.</p>
+            `;
+        } else {
+            // Se o backend retornar um erro (ex: número já reservado)
+            alert(data.message || "Ocorreu um erro ao criar o pedido.");
+            btn.innerHTML = '<i class="fas fa-check-circle"></i> CONFIRMAR PEDIDO';
+            btn.disabled = false;
+        }
+    } catch (error) {
+        // Se houver um erro de rede ou na API
+        console.error("Erro ao registrar venda:", error);
+        alert("Não foi possível conectar ao servidor. Tente novamente.");
+        btn.innerHTML = '<i class="fas fa-check-circle"></i> CONFIRMAR PEDIDO';
+        btn.disabled = false;
     }
 }
+
 
 // ===============================
 // AUTO ATUALIZAR A CADA 5 SEG
@@ -310,6 +344,7 @@ setInterval(carregarDados, 5000);
 carregarDados();
 
 </script>
+
 
 </body>
 </html>
