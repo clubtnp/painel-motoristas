@@ -96,6 +96,14 @@
         .admin-auth input { background: #111; border: 1px solid #333; color: #555; padding: 5px 10px; border-radius: 5px; font-size: 0.7rem; width: 120px; transition: 0.3s; }
         .admin-auth input:focus { border-color: var(--accent); color: #fff; width: 180px; }
 
+		.participants-table {
+    min-height: 100px;
+}
+.num-btn.sold {
+    opacity: 0.5;
+    background: #444 !important;
+}
+
         @media (max-width: 850px) {
             .main-layout { grid-template-columns: 1fr; }
             .numbers-grid { grid-template-columns: repeat(5, 1fr); }
@@ -203,49 +211,6 @@ async function carregarDados() {
     render();
 }
 
-// ===============================
-// RENDER
-// ===============================
-function render() {
-
-    grid.innerHTML = '';
-
-    const soldNums = participants
-        .filter(p => p.status === "pago" || p.status === "aguardando")
-        .map(p => p.num);
-
-    for (let i = 0; i < 100; i++) {
-
-        const btn = document.createElement('button');
-        const item = participants.find(p => p.num === i);
-
-        btn.className = "num-btn";
-
-        if (item) {
-            if (item.status === "pago") {
-                btn.classList.add("sold");
-            }
-            if (item.status === "aguardando") {
-                btn.style.background = "#f39c12";
-                btn.style.color = "#000";
-            }
-        }
-
-        btn.innerText = i.toString().padStart(2, '0');
-
-        if (!item) {
-            btn.onclick = () => selecionar(i, btn);
-        }
-
-        grid.appendChild(btn);
-    }
-
-    const pagos = participants.filter(p => p.status === "pago").length;
-    const percent = (pagos / 100) * 100;
-
-    document.getElementById('bar').style.width = percent + '%';
-    document.getElementById('sold-count').innerText = pagos;
-}
 
 // ===============================
 // SELECIONAR
@@ -337,10 +302,102 @@ async function registrarVenda() {
 
 
 // ===============================
-// AUTO ATUALIZAR A CADA 5 SEG
+// CONTROLE DE ADMIN
 // ===============================
-setInterval(carregarDados, 5000);
+function checkAdmin(pass) {
+    // Substitua '123' pela sua senha de preferência
+    if (pass === "123") { 
+        isAdmin = true;
+        document.getElementById('clear-admin').style.display = 'block';
+        document.getElementById('th-action').innerText = "Ação";
+        render(); // Atualiza a tela para mostrar os botões de excluir
+    }
+}
 
+function logoutAdmin() {
+    isAdmin = false;
+    document.getElementById('admin-pass').value = '';
+    document.getElementById('clear-admin').style.display = 'none';
+    document.getElementById('th-action').innerText = "";
+    render();
+}
+
+async function deletarNumero(num) {
+    if (!confirm(`Deseja excluir a reserva do número ${num}?`)) return;
+    
+    try {
+        const res = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({ acao: "deletar", num: num })
+        });
+        const data = await res.json();
+        if (data.status === "ok") {
+            carregarDados(); // Recarrega a lista da planilha
+        } else {
+            alert("Erro ao deletar: " + data.message);
+        }
+    } catch (e) {
+        alert("Erro de conexão ao tentar deletar.");
+    }
+}
+
+// ===============================
+// RENDERIZAÇÃO (GRID + LISTA)
+// ===============================
+function render() {
+    const grid = document.getElementById('grid');
+    const listBody = document.getElementById('participants-list');
+    
+    grid.innerHTML = '';
+    listBody.innerHTML = '';
+
+    // 1. Renderiza os quadradinhos (Grid)
+    for (let i = 0; i < 100; i++) {
+        const btn = document.createElement('button');
+        const item = participants.find(p => p.num == i);
+        btn.className = "num-btn";
+        btn.innerText = i.toString().padStart(2, '0');
+
+        if (item) {
+            if (item.status === "pago") {
+                btn.classList.add("sold");
+            } else if (item.status === "aguardando") {
+                btn.style.background = "#f39c12"; // Laranja para reserva pendente
+                btn.style.color = "#000";
+            }
+        } else {
+            btn.onclick = () => selecionar(i, btn);
+        }
+        grid.appendChild(btn);
+    }
+
+    // 2. Renderiza a Tabela de Participantes
+    participants.sort((a, b) => a.num - b.num).forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><span class="badge-num">${p.num.toString().padStart(2, '0')}</span></td>
+            <td>${p.name}</td>
+            <td>${isAdmin ? p.phone : p.phone.substring(0, 8) + '****'}</td>
+            <td>${isAdmin ? 
+                `<button onclick="deletarNumero(${p.num})" style="color:#e74c3c; background:none; border:none; cursor:pointer;">
+                    <i class="fas fa-trash"></i>
+                 </button>` : ''}
+            </td>
+        `;
+        listBody.appendChild(tr);
+    });
+
+    // Atualiza barra de progresso (baseado em números pagos)
+    const pagos = participants.filter(p => p.status === "pago").length;
+    document.getElementById('bar').style.width = pagos + '%';
+    document.getElementById('sold-count').innerText = pagos;
+}
+
+// ===============================
+// INICIALIZAÇÃO
+// ===============================
+// Atualiza os dados a cada 10 segundos para não sobrecarregar o Google
+setInterval(carregarDados, 10000); 
 carregarDados();
 
 </script>
