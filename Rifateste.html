@@ -161,6 +161,7 @@
                     <th style="width: 80px;">Nº</th>
                     <th>Nome</th>
                     <th id="th-phone">WhatsApp</th>
+					<th id="th-action" style="width:60px;"></th>
                 </tr>
             </thead>
             <tbody id="participants-list">
@@ -168,65 +169,100 @@
             </tbody>
         </table>
         
-        <div class="admin-auth">
-            <i class="fas fa-lock" style="font-size: 0.7rem; color: #333;"></i>
-            <input type="password" id="admin-pass" placeholder="Senha Admin" oninput="checkAdmin(this.value)">
-        </div>
+        <div class="admin-auth" style="display:flex; justify-content:flex-end; align-items:center; gap:8px;">
+    <i class="fas fa-lock" style="font-size: 0.7rem; color: #333;"></i>
+    
+    <input type="password" 
+           id="admin-pass" 
+           placeholder="Senha Admin" 
+           oninput="checkAdmin(this.value)">
+    
+    <button id="clear-admin"
+        onclick="logoutAdmin()"
+        style="display:none; background:none; border:none; color:#e74c3c; cursor:pointer; font-size:16px;">
+        <i class="fas fa-trash"></i>
+    </button>
+</div>
     </section>
 </div>
 
 <script>
     // Banco de dados simulado (Em um site real, isso viria do seu banco de dados)
-    let participants = [
-        { num: 5, name: "Carlos Oliveira", phone: "(11) 98888-1111" },
-        { num: 12, name: "Maria Santos", phone: "(21) 97777-2222" },
-        { num: 45, name: "Pedro Souza", phone: "(31) 96666-3333" }
-    ];
+    let participants = JSON.parse(localStorage.getItem('rifaData')) || [
+    { num: 5, name: "Carlos Oliveira", phone: "(11) 98888-1111" },
+    { num: 12, name: "Maria Santos", phone: "(21) 97777-2222" },
+    { num: 45, name: "Pedro Souza", phone: "(31) 96666-3333" }
+];
 
     const grid = document.getElementById('grid');
     let selected = null;
     let isAdmin = false;
 
     function render() {
-        // Renderizar Grid
-        grid.innerHTML = '';
-        const soldNums = participants.map(p => p.num);
-        for (let i = 0; i < 100; i++) {
-    const btn = document.createElement('button');
-    const isSold = soldNums.includes(i);
+    // =========================
+    // Renderizar Grid
+    // =========================
+    grid.innerHTML = '';
+    const soldNums = participants.map(p => p.num);
 
-    btn.className = 'num-btn' + (isSold ? ' sold' : '');
-    btn.innerText = i.toString().padStart(2, '0');
+    for (let i = 0; i < 100; i++) {
+        const btn = document.createElement('button');
+        const isSold = soldNums.includes(i);
 
-    if (!isSold) {
-        btn.onclick = () => selecionar(i, btn);
-    } else if (isSold && isAdmin) {
-        // Se for admin, pode dar duplo clique para remover
-        btn.ondblclick = () => removerNumero(i);
-        btn.style.cursor = 'pointer';
+        btn.className = 'num-btn' + (isSold ? ' sold' : '');
+        btn.innerText = i.toString().padStart(2, '0');
+
+        if (!isSold) {
+            btn.onclick = () => selecionar(i, btn);
+        }
+
+        grid.appendChild(btn);
     }
 
-    grid.appendChild(btn);
-	}
-        // Renderizar Tabela
-        const list = document.getElementById('participants-list');
-        list.innerHTML = '';
-        participants.sort((a, b) => a.num - b.num).forEach(p => {
+    // =========================
+    // Renderizar Tabela
+    // =========================
+    const list = document.getElementById('participants-list');
+    list.innerHTML = '';
+
+    participants
+        .sort((a, b) => a.num - b.num)
+        .forEach(p => {
             const tr = document.createElement('tr');
+
             tr.innerHTML = `
                 <td><span class="badge-num">${p.num.toString().padStart(2, '0')}</span></td>
                 <td>${p.name}</td>
-                <td class="phone-cell">${isAdmin ? p.phone : '<span style="color:#333">Oculto</span>'}</td>
+                <td class="phone-cell">
+                    ${isAdmin ? p.phone : '<span style="color:#333">Oculto</span>'}
+                </td>
+                <td>
+                    ${isAdmin ? `
+                        <button onclick="removerNumero(${p.num})"
+                            style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:16px;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    ` : ''}
+                </td>
             `;
+
             list.appendChild(tr);
         });
 
-        // Atualizar Barra
-        const percent = (participants.length / 100) * 100;
-        document.getElementById('bar').style.width = percent + '%';
-        document.getElementById('sold-count').innerText = participants.length;
-    }
+    // =========================
+    // Atualizar Barra
+    // =========================
+    const percent = (participants.length / 100) * 100;
+    document.getElementById('bar').style.width = percent + '%';
+    document.getElementById('sold-count').innerText = participants.length;
 
+    // =========================
+    // Salvar no localStorage
+    // =========================
+    localStorage.setItem('rifaData', JSON.stringify(participants));
+}
+
+        
     function selecionar(num, btn) {
         const prev = document.querySelector('.num-btn.selected');
         if (prev) prev.classList.remove('selected');
@@ -238,19 +274,35 @@
     }
 
     function registrarVenda() {
-        const name = document.getElementById('user-name').value;
-        const phone = document.getElementById('user-phone').value;
-        if(!name || !phone) return alert("Preencha os dados!");
-        
-        participants.push({ num: selected, name: name, phone: phone });
-        alert("Pedido registrado! Pague via TNP para validar.");
-        
-        // Reset
-        selected = null;
-        document.getElementById('selection-area').style.display = 'none';
-        document.getElementById('no-selection').style.display = 'block';
-        render();
+    if (selected === null) return;
+
+    const name = document.getElementById('user-name').value.trim();
+    const phone = document.getElementById('user-phone').value.trim();
+
+    if (!name || !phone) {
+        alert("Preencha os dados!");
+        return;
     }
+
+    // Impede número duplicado
+    if (participants.some(p => p.num === selected)) {
+        alert("Esse número já foi vendido!");
+        render();
+        return;
+    }
+
+    participants.push({ num: selected, name, phone });
+
+    alert("Pedido registrado! Pague via TNP para validar.");
+
+    selected = null;
+    document.getElementById('selection-area').style.display = 'none';
+    document.getElementById('no-selection').style.display = 'block';
+    document.getElementById('user-name').value = '';
+    document.getElementById('user-phone').value = '';
+
+    render();
+}
 	function removerNumero(num) {
     if (!confirm("Deseja realmente excluir esse número?")) return;
 
@@ -259,16 +311,43 @@
     alert("Número liberado novamente!");
     render();
 	}
+	
 
     function checkAdmin(val) {
-        if(val === "TNP123") {
-            isAdmin = true;
-            render();
-            alert("Acesso Admin Liberado! Telefones visíveis.");
-        }
+    if (val === "TNP123") {
+        isAdmin = true;
+        document.getElementById('clear-admin').style.display = 'inline';
+        render();
+    } else {
+        isAdmin = false;
+        document.getElementById('clear-admin').style.display = 'none';
+        render();
     }
-
+	}
+	
    render();
+   function logoutAdmin() {
+    isAdmin = false;
+    document.getElementById('admin-pass').value = '';
+    document.getElementById('clear-admin').style.display = 'none';
+    alert("Admin deslogado.");
+    render();
+	}
+	
+	document.getElementById('user-phone').addEventListener('input', function(e) {
+    let v = e.target.value.replace(/\D/g, '');
+
+    if (v.length > 11) v = v.slice(0, 11);
+
+    if (v.length > 6)
+        v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+    else if (v.length > 2)
+        v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+    else
+        v = `(${v}`;
+
+    e.target.value = v;
+});
 </script>
 
 </body>
