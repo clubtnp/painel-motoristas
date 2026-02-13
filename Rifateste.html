@@ -320,28 +320,78 @@ async function registrarVenda() {
                 const container = document.getElementById("qrcode-container");
                 if (container) {
                     new QRCode(container, {
-                        text: chavePixBruta, // Aqui pegamos a string do PIX Copia e Cola
+                        text: chavePixBruta, 
                         width: 200,
                         height: 200,
                         colorDark : "#000000",
                         colorLight : "#ffffff",
                         correctLevel : QRCode.CorrectLevel.M
                     });
+
+                    // INICIA A VERIFICAÇÃO AUTOMÁTICA AQUI
+                    monitorarPagamento(selected);
                 }
             }, 100);
 
         } else {
             alert(data.message || "Erro ao criar pedido.");
-            btn.innerHTML = originalBtnText;
+            btn.innerHTML = '<i class="fas fa-check-circle"></i> CONFIRMAR PEDIDO';
             btn.disabled = false;
         }
     } catch (error) {
         console.error("Erro:", error);
         alert("Erro de conexão com o servidor.");
-        btn.innerHTML = originalBtnText;
+        btn.innerHTML = '<i class="fas fa-check-circle"></i> CONFIRMAR PEDIDO';
         btn.disabled = false;
     }
 }
+// Função que fica verificando se o status mudou para "pago"
+let verificadorPagamento;
+
+function monitorarPagamento(numero) {
+    // Limpa qualquer monitoramento anterior para não dar conflito
+    clearInterval(verificadorPagamento);
+
+    verificadorPagamento = setInterval(async () => {
+        try {
+            const res = await fetch(API_URL + "?acao=listar");
+            const dados = await res.json();
+            
+            // Procura o número que o usuário acabou de reservar
+            const reserva = dados.find(p => p.num == numero);
+
+            if (reserva && reserva.status === "pago") {
+                clearInterval(verificadorPagamento); // Para de perguntar
+                confirmarSucesso(reserva.num); // Mostra a tela de sucesso
+            }
+        } catch (e) {
+            console.error("Erro ao verificar status:", e);
+        }
+    }, 5000); // Verifica a cada 5 segundos
+}
+
+function confirmarSucesso(num) {
+    emPagamento = false;
+    selected = null;
+    
+    // Substitui o QR Code pela mensagem de sucesso
+    document.getElementById('selection-area').innerHTML = `
+        <div style="text-align: center; padding: 20px;">
+            <i class="fas fa-check-circle" style="font-size: 4rem; color: #27ae60; margin-bottom: 15px;"></i>
+            <h2 style="color: #fff;">PAGAMENTO CONFIRMADO!</h2>
+            <p style="color: var(--text-muted); margin-top: 10px;">
+                O número <span class="badge-num">${num.toString().padStart(2, '0')}</span> agora é seu.
+            </p>
+            <button onclick="location.reload()" style="margin-top:20px; padding:10px 20px; background:var(--accent); border:none; border-radius:5px; cursor:pointer; font-weight:bold;">
+                VOLTAR AO INÍCIO
+            </button>
+        </div>
+    `;
+    
+    // Atualiza o grid e a lista
+    carregarDados();
+}	
+	
 function checkAdmin(pass) {
     // Substitua '123' pela sua senha de preferência
     if (pass === "123") { 
