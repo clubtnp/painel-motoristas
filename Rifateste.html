@@ -84,7 +84,7 @@
         .btn-pay:hover { filter: brightness(1.2); }
 
         /* Tabela de Participantes */
-        .participants-section { background: #111; border-radius: 20px; padding: 20px; border: 1px solid #333; margin-top: 20px; }
+        .participants-section { background: #111; border-radius: 20px; padding: 20px; border: 1px solid #333; margin-top: 20px; max-height: 400px; overflow-y: auto; }
         .participants-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; }
         .participants-table th { text-align: left; padding: 12px; border-bottom: 2px solid #333; color: var(--accent); }
         .participants-table td { padding: 12px; border-bottom: 1px solid #222; }
@@ -325,10 +325,17 @@ function logoutAdmin() {
 async function deletarNumero(num) {
     if (!confirm(`Deseja excluir a reserva do número ${num}?`)) return;
     
+    // Pegamos a senha que está no campo de input do admin
+    const senhaDigitada = document.getElementById('admin-pass').value;
+
     try {
         const res = await fetch(API_URL, {
             method: "POST",
-            body: JSON.stringify({ acao: "deletar", num: num })
+            body: JSON.stringify({ 
+                acao: "deletar", 
+                num: num, 
+                senha: senhaDigitada // Enviando a senha para o script validar
+            })
         });
         const data = await res.json();
         if (data.status === "ok") {
@@ -400,6 +407,11 @@ function render() {
 setInterval(carregarDados, 10000); 
 carregarDados();
 
+// Máscara para o campo de telefone
+document.getElementById('user-phone').addEventListener('input', function (e) {
+    let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
+    e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+});	
 </script>
 
 
