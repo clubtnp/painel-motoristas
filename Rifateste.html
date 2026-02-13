@@ -445,25 +445,34 @@ document.getElementById('user-phone').addEventListener('input', function (e) {
 });	
 
 	function copiarChave(chave, btn) {
-    // Tratamento: Remove http:// ou https:// caso existam no início da string
-    const chaveLimpa = chave.replace(/^https?:\/\//i, '');
+    // Remove http:// ou https:// e qualquer espaço em branco extra
+    const chaveLimpa = chave.replace(/^https?:\/\//i, '').trim();
 
-    // Copia a chave tratada para a área de transferência
+    // Tenta usar a API moderna de cópia
     navigator.clipboard.writeText(chaveLimpa).then(() => {
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-check"></i> COPIADA!';
-        btn.style.background = 'var(--success)';
-        btn.style.color = '#fff';
-        
-        setTimeout(() => {
-            btn.innerHTML = originalText;
-            btn.style.background = 'var(--accent)';
-            btn.style.color = '#000';
-        }, 2000);
-    }).catch(err => {
-        console.error('Erro ao copiar: ', err);
-        alert('Não foi possível copiar automaticamente. Por favor, selecione o texto e copie manualmente.');
+         darFeedbackSucesso(btn);
+    }).catch(() => {
+        // Fallback para celulares antigos que "forçam" o link
+        const input = document.createElement('input');
+        input.value = chaveLimpa;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        darFeedbackSucesso(btn);
     });
+}
+
+function darFeedbackSucesso(btn) {
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-check"></i> COPIADA!';
+    btn.style.background = 'var(--success)';
+    btn.style.color = '#fff';
+    setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.style.background = 'var(--accent)';
+        btn.style.color = '#000';
+    }, 2000);
 }
 	
 </script>
