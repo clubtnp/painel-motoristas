@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rifa do Botijão - Sorteio pela Federal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 	<style>
         :root {
             --primary: #1a1a1a;
@@ -268,6 +269,7 @@ async function registrarVenda() {
     }
 
     const btn = document.querySelector('.btn-pay');
+    const originalBtnText = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> GERANDO PIX...';
     btn.disabled = true;
 
@@ -287,20 +289,20 @@ async function registrarVenda() {
         if (data.status === "ok" && data.pix_key) {
             emPagamento = true; 
             
-            // Remove o prefixo para a cópia e exibição
-            const chaveLimpa = data.pix_key.replace(/^https?:\/\//i, '').trim();
+            // A chave que vem da API (Pode ser o código "Copy and Paste")
+            const chavePixBruta = data.pix_key.trim();
 
+            // 1. Injetamos o HTML primeiro
             document.getElementById('selection-area').innerHTML = `
                 <h3 style="margin-bottom:15px; text-align:center; color: var(--accent);">Pague para Confirmar!</h3>
                 <p style="font-size:0.8rem; text-align:center; color:var(--text-muted); margin-bottom: 15px;">Leia o QR Code ou copie a chave abaixo.</p>
                 
-                <div id="qrcode-container" style="background: white; padding: 10px; width: 220px; margin: 15px auto; border-radius: 10px;"></div>
+                <div id="qrcode-container" style="background: white; padding: 10px; width: 220px; margin: 15px auto; border-radius: 10px; display: flex; justify-content: center;"></div>
                 
-                <input type="text" value="${chaveLimpa}" id="pix-copy-input" readonly 
-                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                       style="width:100%; text-align:center; background:#222; border:1px dashed #444; padding:10px; margin-bottom:10px; font-size: 0.8rem; color: #fff;">
+                <input type="text" value="${chavePixBruta}" id="pix-copy-input" readonly 
+                       style="width:100%; text-align:center; background:#222; border:1px dashed #444; padding:10px; margin-bottom:10px; font-size: 0.7rem; color: #fff;">
                 
-                <button onclick="copiarChave('${chaveLimpa}', this)" 
+                <button onclick="copiarChave('${chavePixBruta}', this)" 
                         style="width:100%; padding:12px; background:var(--accent); border:none; color:#000; border-radius:8px; cursor:pointer; font-weight: bold;">
                     <i class="fas fa-copy"></i> COPIAR CHAVE PIX
                 </button>
@@ -313,26 +315,30 @@ async function registrarVenda() {
                 </button>
             `;
 
-            // GERAR O QR CODE NA HORA (Usando a biblioteca qrcodejs)
-            // IMPORTANTE: Geramos o QR com a CHAVE LIMPA para garantir compatibilidade
-            new QRCode(document.getElementById("qrcode-container"), {
-                text: chaveLimpa,
-                width: 200,
-                height: 200,
-                colorDark : "#000000",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H // Nível alto de correção de erro
-            });
+            // 2. Pequeno atraso (timeout) para garantir que o DOM renderizou o qrcode-container
+            setTimeout(() => {
+                const container = document.getElementById("qrcode-container");
+                if (container) {
+                    new QRCode(container, {
+                        text: chavePixBruta, // Aqui pegamos a string do PIX Copia e Cola
+                        width: 200,
+                        height: 200,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.M
+                    });
+                }
+            }, 100);
 
         } else {
             alert(data.message || "Erro ao criar pedido.");
-            btn.innerHTML = '<i class="fas fa-check-circle"></i> CONFIRMAR PEDIDO';
+            btn.innerHTML = originalBtnText;
             btn.disabled = false;
         }
     } catch (error) {
         console.error("Erro:", error);
-        alert("Erro de conexão.");
-        btn.innerHTML = '<i class="fas fa-check-circle"></i> CONFIRMAR PEDIDO';
+        alert("Erro de conexão com o servidor.");
+        btn.innerHTML = originalBtnText;
         btn.disabled = false;
     }
 }
