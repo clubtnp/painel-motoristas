@@ -445,17 +445,25 @@ document.getElementById('user-phone').addEventListener('input', function (e) {
 });	
 
 	function copiarChave(chave, btn) {
-    navigator.clipboard.writeText(chave);
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-check"></i> COPIADA!';
-    btn.style.background = 'var(--success)';
-    btn.style.color = '#fff';
-    
-    setTimeout(() => {
-        btn.innerHTML = originalText;
-        btn.style.background = 'var(--accent)';
-        btn.style.color = '#000';
-    }, 2000);
+    // Tratamento: Remove http:// ou https:// caso existam no início da string
+    const chaveLimpa = chave.replace(/^https?:\/\//i, '');
+
+    // Copia a chave tratada para a área de transferência
+    navigator.clipboard.writeText(chaveLimpa).then(() => {
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> COPIADA!';
+        btn.style.background = 'var(--success)';
+        btn.style.color = '#fff';
+        
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.style.background = 'var(--accent)';
+            btn.style.color = '#000';
+        }, 2000);
+    }).catch(err => {
+        console.error('Erro ao copiar: ', err);
+        alert('Não foi possível copiar automaticamente. Por favor, selecione o texto e copie manualmente.');
+    });
 }
 	
 </script>
