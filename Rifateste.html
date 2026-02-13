@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rifa do Botijão - Sorteio pela Federal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+	<style>
         :root {
             --primary: #1a1a1a;
             --accent: #f39c12;
@@ -285,19 +286,16 @@ async function registrarVenda() {
         const data = await res.json();
 
         if (data.status === "ok" && data.pix_key) {
-            // --- ATIVA A TRAVA DE ATUALIZAÇÃO ---
             emPagamento = true; 
             
-            // Tratamos a chave aqui para remover o http:// da exibição e do botão
+            // Remove o prefixo para a cópia e exibição
             const chaveLimpa = data.pix_key.replace(/^https?:\/\//i, '').trim();
 
             document.getElementById('selection-area').innerHTML = `
                 <h3 style="margin-bottom:15px; text-align:center; color: var(--accent);">Pague para Confirmar!</h3>
                 <p style="font-size:0.8rem; text-align:center; color:var(--text-muted); margin-bottom: 15px;">Leia o QR Code ou copie a chave abaixo.</p>
                 
-                <img src="https://gerarqrcodepix.com.br/api/v1?chave=${data.pix_key}&valor=2.00" 
-                     alt="QR Code PIX" 
-                     style="width:100%; max-width:250px; margin:15px auto; display:block; border-radius:10px; border: 2px solid white;">
+                <div id="qrcode-container" style="background: white; padding: 10px; width: 220px; margin: 15px auto; border-radius: 10px;"></div>
                 
                 <input type="text" value="${chaveLimpa}" id="pix-copy-input" readonly 
                        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
@@ -308,21 +306,33 @@ async function registrarVenda() {
                     <i class="fas fa-copy"></i> COPIAR CHAVE PIX
                 </button>
                 
-                <p style="font-size:0.75rem; text-align:center; color:#555; margin-top:20px;">Após o pagamento, seu número será confirmado automaticamente nesta página.</p>
+                <p style="font-size:0.75rem; text-align:center; color:#555; margin-top:20px;">Após o pagamento, seu número será confirmado automaticamente.</p>
 
                 <button onclick="emPagamento=false; selected=null; render();" 
                         style="width:100%; margin-top:15px; background:none; border:none; color:var(--danger); cursor:pointer; font-size:0.8rem; text-decoration: underline;">
                     Cancelar e escolher outro número
                 </button>
             `;
+
+            // GERAR O QR CODE NA HORA (Usando a biblioteca qrcodejs)
+            // IMPORTANTE: Geramos o QR com a CHAVE LIMPA para garantir compatibilidade
+            new QRCode(document.getElementById("qrcode-container"), {
+                text: chaveLimpa,
+                width: 200,
+                height: 200,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H // Nível alto de correção de erro
+            });
+
         } else {
-            alert(data.message || "Ocorreu um erro ao criar o pedido.");
+            alert(data.message || "Erro ao criar pedido.");
             btn.innerHTML = '<i class="fas fa-check-circle"></i> CONFIRMAR PEDIDO';
             btn.disabled = false;
         }
     } catch (error) {
-        console.error("Erro ao registrar venda:", error);
-        alert("Não foi possível conectar ao servidor.");
+        console.error("Erro:", error);
+        alert("Erro de conexão.");
         btn.innerHTML = '<i class="fas fa-check-circle"></i> CONFIRMAR PEDIDO';
         btn.disabled = false;
     }
