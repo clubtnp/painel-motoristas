@@ -201,6 +201,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbzrLUmy_zpV_wdhuzl-e3J8
 let participants = [];
 let selected = null;
 let isAdmin = false;
+let emPagamento = false;	
 
 // ===============================
 // BUSCAR DADOS DO BACKEND
@@ -211,30 +212,50 @@ async function carregarDados() {
     render();
 }
 
-
 // ===============================
 // SELECIONAR
 // ===============================
 function selecionar(num, btn) {
-
+    // 1. Resetamos a trava de pagamento para permitir que o novo formulário apareça
+    emPagamento = false; 
+    
+    // 2. Gerenciamos o destaque visual no grid de números
     const prev = document.querySelector('.num-btn.selected');
     if (prev) prev.classList.remove('selected');
 
     selected = num;
     btn.classList.add('selected');
 
+    // 3. Garantimos que os containers de exibição estejam corretos
     document.getElementById('no-selection').style.display = 'none';
     document.getElementById('selection-area').style.display = 'block';
-    document.getElementById('selected-num').innerText =
-        num.toString().padStart(2, '0');
-}
+    
+    // 4. Injetamos o HTML do formulário
+    document.getElementById('selection-area').innerHTML = `
+        <div class="selected-info">
+            <small>NÚMERO ESCOLHIDO</small>
+            <span id="selected-num">${num.toString().padStart(2, '0')}</span>
+        </div>
+        <div class="input-group">
+            <label>Nome Completo:</label>
+            <input type="text" id="user-name" placeholder="Ex: João Silva">
+        </div>
+        <div class="input-group">
+            <label>WhatsApp:</label>
+            <input type="tel" id="user-phone" placeholder="(00) 00000-0000" inputmode="numeric">
+        </div>
+        <button class="btn-pay" onclick="registrarVenda()">
+            <i class="fas fa-check-circle"></i> CONFIRMAR PEDIDO
+        </button>
+    `;
 
-// ===============================
-// REGISTRAR PEDIDO
-// ===============================
-// ===============================
-// REGISTRAR PEDIDO
-// ===============================
+    // 5. Re-aplicamos a máscara de telefone (essencial pois o input é novo no DOM)
+    const phoneInput = document.getElementById('user-phone');
+    phoneInput.addEventListener('input', function (e) {
+        let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
+        e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+    });
+}
 async function registrarVenda() {
     if (selected === null) return;
 
@@ -246,7 +267,6 @@ async function registrarVenda() {
         return;
     }
 
-    // Mostra um feedback de carregamento para o usuário saber que algo está acontecendo
     const btn = document.querySelector('.btn-pay');
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> GERANDO PIX...';
     btn.disabled = true;
@@ -265,8 +285,9 @@ async function registrarVenda() {
         const data = await res.json();
 
         if (data.status === "ok" && data.pix_key) {
-            // SUCESSO! A chave PIX foi recebida.
-            // Agora, vamos substituir o formulário pelo QR Code e a chave.
+            // --- ATIVA A TRAVA DE ATUALIZAÇÃO ---
+            emPagamento = true; 
+            
             document.getElementById('selection-area').innerHTML = `
                 <h3 style="margin-bottom:15px; text-align:center; color: var(--accent);">Pague para Confirmar!</h3>
                 <p style="font-size:0.8rem; text-align:center; color:var(--text-muted); margin-bottom: 15px;">Leia o QR Code ou copie a chave abaixo.</p>
@@ -275,32 +296,33 @@ async function registrarVenda() {
                      alt="QR Code PIX" 
                      style="width:100%; max-width:250px; margin:15px auto; display:block; border-radius:10px; border: 2px solid white;">
                 
-                <input type="text" value="${data.pix_key}" readonly 
-                       style="width:100%; text-align:center; background:#222; border:1px dashed #444; padding:10px; margin-bottom:10px; font-size: 0.8rem;">
+                <input type="text" value="${data.pix_key}" id="pix-copy-input" readonly 
+                       style="width:100%; text-align:center; background:#222; border:1px dashed #444; padding:10px; margin-bottom:10px; font-size: 0.8rem; color: #fff;">
                 
-                <button onclick="navigator.clipboard.writeText('${data.pix_key}' )" 
-                        style="width:100%; padding:12px; background:var(--accent); border:none; color:#000; border-radius:8px; cursor:pointer; font-weight: bold;">
-                    <i class="fas fa-copy"></i> COPIAR CHAVE PIX
-                </button>
+                <button onclick="copiarChave('${data.pix_key}', this)" 
+        style="width:100%; padding:12px; background:var(--accent); border:none; color:#000; border-radius:8px; cursor:pointer; font-weight: bold;">
+    <i class="fas fa-copy"></i> COPIAR CHAVE PIX
+</button>
                 
                 <p style="font-size:0.75rem; text-align:center; color:#555; margin-top:20px;">Após o pagamento, seu número será confirmado automaticamente nesta página.</p>
+
+                <button onclick="emPagamento=false; selected=null; render();" 
+                        style="width:100%; margin-top:15px; background:none; border:none; color:var(--danger); cursor:pointer; font-size:0.8rem; text-decoration: underline;">
+                    Cancelar e escolher outro número
+                </button>
             `;
         } else {
-            // Se o backend retornar um erro (ex: número já reservado)
             alert(data.message || "Ocorreu um erro ao criar o pedido.");
             btn.innerHTML = '<i class="fas fa-check-circle"></i> CONFIRMAR PEDIDO';
             btn.disabled = false;
         }
     } catch (error) {
-        // Se houver um erro de rede ou na API
         console.error("Erro ao registrar venda:", error);
-        alert("Não foi possível conectar ao servidor. Tente novamente.");
+        alert("Não foi possível conectar ao servidor.");
         btn.innerHTML = '<i class="fas fa-check-circle"></i> CONFIRMAR PEDIDO';
         btn.disabled = false;
     }
 }
-
-
 // ===============================
 // CONTROLE DE ADMIN
 // ===============================
@@ -358,6 +380,15 @@ function render() {
     grid.innerHTML = '';
     listBody.innerHTML = '';
 
+    // NOVA TRAVA: Se o usuário estiver pagando, não reseta a área de seleção
+    if (!emPagamento) {
+        // Se não houver número selecionado, volta para o estado inicial
+        if (selected === null) {
+            document.getElementById('no-selection').style.display = 'block';
+            document.getElementById('selection-area').style.display = 'none';
+        }
+    }
+
     // 1. Renderiza os quadradinhos (Grid)
     for (let i = 0; i < 100; i++) {
         const btn = document.createElement('button');
@@ -412,6 +443,21 @@ document.getElementById('user-phone').addEventListener('input', function (e) {
     let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
     e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
 });	
+
+	function copiarChave(chave, btn) {
+    navigator.clipboard.writeText(chave);
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-check"></i> COPIADA!';
+    btn.style.background = 'var(--success)';
+    btn.style.color = '#fff';
+    
+    setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.style.background = 'var(--accent)';
+        btn.style.color = '#000';
+    }, 2000);
+}
+	
 </script>
 
 
