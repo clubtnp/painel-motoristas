@@ -197,6 +197,9 @@
 
 <script>
 
+// ===============================
+// VARIÁVEIS GLOBAIS (mantidas como estão)
+// ===============================
 const API_URL = "https://script.google.com/macros/s/AKfycbzrLUmy_zpV_wdhuzl-e3J8BkBU_J8g1fOuwp5esPapANJ4SYpDrh1YWgE1V3ChU255/exec";
 
 let participants = [];
@@ -205,7 +208,7 @@ let isAdmin = false;
 let emPagamento = false;	
 
 // ===============================
-// BUSCAR DADOS DO BACKEND
+// BUSCAR DADOS DO BACKEND (mantida como está )
 // ===============================
 async function carregarDados() {
     const res = await fetch(API_URL + "?acao=listar");
@@ -214,28 +217,28 @@ async function carregarDados() {
 }
 
 // ===============================
-// SELECIONAR
+// SELECIONAR (mantida como está, já estava correta)
 // ===============================
 function selecionar(num, btn) {
     // 1. Resetamos a trava de pagamento para permitir que o novo formulário apareça
     emPagamento = false; 
     
     // 2. Gerenciamos o destaque visual no grid de números
-    const prev = document.querySelector('.num-btn.selected');
-    if (prev) prev.classList.remove('selected');
+    const prev = document.querySelector(".num-btn.selected");
+    if (prev) prev.classList.remove("selected");
 
     selected = num;
-    btn.classList.add('selected');
+    btn.classList.add("selected");
 
     // 3. Garantimos que os containers de exibição estejam corretos
-    document.getElementById('no-selection').style.display = 'none';
-    document.getElementById('selection-area').style.display = 'block';
+    document.getElementById("no-selection").style.display = "none";
+    document.getElementById("selection-area").style.display = "block";
     
     // 4. Injetamos o HTML do formulário
-    document.getElementById('selection-area').innerHTML = `
+    document.getElementById("selection-area").innerHTML = `
         <div class="selected-info">
             <small>NÚMERO ESCOLHIDO</small>
-            <span id="selected-num">${num.toString().padStart(2, '0')}</span>
+            <span id="selected-num">${num.toString().padStart(2, "0")}</span>
         </div>
         <div class="input-group">
             <label>Nome Completo:</label>
@@ -251,24 +254,28 @@ function selecionar(num, btn) {
     `;
 
     // 5. Re-aplicamos a máscara de telefone (essencial pois o input é novo no DOM)
-    const phoneInput = document.getElementById('user-phone');
-    phoneInput.addEventListener('input', function (e) {
-        let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
-        e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+    const phoneInput = document.getElementById("user-phone");
+    phoneInput.addEventListener("input", function (e) {
+        let x = e.target.value.replace(/\D/g, "").match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
+        e.target.value = !x[2] ? x[1] : "(" + x[1] + ") " + x[2] + (x[3] ? "-" + x[3] : "");
     });
 }
+
+// ===============================
+// REGISTRAR VENDA (mantida como está)
+// ===============================
 async function registrarVenda() {
     if (selected === null) return;
 
-    const name = document.getElementById('user-name').value.trim();
-    const phone = document.getElementById('user-phone').value.trim();
+    const name = document.getElementById("user-name").value.trim();
+    const phone = document.getElementById("user-phone").value.trim();
 
     if (!name || !phone) {
         alert("Preencha os dados!");
         return;
     }
 
-    const btn = document.querySelector('.btn-pay');
+    const btn = document.querySelector(".btn-pay");
     const originalBtnText = btn.innerHTML;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> GERANDO PIX...';
     btn.disabled = true;
@@ -293,7 +300,7 @@ async function registrarVenda() {
             const chavePixBruta = data.pix_key.trim();
 
             // 1. Injetamos o HTML primeiro
-            document.getElementById('selection-area').innerHTML = `
+            document.getElementById("selection-area").innerHTML = `
                 <h3 style="margin-bottom:15px; text-align:center; color: var(--accent);">Pague para Confirmar!</h3>
                 <p style="font-size:0.8rem; text-align:center; color:var(--text-muted); margin-bottom: 15px;">Leia o QR Code ou copie a chave abaixo.</p>
                 
@@ -345,7 +352,10 @@ async function registrarVenda() {
         btn.disabled = false;
     }
 }
-// Função que fica verificando se o status mudou para "pago"
+
+// ===============================
+// MONITORAR PAGAMENTO (mantida como está)
+// ===============================
 let verificadorPagamento;
 
 function monitorarPagamento(numero) {
@@ -370,21 +380,24 @@ function monitorarPagamento(numero) {
     }, 5000); // Verifica a cada 5 segundos
 }
 
+// ===============================
+// CONFIRMAR SUCESSO (ajustada para garantir visibilidade da selection-area)
+// ===============================
 function confirmarSucesso(num) {
     emPagamento = false;
     selected = null;
     
     // Garante que a área de seleção esteja visível para mostrar a mensagem de sucesso
-    document.getElementById('no-selection').style.display = 'none';
-    document.getElementById('selection-area').style.display = 'block';
+    document.getElementById("no-selection").style.display = "none";
+    document.getElementById("selection-area").style.display = "block";
 
     // Substitui o QR Code pela mensagem de sucesso
-    document.getElementById('selection-area').innerHTML = `
+    document.getElementById("selection-area").innerHTML = `
         <div style="text-align: center; padding: 20px;">
             <i class="fas fa-check-circle" style="font-size: 4rem; color: #27ae60; margin-bottom: 15px;"></i>
             <h2 style="color: #fff;">PAGAMENTO CONFIRMADO!</h2>
             <p style="color: var(--text-muted); margin-top: 10px;">
-                O número <span class="badge-num">${num.toString().padStart(2, '0')}</span> agora é seu.
+                O número <span class="badge-num">${num.toString().padStart(2, "0")}</span> agora é seu.
             </p>
             <button onclick="location.reload()" style="margin-top:20px; padding:10px 20px; background:var(--accent); border:none; border-radius:5px; cursor:pointer; font-weight:bold;">
                 VOLTAR AO INÍCIO
@@ -394,24 +407,26 @@ function confirmarSucesso(num) {
     
     // Atualiza o grid e a lista
     carregarDados();
-}
+}	
 
-	
+// ===============================
+// FUNÇÕES ADMIN (mantidas como estão)
+// ===============================
 function checkAdmin(pass) {
     // Substitua '123' pela sua senha de preferência
     if (pass === "123") { 
         isAdmin = true;
-        document.getElementById('clear-admin').style.display = 'block';
-        document.getElementById('th-action').innerText = "Ação";
+        document.getElementById("clear-admin").style.display = "block";
+        document.getElementById("th-action").innerText = "Ação";
         render(); // Atualiza a tela para mostrar os botões de excluir
     }
 }
 
 function logoutAdmin() {
     isAdmin = false;
-    document.getElementById('admin-pass').value = '';
-    document.getElementById('clear-admin').style.display = 'none';
-    document.getElementById('th-action').innerText = "";
+    document.getElementById("admin-pass").value = '';
+    document.getElementById("clear-admin").style.display = "none";
+    document.getElementById("th-action").innerText = "";
     render();
 }
 
@@ -419,7 +434,7 @@ async function deletarNumero(num) {
     if (!confirm(`Deseja excluir a reserva do número ${num}?`)) return;
     
     // Pegamos a senha que está no campo de input do admin
-    const senhaDigitada = document.getElementById('admin-pass').value;
+    const senhaDigitada = document.getElementById("admin-pass").value;
 
     try {
         const res = await fetch(API_URL, {
@@ -442,28 +457,30 @@ async function deletarNumero(num) {
 }
 
 // ===============================
-// RENDERIZAÇÃO (GRID + LISTA)
+// RENDERIZAÇÃO (GRID + LISTA) - AJUSTADA
 // ===============================
 function render() {
-    const grid = document.getElementById('grid');
-    const listBody = document.getElementById('participants-list');
+    const grid = document.getElementById("grid");
+    const listBody = document.getElementById("participants-list");
     
     grid.innerHTML = '';
     listBody.innerHTML = '';
-    // NOVA TRAVA: Se o usuário estiver pagando, não reseta a área de seleção
-    if (!emPagamento) {
-        // Se não houver número selecionado, volta para o estado inicial
-        if (selected === null) {
-            document.getElementById('no-selection').style.display = 'block';
-            document.getElementById('selection-area').style.display = 'none';
-        }
+
+    // Apenas reseta a área de seleção para o estado inicial (nenhum número selecionado)
+    // se não houver um número selecionado E não estivermos em um processo de pagamento.
+    // A visibilidade da selection-area e no-selection será gerenciada por selecionar() e confirmarSucesso().
+    if (selected === null && !emPagamento) {
+        document.getElementById("no-selection").style.display = "block";
+        document.getElementById("selection-area").style.display = "none";
     }
+
     // 1. Renderiza os quadradinhos (Grid)
     for (let i = 0; i < 100; i++) {
-        const btn = document.createElement('button');
+        const btn = document.createElement("button");
         const item = participants.find(p => p.num == i);
         btn.className = "num-btn";
-        btn.innerText = i.toString().padStart(2, '0');
+        btn.innerText = i.toString().padStart(2, "0");
+
         if (item) {
             if (item.status === "pago") {
                 btn.classList.add("sold");
@@ -476,11 +493,12 @@ function render() {
         }
         grid.appendChild(btn);
     }
+
     // 2. Renderiza a Tabela de Participantes
     participants.sort((a, b) => a.num - b.num).forEach(p => {
-        const tr = document.createElement('tr');
+        const tr = document.createElement("tr");
         tr.innerHTML = `
-            <td><span class="badge-num">${p.num.toString().padStart(2, '0')}</span></td>
+            <td><span class="badge-num">${p.num.toString().padStart(2, "0")}</span></td>
             <td>${p.name}</td>
             <td>${isAdmin ? p.phone : p.phone.substring(0, 8) + '****'}</td>
             <td>${isAdmin ? 
@@ -491,25 +509,32 @@ function render() {
         `;
         listBody.appendChild(tr);
     });
+
     // Atualiza barra de progresso (baseado em números pagos)
     const pagos = participants.filter(p => p.status === "pago").length;
-    document.getElementById('bar').style.width = pagos + '%';
-    document.getElementById('sold-count').innerText = pagos;
+    document.getElementById("bar").style.width = pagos + '%';
+    document.getElementById("sold-count").innerText = pagos;
 }
+
 // ===============================
-// INICIALIZAÇÃO
+// INICIALIZAÇÃO (mantida como está)
 // ===============================
 // Atualiza os dados a cada 10 segundos para não sobrecarregar o Google
 setInterval(carregarDados, 10000); 
 carregarDados();
-// Máscara para o campo de telefone
-document.getElementById('user-phone').addEventListener('input', function (e) {
-    let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
-    e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+
+// Máscara para o campo de telefone (mantida como está)
+document.getElementById("user-phone").addEventListener("input", function (e) {
+    let x = e.target.value.replace(/\D/g, "").match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
+    e.target.value = !x[2] ? x[1] : "(" + x[1] + ") " + x[2] + (x[3] ? "-" + x[3] : "");
 });	
-	function copiarChave(chave, btn) {
+
+// ===============================
+// FUNÇÕES DE CÓPIA PIX (mantidas como estão)
+// ===============================
+function copiarChave(chave, btn) {
     // Remove http:// ou https:// e qualquer espaço em branco extra
-    const chaveLimpa = chave.replace(/^https?:\/\//i, '').trim();
+    const chaveLimpa = chave.replace(/^https?:\/\//i, "" ).trim();
 
     // Tenta usar a API moderna de cópia
     navigator.clipboard.writeText(chaveLimpa).then(() => {
@@ -537,7 +562,7 @@ function darFeedbackSucesso(btn) {
         btn.style.color = '#000';
     }, 2000);
 }
-	
+
 </script>
 
 
