@@ -374,6 +374,10 @@ function confirmarSucesso(num) {
     emPagamento = false;
     selected = null;
     
+    // Garante que a área de seleção esteja visível para mostrar a mensagem de sucesso
+    document.getElementById('no-selection').style.display = 'none';
+    document.getElementById('selection-area').style.display = 'block';
+
     // Substitui o QR Code pela mensagem de sucesso
     document.getElementById('selection-area').innerHTML = `
         <div style="text-align: center; padding: 20px;">
@@ -390,7 +394,8 @@ function confirmarSucesso(num) {
     
     // Atualiza o grid e a lista
     carregarDados();
-}	
+}
+
 	
 function checkAdmin(pass) {
     // Substitua '123' pela sua senha de preferência
