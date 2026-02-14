@@ -445,22 +445,14 @@ function render() {
     
     grid.innerHTML = '';
     listBody.innerHTML = '';
-
-    // A lógica de resetar a área de seleção só deve ocorrer se não houver um número selecionado
-    // E se não estivermos no processo de pagamento (emPagamento = true) ou no estado de sucesso pós-pagamento.
-    // A função confirmarSucesso() já cuida de exibir a mensagem final na selection-area.
-    if (selected === null && !emPagamento) {
-        document.getElementById('no-selection').style.display = 'block';
-        document.getElementById('selection-area').style.display = 'none';
-    } else if (selected !== null && !emPagamento) {
-        // Se um número está selecionado, mas não estamos em pagamento, a selection-area deve estar visível
-        // para mostrar o formulário de compra.
-        document.getElementById('no-selection').style.display = 'none';
-        document.getElementById('selection-area').style.display = 'block';
+    // NOVA TRAVA: Se o usuário estiver pagando, não reseta a área de seleção
+    if (!emPagamento) {
+        // Se não houver número selecionado, volta para o estado inicial
+        if (selected === null) {
+            document.getElementById('no-selection').style.display = 'block';
+            document.getElementById('selection-area').style.display = 'none';
+        }
     }
-    // Se emPagamento for true, a selection-area já estará com o QR Code ou a mensagem de sucesso,
-    // e não queremos alterá-la aqui.
-
     // 1. Renderiza os quadradinhos (Grid)
     for (let i = 0; i < 100; i++) {
         const btn = document.createElement('button');
@@ -499,7 +491,6 @@ function render() {
     document.getElementById('bar').style.width = pagos + '%';
     document.getElementById('sold-count').innerText = pagos;
 }
-
 // ===============================
 // INICIALIZAÇÃO
 // ===============================
@@ -511,7 +502,6 @@ document.getElementById('user-phone').addEventListener('input', function (e) {
     let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
     e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
 });	
-
 	function copiarChave(chave, btn) {
     // Remove http:// ou https:// e qualquer espaço em branco extra
     const chaveLimpa = chave.replace(/^https?:\/\//i, '').trim();
