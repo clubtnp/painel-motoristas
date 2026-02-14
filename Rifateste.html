@@ -497,8 +497,16 @@ function render() {
     // 2. Renderiza a Tabela de Participantes
     participants.sort((a, b) => a.num - b.num).forEach(p => {
         const tr = document.createElement("tr");
+               // Determina a classe de cor com base no status
+        let statusClass = '';
+        if (p.status === 'pago') {
+            statusClass = 'badge-paid'; // Amarelo
+        } else if (p.status === 'aguardando') {
+            statusClass = 'badge-pending'; // Vermelho
+        }
+
         tr.innerHTML = `
-            <td><span class="badge-num">${p.num.toString().padStart(2, "0")}</span></td>
+            <td><span class="badge-num ${statusClass}">${p.num.toString().padStart(2, '0')}</span></td>
             <td>${p.name}</td>
             <td>${isAdmin ? p.phone : p.phone.substring(0, 8) + '****'}</td>
             <td>${isAdmin ? 
@@ -507,6 +515,7 @@ function render() {
                  </button>` : ''}
             </td>
         `;
+
         listBody.appendChild(tr);
     });
 
