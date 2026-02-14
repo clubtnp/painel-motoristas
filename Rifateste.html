@@ -446,14 +446,20 @@ function render() {
     grid.innerHTML = '';
     listBody.innerHTML = '';
 
-    // NOVA TRAVA: Se o usuário estiver pagando, não reseta a área de seleção
-    if (!emPagamento) {
-        // Se não houver número selecionado, volta para o estado inicial
-        if (selected === null) {
-            document.getElementById('no-selection').style.display = 'block';
-            document.getElementById('selection-area').style.display = 'none';
-        }
+    // A lógica de resetar a área de seleção só deve ocorrer se não houver um número selecionado
+    // E se não estivermos no processo de pagamento (emPagamento = true) ou no estado de sucesso pós-pagamento.
+    // A função confirmarSucesso() já cuida de exibir a mensagem final na selection-area.
+    if (selected === null && !emPagamento) {
+        document.getElementById('no-selection').style.display = 'block';
+        document.getElementById('selection-area').style.display = 'none';
+    } else if (selected !== null && !emPagamento) {
+        // Se um número está selecionado, mas não estamos em pagamento, a selection-area deve estar visível
+        // para mostrar o formulário de compra.
+        document.getElementById('no-selection').style.display = 'none';
+        document.getElementById('selection-area').style.display = 'block';
     }
+    // Se emPagamento for true, a selection-area já estará com o QR Code ou a mensagem de sucesso,
+    // e não queremos alterá-la aqui.
 
     // 1. Renderiza os quadradinhos (Grid)
     for (let i = 0; i < 100; i++) {
@@ -461,7 +467,6 @@ function render() {
         const item = participants.find(p => p.num == i);
         btn.className = "num-btn";
         btn.innerText = i.toString().padStart(2, '0');
-
         if (item) {
             if (item.status === "pago") {
                 btn.classList.add("sold");
@@ -474,7 +479,6 @@ function render() {
         }
         grid.appendChild(btn);
     }
-
     // 2. Renderiza a Tabela de Participantes
     participants.sort((a, b) => a.num - b.num).forEach(p => {
         const tr = document.createElement('tr');
@@ -490,7 +494,6 @@ function render() {
         `;
         listBody.appendChild(tr);
     });
-
     // Atualiza barra de progresso (baseado em números pagos)
     const pagos = participants.filter(p => p.status === "pago").length;
     document.getElementById('bar').style.width = pagos + '%';
@@ -503,7 +506,6 @@ function render() {
 // Atualiza os dados a cada 10 segundos para não sobrecarregar o Google
 setInterval(carregarDados, 10000); 
 carregarDados();
-
 // Máscara para o campo de telefone
 document.getElementById('user-phone').addEventListener('input', function (e) {
     let x = e.target.value.replace(/\D/g, '').match(/(\d{0,2})(\d{0,5})(\d{0,4})/);
