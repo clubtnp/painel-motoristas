@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rifa do Botijão - Seleção Múltipla</title>
+    <title>Rifa do Botijão - Painel Admin</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
@@ -12,6 +12,7 @@
             --accent: #f39c12;
             --success: #27ae60;
             --danger: #e74c3c;
+            --warning: #f1c40f; /* Cor para Dinheiro */
             --gray-light: #f4f4f4;
             --text-muted: #7f8c8d;
         }
@@ -83,14 +84,21 @@
         .btn-pay:hover:not(:disabled) { filter: brightness(1.2); }
         .btn-pay:disabled { background: #555; cursor: not-allowed; }
 
+        .btn-admin-cash {
+            width: 100%; padding: 10px; background: var(--warning); color: #000; border: none; border-radius: 8px; font-weight: bold; font-size: 0.9rem; cursor: pointer; display: none; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; transition: 0.3s;
+        }
+        .btn-admin-cash:hover { filter: brightness(1.1); }
+
         .participants-section { background: #111; border-radius: 20px; padding: 20px; border: 1px solid #333; margin-top: 20px; max-height: 400px; overflow-y: auto; }
         .participants-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.9rem; min-height: 100px; }
         .participants-table th { text-align: left; padding: 12px; border-bottom: 2px solid #333; color: var(--accent); }
         .participants-table td { padding: 12px; border-bottom: 1px solid #222; }
         .participants-table tr:hover { background: #1a1a1a; }
+        
         .badge-num { background: var(--accent); color: #000; padding: 2px 8px; border-radius: 4px; font-weight: bold; }
         .badge-paid { background: var(--success) !important; color: #fff !important; }
         .badge-pending { background: var(--danger) !important; color: #fff !important; }
+        .badge-cash { background: var(--warning) !important; color: #000 !important; } /* Cor Amarela para Dinheiro */
 
         .admin-auth { margin-top: 20px; text-align: right; }
         .admin-auth input { background: #111; border: 1px solid #333; color: #555; padding: 5px 10px; border-radius: 5px; font-size: 0.7rem; width: 120px; transition: 0.3s; }
@@ -108,7 +116,7 @@
     <header class="promo-card">
         <h1>Sorteio do Botijão de Gás</h1>
         <p>Garanta sua cozinha cheia por muito tempo!</p>
-        <div class="price-tag">APENAS R$ 2,00</div>
+        <div class="price-tag" id="main-price-tag">CARREGANDO PREÇO...</div>
         
         <div class="progress-container">
             <div class="progress-bar" id="bar"></div>
@@ -140,8 +148,14 @@
                         <label>WhatsApp:</label>
                         <input type="tel" id="user-phone" placeholder="(00) 00000-0000" inputmode="numeric">
                     </div>
+                    
                     <button class="btn-pay" id="btn-confirm" onclick="registrarVenda()">
                         <i class="fas fa-check-circle"></i> CONFIRMAR PEDIDO
+                    </button>
+
+                    <!-- Botão de Venda Manual (Só aparece para Admin) -->
+                    <button class="btn-admin-cash" id="btn-cash" onclick="registrarVendaManual()">
+                        <i class="fas fa-money-bill-wave"></i> VENDA EM DINHEIRO
                     </button>
                 </div>
             </div>
@@ -179,7 +193,7 @@
 
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzuJ-B6IO032on-DTAyQN-mhJdFu7suuqPFtif3PSr3S4NHZ4U39Vdi2-pxosART8As/exec";
-    const PRECO_UNITARIO = 2.00;
+    let PRECO_UNITARIO = 0.01;
 
     let participants = [];
     let selectedNums = [];
@@ -189,6 +203,13 @@
 
     async function carregarDados() {
         try {
+            const resPreco = await fetch(API_URL + "?acao=getPreco");
+            const dataPreco = await resPreco.json();
+            if (dataPreco.preco) {
+                PRECO_UNITARIO = dataPreco.preco;
+                document.getElementById('main-price-tag').innerText = `APENAS R$ ${PRECO_UNITARIO.toFixed(2).replace('.', ',')}`;
+            }
+
             const res = await fetch(API_URL + "?acao=listar");
             participants = await res.json();
             render();
@@ -228,7 +249,9 @@
         document.getElementById('selected-nums-display').innerText = selectedNums.map(n => n.toString().padStart(2, '0')).join(', ');
         document.getElementById('total-price-display').innerText = `R$ ${(selectedNums.length * PRECO_UNITARIO).toFixed(2).replace('.', ',')}`;
         
-        // Re-vincula a máscara se o input de telefone existir
+        // Exibe o botão de dinheiro se for admin
+        document.getElementById('btn-cash').style.display = isAdmin ? 'flex' : 'none';
+
         const phoneInput = document.getElementById('user-phone');
         if (phoneInput) {
             phoneInput.removeEventListener('input', aplicarMascaraTelefone);
@@ -243,14 +266,9 @@
 
     async function registrarVenda() {
         if (selectedNums.length === 0) return;
-
         const name = document.getElementById('user-name').value.trim();
         const phone = document.getElementById('user-phone').value.trim();
-
-        if (!name || !phone) {
-            alert("Preencha seu nome e WhatsApp!");
-            return;
-        }
+        if (!name || !phone) { alert("Preencha seu nome e WhatsApp!"); return; }
 
         const btn = document.getElementById('btn-confirm');
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> GERANDO PIX...';
@@ -259,63 +277,64 @@
         try {
             const res = await fetch(API_URL, {
                 method: "POST",
-                body: JSON.stringify({
-                    acao: "reservar",
-                    nums: selectedNums,
-                    name: name,
-                    phone: phone
-                })
+                body: JSON.stringify({ acao: "reservar", nums: selectedNums, name: name, phone: phone })
             });
-
             const data = await res.json();
 
             if (data.status === "ok" && data.pix_key) {
                 emPagamento = true; 
                 const chavePixBruta = data.pix_key.trim();
-
                 document.getElementById('selection-area').innerHTML = `
                     <h3 style="margin-bottom:10px; text-align:center; color: var(--accent);">Pague para Confirmar!</h3>
                     <p style="font-size:0.9rem; text-align:center; color:#fff; font-weight:bold;">Total: R$ ${data.valor.toFixed(2).replace('.', ',')}</p>
-                    <p style="font-size:0.75rem; text-align:center; color:var(--text-muted); margin-bottom: 10px;">Leia o QR Code ou copie a chave abaixo.</p>
-                    <div id="qrcode-container" style="background: white; padding: 10px; width: 200px; margin: 10px auto; border-radius: 10px; display: flex; justify-content: center;"></div>
-                    <input type="text" value="${chavePixBruta}" id="pix-copy-input" readonly 
-                           style="width:100%; text-align:center; background:#222; border:1px dashed #444; padding:8px; margin-bottom:10px; font-size: 0.65rem; color: #fff;">
-                    <button onclick="copiarChave('${chavePixBruta}', this)" 
-                            style="width:100%; padding:12px; background:var(--accent); border:none; color:#000; border-radius:8px; cursor:pointer; font-weight: bold;">
+                    <div id="qrcode-container" style="background: white; padding: 10px; width: 180px; margin: 10px auto; border-radius: 10px; display: flex; justify-content: center;"></div>
+                    <button onclick="copiarChave('${chavePixBruta}', this)" style="width:100%; padding:12px; background:var(--accent); border:none; color:#000; border-radius:8px; cursor:pointer; font-weight: bold;">
                         <i class="fas fa-copy"></i> COPIAR CHAVE PIX
                     </button>
-                    <p style="font-size:0.7rem; text-align:center; color:#555; margin-top:15px;">O sistema confirmará todos os seus números automaticamente após o pagamento.</p>
-                    <button onclick="location.reload()" 
-                            style="width:100%; margin-top:10px; background:none; border:none; color:var(--danger); cursor:pointer; font-size:0.75rem; text-decoration: underline;">
-                        Cancelar e recomeçar
-                    </button>
+                    <button onclick="location.reload()" style="width:100%; margin-top:10px; background:none; border:none; color:var(--danger); cursor:pointer; font-size:0.75rem; text-decoration: underline;">Cancelar</button>
                 `;
-
                 setTimeout(() => {
-                    const container = document.getElementById("qrcode-container");
-                    if (container) {
-                        new QRCode(container, {
-                            text: chavePixBruta, 
-                            width: 180,
-                            height: 180,
-                            colorDark : "#000000",
-                            colorLight : "#ffffff",
-                            correctLevel : QRCode.CorrectLevel.M
-                        });
-                        monitorarPagamento(selectedNums[0]);
-                    }
+                    new QRCode(document.getElementById("qrcode-container"), { text: chavePixBruta, width: 160, height: 160 });
+                    monitorarPagamento(selectedNums[0]);
                 }, 100);
-
             } else {
-                alert(data.message || "Erro ao criar pedido.");
+                alert(data.message);
                 btn.innerHTML = '<i class="fas fa-check-circle"></i> CONFIRMAR PEDIDO';
                 btn.disabled = false;
             }
-        } catch (error) {
-            alert("Erro de conexão com o servidor.");
-            btn.innerHTML = '<i class="fas fa-check-circle"></i> CONFIRMAR PEDIDO';
-            btn.disabled = false;
-        }
+        } catch (error) { alert("Erro de conexão."); btn.disabled = false; }
+    }
+
+    async function registrarVendaManual() {
+        if (!isAdmin) return;
+        const name = document.getElementById('user-name').value.trim();
+        const phone = document.getElementById('user-phone').value.trim();
+        if (!name || !phone) { alert("Preencha nome e WhatsApp!"); return; }
+
+        const btn = document.getElementById('btn-cash');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SALVANDO...';
+        btn.disabled = true;
+
+        try {
+            const res = await fetch(API_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    acao: "venda_manual",
+                    nums: selectedNums,
+                    name: name,
+                    phone: phone,
+                    senha: document.getElementById('admin-pass').value
+                })
+            });
+            const data = await res.json();
+            if (data.status === "ok") {
+                alert("Venda em dinheiro registrada!");
+                location.reload();
+            } else {
+                alert(data.message);
+                btn.disabled = false;
+            }
+        } catch (e) { alert("Erro ao salvar."); btn.disabled = false; }
     }
 
     function monitorarPagamento(primeiroNum) {
@@ -325,31 +344,14 @@
                 const res = await fetch(API_URL + "?acao=listar");
                 const dados = await res.json();
                 const reserva = dados.find(p => p.num == primeiroNum);
-
-                if (reserva && reserva.status === "pago") {
-                    clearInterval(verificadorPagamento);
-                    confirmarSucesso();
-                }
-            } catch (e) {
-                console.error("Erro ao verificar status:", e);
-            }
+                if (reserva && reserva.status === "pago") { clearInterval(verificadorPagamento); confirmarSucesso(); }
+            } catch (e) {}
         }, 5000);
     }
 
     function confirmarSucesso() {
         emPagamento = false;
-        document.getElementById('selection-area').innerHTML = `
-            <div style="text-align: center; padding: 20px;">
-                <i class="fas fa-check-circle" style="font-size: 4rem; color: #27ae60; margin-bottom: 15px;"></i>
-                <h2 style="color: #fff;">PAGAMENTO CONFIRMADO!</h2>
-                <p style="color: var(--text-muted); margin-top: 10px;">
-                    Seus números foram garantidos com sucesso.
-                </p>
-                <button onclick="location.reload()" style="margin-top:20px; padding:10px 20px; background:var(--accent); border:none; border-radius:5px; cursor:pointer; font-weight:bold;">
-                    VOLTAR AO INÍCIO
-                </button>
-            </div>
-        `;
+        document.getElementById('selection-area').innerHTML = `<div style="text-align:center; padding:20px;"><i class="fas fa-check-circle" style="font-size:4rem; color:#27ae60;"></i><h2>SUCESSO!</h2><button onclick="location.reload()" style="margin-top:20px; padding:10px; background:var(--accent); border:none; border-radius:5px; cursor:pointer;">VOLTAR</button></div>`;
         carregarDados();
     }
 
@@ -358,6 +360,7 @@
             isAdmin = true;
             document.getElementById('clear-admin').style.display = 'block';
             document.getElementById('th-action').innerText = "Ação";
+            if (selectedNums.length > 0) document.getElementById('btn-cash').style.display = 'flex';
             render();
         }
     }
@@ -367,49 +370,40 @@
         document.getElementById('admin-pass').value = '';
         document.getElementById('clear-admin').style.display = 'none';
         document.getElementById('th-action').innerText = "";
+        document.getElementById('btn-cash').style.display = 'none';
         render();
     }
 
     async function deletarNumero(num) {
-        if (!confirm(`Deseja excluir a reserva do número ${num}?`)) return;
-        const senhaDigitada = document.getElementById('admin-pass').value;
-
+        if (!confirm(`Excluir número ${num}?`)) return;
         try {
             const res = await fetch(API_URL, {
                 method: "POST",
-                body: JSON.stringify({ acao: "deletar", num: num, senha: senhaDigitada })
+                body: JSON.stringify({ acao: "deletar", num: num, senha: document.getElementById('admin-pass').value })
             });
             const data = await res.json();
-            if (data.status === "ok") {
-                carregarDados();
-            } else {
-                alert("Erro ao deletar: " + data.message);
-            }
-        } catch (e) {
-            alert("Erro de conexão.");
-        }
+            if (data.status === "ok") carregarDados(); else alert(data.message);
+        } catch (e) { alert("Erro."); }
     }
 
     function render() {
         const grid = document.getElementById('grid');
         const listBody = document.getElementById('participants-list');
-        
-        grid.innerHTML = '';
-        listBody.innerHTML = '';
+        grid.innerHTML = ''; listBody.innerHTML = '';
+
+        if (!emPagamento && selectedNums.length === 0) {
+            document.getElementById('no-selection').style.display = 'block';
+            document.getElementById('selection-area').style.display = 'none';
+        }
 
         for (let i = 0; i < 100; i++) {
             const btn = document.createElement('button');
             const item = participants.find(p => p.num == i);
             btn.className = "num-btn";
             btn.innerText = i.toString().padStart(2, '0');
-            
             if (item) {
-                if (item.status === "pago") {
-                    btn.classList.add("sold");
-                } else if (item.status === "aguardando") {
-                    btn.style.background = "#f39c12";
-                    btn.style.color = "#000";
-                }
+                if (item.status === "pago") btn.classList.add("sold");
+                else if (item.status === "aguardando") { btn.style.background = "#f39c12"; btn.style.color = "#000"; }
             } else {
                 if (selectedNums.includes(i)) btn.classList.add('selected');
                 btn.onclick = () => alternarSelecao(i);
@@ -419,10 +413,13 @@
 
         participants.sort((a, b) => a.num - b.num).forEach(p => {
             const tr = document.createElement('tr');
-            let statusClass = p.status === 'pago' ? 'badge-paid' : 'badge-pending';
+            let statusClass = 'badge-pending';
+            if (p.status === 'pago') {
+                statusClass = (p.pix_id === 'DINHEIRO') ? 'badge-cash' : 'badge-paid';
+            }
             tr.innerHTML = `
                 <td><span class="badge-num ${statusClass}">${p.num.toString().padStart(2, '0')}</span></td>
-                <td>${p.name}</td>
+                <td>${p.name} ${p.pix_id === 'DINHEIRO' ? '💰' : ''}</td>
                 <td>${isAdmin ? p.phone : p.phone.substring(0, 8) + '****'}</td>
                 <td>${isAdmin ? `<button onclick="deletarNumero(${p.num})" style="color:#e74c3c; background:none; border:none; cursor:pointer;"><i class="fas fa-trash"></i></button>` : ''}</td>
             `;
@@ -435,30 +432,9 @@
     }
 
     function copiarChave(chave, btn) {
-        const chaveLimpa = chave.replace(/^https?:\/\//i, '').trim();
-        navigator.clipboard.writeText(chaveLimpa).then(() => {
-             darFeedbackSucesso(btn);
-        }).catch(() => {
-            const input = document.createElement('input');
-            input.value = chaveLimpa;
-            document.body.appendChild(input);
-            input.select();
-            document.execCommand('copy');
-            document.body.removeChild(input);
-            darFeedbackSucesso(btn);
+        navigator.clipboard.writeText(chave.replace(/^https?:\/\//i, '').trim()).then(() => {
+            const old = btn.innerHTML; btn.innerHTML = 'COPIADO!'; setTimeout(() => btn.innerHTML = old, 2000);
         });
-    }
-
-    function darFeedbackSucesso(btn) {
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-check"></i> COPIADA!';
-        btn.style.background = 'var(--success)';
-        btn.style.color = '#fff';
-        setTimeout(() => {
-            btn.innerHTML = originalText;
-            btn.style.background = 'var(--accent)';
-            btn.style.color = '#000';
-        }, 2000);
     }
 
     setInterval(carregarDados, 10000); 
