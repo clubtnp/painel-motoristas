@@ -538,3 +538,48 @@ function darFeedbackSucesso(btn) {
 
 </body>
 </html>
+
+
+
+
+
+
+essa função é a que mostra o nome original de quem está pagando:
+function tratarWebhook(e) {
+  try {
+    // 1. Lê os dados enviados pela TNP
+    const body = JSON.parse(e.postData.contents);
+    
+    // 2. Pega o ID do pagamento (conforme a documentação da TNP: payment_id)
+    const paymentId = body.payment_id; 
+    
+    if (!paymentId) return ContentService.createTextOutput("ID ausente");
+
+    // 3. Abre a planilha
+    const planilha = SpreadsheetApp.openById(PLANILHA_ID).getSheetByName(ABA);
+    const dados = planilha.getDataRange().getValues();
+
+    // 4. Procura o ID na Coluna E (índice 4)
+    for (let i = 1; i < dados.length; i++) {
+      // Comparamos o ID da planilha com o ID que veio no Webhook
+      if (dados[i][4] == paymentId) {
+        // Se a TNP enviou o Webhook, o pagamento foi confirmado.
+        // Mudamos o Status (Coluna D / índice 3) para "pago"
+        planilha.getRange(i + 1, 4).setValue("pago");
+        
+        // Opcional: Atualiza o nome se a TNP enviou
+        if (body.customer && body.customer.name) {
+          planilha.getRange(i + 1, 2).setValue(body.customer.name);
+        }
+        
+        break; // Encontrou, pode parar o loop
+      }
+    }
+    
+    // Retorna OK para a TNP saber que você recebeu
+    return ContentService.createTextOutput("OK");
+    
+  } catch (err) {
+    return ContentService.createTextOutput("Erro: " + err.message);
+  }
+}
