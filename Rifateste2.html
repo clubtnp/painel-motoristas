@@ -3,35 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rifa Múltipla - Escolha seus Números</title>
+    <title>Rifa do Botijão - Seleção Múltipla</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        :root { --primary: #1a1a1a; --accent: #f39c12; --success: #27ae60; --danger: #e74c3c; }
+        :root { --primary: #1a1a1a; --accent: #f39c12; --success: #27ae60; --danger: #e74c3c; --text-muted: #7f8c8d; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background-color: #000; color: #fff; padding: 10px; }
         .container { max-width: 1000px; margin: 0 auto; }
-        .promo-card { border: 2px solid var(--accent ); border-radius: 20px; padding: 30px; text-align: center; margin-bottom: 20px; background: #111; }
-        .price-tag { font-size: 1.2rem; background: var(--accent); color: #000; padding: 5px 15px; border-radius: 50px; font-weight: bold; }
-        
-        .main-layout { display: grid; grid-template-columns: 1fr 350px; gap: 20px; }
-        .numbers-grid { background: #111; padding: 20px; border-radius: 20px; display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; }
-        
-        .num-btn { aspect-ratio: 1; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .num-btn.selected { background: var(--accent); color: #000; box-shadow: 0 0 15px var(--accent); }
-        .num-btn.sold { opacity: 0.3; cursor: not-allowed; text-decoration: line-through; }
-
+        .promo-card { background: linear-gradient(rgba(0,0,0,0.6 ), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1628151015968-3a4429e9ef04?auto=format&fit=crop&q=80&w=800' ) center/cover; border: 2px solid var(--accent); border-radius: 20px; padding: 30px; text-align: center; margin-bottom: 20px; box-shadow: 0 0 20px rgba(243, 156, 18, 0.3); }
+        .promo-card h1 { font-size: 2.5rem; text-transform: uppercase; letter-spacing: 2px; }
+        .price-tag { font-size: 1.5rem; background: var(--accent); color: #000; display: inline-block; padding: 5px 20px; border-radius: 50px; font-weight: bold; margin: 15px 0; }
+        .progress-container { background: #333; border-radius: 10px; height: 25px; margin: 20px 0; position: relative; overflow: hidden; }
+        .progress-bar { background: var(--accent); height: 100%; width: 0%; transition: width 0.5s; }
+        .progress-text { position: absolute; width: 100%; text-align: center; font-size: 0.8rem; line-height: 25px; font-weight: bold; color: #fff; }
+        .main-layout { display: grid; grid-template-columns: 1fr 350px; gap: 20px; margin-bottom: 20px; }
+        .numbers-grid { background: #111; padding: 20px; border-radius: 20px; display: grid; grid-template-columns: repeat(10, 1fr); gap: 8px; border: 1px solid #333; }
+        .num-btn { aspect-ratio: 1; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: 0.2s; }
+        .num-btn:hover:not(.sold) { border-color: var(--accent); color: var(--accent); transform: scale(1.05); }
+        .num-btn.selected { background: var(--accent); color: #000; border-color: var(--accent); box-shadow: 0 0 15px var(--accent); }
+        .num-btn.sold { opacity: 0.3; cursor: not-allowed; text-decoration: line-through; background: #333; }
         .sidebar { display: flex; flex-direction: column; gap: 20px; }
         .card { background: #111; border-radius: 20px; padding: 20px; border: 1px solid #333; }
-        .selected-list { display: flex; flex-wrap: wrap; gap: 5px; margin: 10px 0; }
-        .badge-num { background: var(--accent); color: #000; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; }
-        
+        .card h3 { margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; color: var(--accent); }
+        .selected-list { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 15px; }
+        .badge-num { background: var(--accent); color: #000; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; }
         .input-group { margin-bottom: 12px; }
-        .input-group label { display: block; font-size: 0.75rem; color: #7f8c8d; margin-bottom: 4px; }
-        .input-group input { width: 100%; padding: 10px; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; }
-        
-        .btn-pay { width: 100%; padding: 15px; background: var(--success); color: #fff; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        
+        .input-group label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; }
+        .input-group input { width: 100%; padding: 10px; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; outline: none; }
+        .btn-pay { width: 100%; padding: 15px; background: var(--success); color: #fff; border: none; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; }
+        .btn-pay:disabled { background: #444; cursor: not-allowed; }
+        .participants-section { background: #111; border-radius: 20px; padding: 20px; border: 1px solid #333; margin-top: 20px; }
+        .participants-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+        .participants-table th { text-align: left; padding: 12px; border-bottom: 2px solid #333; color: var(--accent); }
+        .participants-table td { padding: 12px; border-bottom: 1px solid #222; }
+        .badge-status { padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+        .badge-paid { background: var(--success); color: #fff; }
+        .badge-pending { background: var(--danger); color: #fff; }
         @media (max-width: 850px) { .main-layout { grid-template-columns: 1fr; } .numbers-grid { grid-template-columns: repeat(5, 1fr); } }
     </style>
 </head>
@@ -39,129 +47,157 @@
 
 <div class="container">
     <header class="promo-card">
-        <h1>Rifa do Botijão - Seleção Múltipla</h1>
-        <p>Escolha quantos números quiser!</p>
-        <div style="margin-top:10px;"><span class="price-tag">R$ 2,00 por número</span></div>
+        <h1>Sorteio do Botijão de Gás</h1>
+        <p>Escolha múltiplos números e aumente suas chances!</p>
+        <div class="price-tag">R$ 2,00 CADA</div>
+        <div class="progress-container">
+            <div class="progress-bar" id="bar"></div>
+            <div class="progress-text">VENDEMOS <span id="sold-count">0</span> DE 100 NÚMEROS</div>
+        </div>
     </header>
 
     <div class="main-layout">
         <section class="numbers-grid" id="grid"></section>
 
         <aside class="sidebar">
-            <div class="card">
+            <div class="card" id="selection-card">
                 <h3><i class="fas fa-shopping-cart"></i> Carrinho</h3>
-                <div id="no-selection" style="text-align: center; color: #555; padding: 20px;">Escolha os números no grid.</div>
+                <div id="no-selection" style="text-align: center; color: #555; padding: 20px;">Selecione os números no grid.</div>
                 
                 <div id="selection-area" style="display: none;">
-                    <p>Números selecionados:</p>
                     <div class="selected-list" id="selected-nums-list"></div>
-                    <hr style="border: 0.5px solid #333; margin: 15px 0;">
-                    <p>Total: <strong id="total-price" style="color: var(--accent); font-size: 1.2rem;">R$ 0,00</strong></p>
-                    
-                    <div class="input-group" style="margin-top:15px;">
-                        <label>Nome Completo:</label>
-                        <input type="text" id="user-name" placeholder="Seu nome">
-                    </div>
-                    <div class="input-group">
-                        <label>WhatsApp:</label>
-                        <input type="text" id="user-phone" placeholder="(00) 00000-0000">
-                    </div>
-                    <button class="btn-pay" onclick="registrarVenda()">CONFIRMAR PEDIDO</button>
+                    <p style="margin-bottom: 15px;">Total: <strong id="total-price" style="color: var(--accent); font-size: 1.3rem;">R$ 0,00</strong></p>
+                    <div class="input-group"><label>Nome Completo:</label><input type="text" id="user-name"></div>
+                    <div class="input-group"><label>WhatsApp:</label><input type="text" id="user-phone"></div>
+                    <button class="btn-pay" id="btn-main" onclick="registrarVenda()"><i class="fas fa-check-circle"></i> CONFIRMAR PEDIDO</button>
                 </div>
             </div>
         </aside>
     </div>
+
+    <section class="participants-section">
+        <h3><i class="fas fa-list"></i> Participantes</h3>
+        <table class="participants-table">
+            <thead><tr><th>Nº</th><th>Nome</th><th>Status</th></tr></thead>
+            <tbody id="participants-list"></tbody>
+        </table>
+    </section>
 </div>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbzuJ-B6IO032on-DTAyQN-mhJdFu7suuqPFtif3PSr3S4NHZ4U39Vdi2-pxosART8As/exec";
 let participants = [];
-let selected = []; // Agora é um ARRAY
+let selected = [];
+let verificadorPagamento = null;
 
 async function carregarDados( ) {
     try {
         const res = await fetch(API_URL + "?acao=listar");
         participants = await res.json();
-        renderGrid();
-    } catch (e) { console.error("Erro ao carregar:", e); }
+        render();
+    } catch (e) { console.error(e); }
 }
 
-function renderGrid() {
+function render() {
     const grid = document.getElementById('grid');
     grid.innerHTML = '';
     for (let i = 1; i <= 100; i++) {
         const btn = document.createElement('button');
         btn.className = 'num-btn';
         btn.innerText = i.toString().padStart(2, '0');
-        
-        const info = participants.find(p => p.num == i);
-        if (info && (info.status === 'pago' || info.status === 'aguardando')) {
+        const p = participants.find(x => x.num == i);
+        if (p && (p.status === 'pago' || p.status === 'aguardando')) {
             btn.classList.add('sold');
         } else {
             if (selected.includes(i)) btn.classList.add('selected');
-            btn.onclick = () => alternarSelecao(i);
+            btn.onclick = () => {
+                const idx = selected.indexOf(i);
+                if (idx > -1) selected.splice(idx, 1); else selected.push(i);
+                atualizarUI();
+                render();
+            };
         }
         grid.appendChild(btn);
     }
+
+    const list = document.getElementById('participants-list');
+    list.innerHTML = participants.map(p => `<tr><td><span class="badge-num">${p.num}</span></td><td>${p.name}</td><td><span class="badge-status ${p.status === 'pago' ? 'badge-paid' : 'badge-pending'}">${p.status}</span></td></tr>`).join('');
+
+    const pagos = participants.filter(p => p.status === 'pago').length;
+    document.getElementById('bar').style.width = pagos + '%';
+    document.getElementById('sold-count').innerText = pagos;
 }
 
-function alternarSelecao(num) {
-    const index = selected.indexOf(num);
-    if (index > -1) {
-        selected.splice(index, 1); // Remove se já estiver
-    } else {
-        selected.push(num); // Adiciona se não estiver
-    }
-    atualizarInterface();
-    renderGrid();
-}
-
-function atualizarInterface() {
+function atualizarUI() {
     const area = document.getElementById('selection-area');
     const noSel = document.getElementById('no-selection');
-    const list = document.getElementById('selected-nums-list');
-    const totalTxt = document.getElementById('total-price');
-
     if (selected.length > 0) {
-        area.style.display = 'block';
-        noSel.style.display = 'none';
-        list.innerHTML = selected.map(n => `<span class="badge-num">${n.toString().padStart(2, '0')}</span>`).join('');
-        totalTxt.innerText = `R$ ${(selected.length * 2).toFixed(2).replace('.', ',')}`;
+        area.style.display = 'block'; noSel.style.display = 'none';
+        document.getElementById('selected-nums-list').innerHTML = selected.map(n => `<span class="badge-num">${n}</span>`).join('');
+        document.getElementById('total-price').innerText = `R$ ${(selected.length * 2).toFixed(2).replace('.', ',')}`;
     } else {
-        area.style.display = 'none';
-        noSel.style.display = 'block';
+        area.style.display = 'none'; noSel.style.display = 'block';
     }
 }
 
 async function registrarVenda() {
     const nome = document.getElementById('user-name').value;
     const fone = document.getElementById('user-phone').value;
+    if (!nome || !fone) return alert("Preencha os dados!");
 
-    if (!nome || !fone) return alert("Preencha nome e telefone!");
-    if (selected.length === 0) return alert("Escolha pelo menos um número!");
-
-    const btn = document.querySelector('.btn-pay');
-    btn.disabled = true;
-    btn.innerText = "GERANDO PIX...";
+    const btn = document.getElementById('btn-main');
+    btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PROCESSANDO...';
 
     try {
-        const res = await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ acao: 'reservar', name: nome, phone: fone, nums: selected })
-        });
+        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ acao: 'reservar', name: nome, phone: fone, nums: selected }) });
         const data = await res.json();
+        if (data.status === 'ok') mostrarPagamento(data); else alert(data.message);
+    } catch (e) { alert("Erro de conexão"); }
+    btn.disabled = false; btn.innerHTML = '<i class="fas fa-check-circle"></i> CONFIRMAR PEDIDO';
+}
 
-        if (data.status === 'ok') {
-            // Aqui você pode adicionar a lógica de mostrar o QR Code como no script anterior
-            alert("Pedido realizado! Chave PIX: " + data.pix_key);
-            selected = [];
-            carregarDados();
-        } else {
-            alert("Erro: " + data.message);
-        }
-    } catch (e) { alert("Erro na conexão."); }
-    btn.disabled = false;
-    btn.innerText = "CONFIRMAR PEDIDO";
+function mostrarPagamento(data) {
+    const area = document.getElementById('selection-area');
+    area.innerHTML = `
+        <div style="text-align:center; padding:10px;">
+            <h4 style="color:var(--accent); margin-bottom:10px;">PAGAMENTO PENDENTE</h4>
+            <div id="qrcode" style="background:#fff; padding:10px; display:inline-block; border-radius:10px; margin-bottom:15px;"></div>
+            <button class="btn-pay" style="background:var(--accent); color:#000; margin-bottom:10px;" onclick="copiarPix('${data.pix_key}', this)">
+                <i class="fas fa-copy"></i> COPIAR CHAVE PIX
+            </button>
+            <p style="font-size:0.8rem; color:var(--text-muted);">Aguardando aprovação do pagamento...</p>
+        </div>
+    `;
+    new QRCode(document.getElementById("qrcode"), { text: data.pix_key, width: 180, height: 180 });
+    
+    // Inicia verificação automática
+    if (verificadorPagamento) clearInterval(verificadorPagamento);
+    verificadorPagamento = setInterval(() => checarStatus(data.pix_id), 5000);
+}
+
+async function checarStatus(pixId) {
+    const res = await fetch(API_URL + "?acao=listar");
+    const dados = await res.json();
+    const pago = dados.some(p => p.status === 'pago' && selected.includes(Number(p.num)));
+    if (pago) {
+        clearInterval(verificadorPagamento);
+        document.getElementById('selection-area').innerHTML = `
+            <div style="text-align:center; padding:20px;">
+                <i class="fas fa-check-circle" style="font-size:4rem; color:var(--success); margin-bottom:15px;"></i>
+                <h2>PAGO COM SUCESSO!</h2>
+                <p>Seus números foram garantidos.</p>
+                <button class="btn-pay" style="margin-top:15px;" onclick="location.reload()">VOLTAR</button>
+            </div>
+        `;
+    }
+}
+
+function copiarPix(chave, btn) {
+    navigator.clipboard.writeText(chave).then(() => {
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> COPIADO!';
+        setTimeout(() => btn.innerHTML = original, 2000);
+    });
 }
 
 setInterval(carregarDados, 10000);
@@ -169,4 +205,3 @@ carregarDados();
 </script>
 </body>
 </html>
-
