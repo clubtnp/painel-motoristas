@@ -20,8 +20,9 @@
         body { background-color: #000; color: #fff; padding: 10px; }
         .container { max-width: 500px; margin: 20px auto; }
 
+        /* Estilo do Card Principal */
         .promo-card {
-            background: linear-gradient(rgba(0,0,0,0.8  ), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1628151015968-3a4429e9ef04?auto=format&fit=crop&w=1000&q=80'  );
+            background: linear-gradient(rgba(0,0,0,0.8 ), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1628151015968-3a4429e9ef04?auto=format&fit=crop&w=1000&q=80' );
             background-size: cover;
             border: 2px solid var(--accent);
             border-radius: 20px;
@@ -71,6 +72,7 @@
         .btn-primary:hover { background: #219150; transform: scale(1.02); }
         .btn-primary:disabled { background: #555; cursor: not-allowed; }
 
+        /* Seção do PIX */
         #pixSection {
             display: none;
             margin-top: 25px;
@@ -110,8 +112,8 @@
             <i class="fas fa-qrcode"></i> CONFIRMAR PEDIDO
         </button>
 
-        <!-- Área do QR Code (ID duplicado removido) -->
-        <div id="pixSection">
+        <!-- Área do QR Code -->
+        <div id="pixSection" id="pixArea">
             <div style="text-align: center;">
                 <div id="qrcode"></div>
                 <p style="font-size: 0.8rem; color: var(--accent); margin-bottom: 10px; font-weight: bold;">ESCANEIE O QR CODE ACIMA</p>
@@ -128,6 +130,7 @@
 </div>
 
 <script>
+    // SUA URL DO GOOGLE SCRIPT ATUALIZADA
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwcWYLOz327EIIwQngyEl0w3S0kyRTMtnVHMCPe0P0CEqVl9-btGA_DyBxjLrjn2ozO/exec';
 
     async function gerarPagamento( ) {
@@ -145,12 +148,8 @@
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PROCESSANDO...';
 
         try {
-            // ***** CORREÇÃO PRINCIPAL APLICADA AQUI *****
             const response = await fetch(scriptURL, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
                 body: JSON.stringify({
                     name: name,
                     phone: phone,
@@ -164,6 +163,7 @@
                 document.getElementById('pixSection').style.display = 'block';
                 document.getElementById('pixKeyDisplay').value = res.pix_key;
                 
+                // Limpa e gera o QR Code
                 const qrContainer = document.getElementById('qrcode');
                 qrContainer.innerHTML = '';
                 new QRCode(qrContainer, {
@@ -175,6 +175,7 @@
                 });
                 
                 btn.style.display = 'none';
+                // Rola a tela para o QR Code
                 document.getElementById('pixSection').scrollIntoView({ behavior: 'smooth' });
             } else {
                 alert('Erro: ' + res.message);
@@ -192,15 +193,9 @@
     function copyPix() {
         const copyText = document.getElementById('pixKeyDisplay');
         copyText.select();
-        copyText.setSelectionRange(0, 99999);
-        // A função document.execCommand('copy') é antiga. 
-        // Usando a API mais moderna navigator.clipboard para melhor compatibilidade.
-        navigator.clipboard.writeText(copyText.value).then(() => {
-            alert('Código PIX copiado com sucesso!');
-        }).catch(err => {
-            console.error('Falha ao copiar texto: ', err);
-            alert('Não foi possível copiar o código.');
-        });
+        copyText.setSelectionRange(0, 99999); // Para dispositivos móveis
+        document.execCommand('copy');
+        alert('Código PIX copiado com sucesso!');
     }
 </script>
 
