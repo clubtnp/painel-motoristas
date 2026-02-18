@@ -15,28 +15,71 @@
             --gray-light: #f4f4f4;
             --text-muted: #7f8c8d;
         }
+
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background-color: #000; color: #fff; padding: 10px; }
         .container { max-width: 500px; margin: 20px auto; }
+
+        /* Estilo do Card Principal */
         .promo-card {
-            background: linear-gradient(rgba(0,0,0,0.8  ), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1628151015968-3a4429e9ef04?auto=format&fit=crop&w=1000&q=80'  );
-            background-size: cover; border: 2px solid var(--accent); border-radius: 20px; padding: 30px; box-shadow: 0 0 20px rgba(243, 156, 18, 0.2);
+            background: linear-gradient(rgba(0,0,0,0.8 ), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1628151015968-3a4429e9ef04?auto=format&fit=crop&w=1000&q=80' );
+            background-size: cover;
+            border: 2px solid var(--accent);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(243, 156, 18, 0.2);
         }
+
         .input-group { margin-bottom: 20px; }
         .input-group label { display: block; margin-bottom: 8px; color: var(--accent); font-weight: bold; font-size: 0.9rem; text-transform: uppercase; }
+        
         .input-field {
-            width: 100%; background: rgba(255,255,255,0.05); border: 1px solid #444; padding: 15px; border-radius: 12px; color: #fff; font-size: 1rem; transition: all 0.3s;
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid #444;
+            padding: 15px;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s;
         }
         .input-field:focus { border-color: var(--accent); outline: none; background: rgba(255,255,255,0.1); }
-        .value-input { font-size: 2rem !important; color: var(--success) !important; font-weight: bold !important; text-align: center; }
+
+        .value-input {
+            font-size: 2rem !important;
+            color: var(--success) !important;
+            font-weight: bold !important;
+            text-align: center;
+        }
+
         .btn-primary {
-            width: 100%; background: var(--success); color: white; border: none; padding: 18px; border-radius: 15px; font-size: 1.2rem; font-weight: 900; cursor: pointer; transition: transform 0.2s, background 0.3s;
-            display: flex; align-items: center; justify-content: center; gap: 10px; text-transform: uppercase;
+            width: 100%;
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-transform: uppercase;
         }
         .btn-primary:hover { background: #219150; transform: scale(1.02); }
         .btn-primary:disabled { background: #555; cursor: not-allowed; }
+
+        /* Seção do PIX */
         #pixSection {
-            display: none; margin-top: 25px; background: rgba(0,0,0,0.8); padding: 25px; border-radius: 20px; border: 1px dashed var(--accent);
+            display: none;
+            margin-top: 25px;
+            background: rgba(0,0,0,0.8);
+            padding: 25px;
+            border-radius: 20px;
+            border: 1px dashed var(--accent);
         }
         #qrcode { background: white; padding: 15px; border-radius: 15px; display: inline-block; margin-bottom: 20px; }
     </style>
@@ -49,29 +92,35 @@
             <h2 style="color: var(--accent); font-size: 1.8rem; font-weight: 900;">COLOCAR O VALOR</h2>
             <p style="color: var(--text-muted); font-size: 0.9rem;">Informe seus dados e o valor para gerar o PIX</p>
         </div>
+
         <div class="input-group">
             <label><i class="fas fa-user mr-2"></i> Nome Completo:</label>
             <input type="text" id="userName" placeholder="Ex: João Silva" class="input-field">
         </div>
+
         <div class="input-group">
             <label><i class="fab fa-whatsapp mr-2"></i> WhatsApp:</label>
             <input type="text" id="userPhone" placeholder="(00) 00000-0000" class="input-field">
         </div>
+
         <div class="input-group">
             <label><i class="fas fa-money-bill-wave mr-2"></i> Valor do Pagamento (R$):</label>
             <input type="number" id="paymentValue" placeholder="0.00" step="0.01" class="input-field value-input">
         </div>
+
         <button onclick="gerarPagamento()" id="btnPagar" class="btn-primary">
             <i class="fas fa-qrcode"></i> CONFIRMAR PEDIDO
         </button>
 
-        <!-- ÁREA CORRIGIDA: O id="pixArea" foi removido. Apenas id="pixSection" permanece. -->
-        <div id="pixSection">
+        <!-- Área do QR Code -->
+        <div id="pixSection" id="pixArea">
             <div style="text-align: center;">
                 <div id="qrcode"></div>
                 <p style="font-size: 0.8rem; color: var(--accent); margin-bottom: 10px; font-weight: bold;">ESCANEIE O QR CODE ACIMA</p>
+                
                 <label style="display: block; margin-bottom: 8px; font-size: 0.7rem; color: #777; text-transform: uppercase;">Ou copie o código abaixo:</label>
                 <input type="text" id="pixKeyDisplay" readonly class="input-field" style="text-align: center; font-size: 0.8rem; margin-bottom: 10px;">
+                
                 <button onclick="copyPix()" class="btn-primary" style="background: var(--accent); font-size: 1rem; padding: 12px;">
                     <i class="fas fa-copy"></i> COPIAR CÓDIGO PIX
                 </button>
@@ -81,10 +130,10 @@
 </div>
 
 <script>
-    // SCRIPT ORIGINAL - SEM NENHUMA ALTERAÇÃO
+    // SUA URL DO GOOGLE SCRIPT ATUALIZADA
     const scriptURL = 'https://script.google.com/macros/s/AKfycbwcWYLOz327EIIwQngyEl0w3S0kyRTMtnVHMCPe0P0CEqVl9-btGA_DyBxjLrjn2ozO/exec';
 
-    async function gerarPagamento(  ) {
+    async function gerarPagamento( ) {
         const name = document.getElementById('userName').value;
         const phone = document.getElementById('userPhone').value;
         const valor = document.getElementById('paymentValue').value;
@@ -114,6 +163,7 @@
                 document.getElementById('pixSection').style.display = 'block';
                 document.getElementById('pixKeyDisplay').value = res.pix_key;
                 
+                // Limpa e gera o QR Code
                 const qrContainer = document.getElementById('qrcode');
                 qrContainer.innerHTML = '';
                 new QRCode(qrContainer, {
@@ -125,6 +175,7 @@
                 });
                 
                 btn.style.display = 'none';
+                // Rola a tela para o QR Code
                 document.getElementById('pixSection').scrollIntoView({ behavior: 'smooth' });
             } else {
                 alert('Erro: ' + res.message);
@@ -142,7 +193,7 @@
     function copyPix() {
         const copyText = document.getElementById('pixKeyDisplay');
         copyText.select();
-        copyText.setSelectionRange(0, 99999);
+        copyText.setSelectionRange(0, 99999); // Para dispositivos móveis
         document.execCommand('copy');
         alert('Código PIX copiado com sucesso!');
     }
