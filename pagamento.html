@@ -113,7 +113,7 @@
         </button>
 
         <!-- Área do QR Code -->
-        <div id="pixSection">
+        <div id="pixSection" id="pixArea">
             <div style="text-align: center;">
                 <div id="qrcode"></div>
                 <p style="font-size: 0.8rem; color: var(--accent); margin-bottom: 10px; font-weight: bold;">ESCANEIE O QR CODE ACIMA</p>
@@ -130,87 +130,74 @@
 </div>
 
 <script>
-const scriptURL = 'https://script.google.com/macros/s/AKfycbwcWYLOz327EIIwQngyEl0w3S0kyRTMtnVHMCPe0P0CEqVl9-btGA_DyBxjLrjn2ozO/exec';
+    // SUA URL DO GOOGLE SCRIPT ATUALIZADA
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwcWYLOz327EIIwQngyEl0w3S0kyRTMtnVHMCPe0P0CEqVl9-btGA_DyBxjLrjn2ozO/exec';
 
-async function gerarPagamento() {
-    const name = document.getElementById('userName').value;
-    const phone = document.getElementById('userPhone').value;
-    const valor = document.getElementById('paymentValue').value;
+    async function gerarPagamento( ) {
+        const name = document.getElementById('userName').value;
+        const phone = document.getElementById('userPhone').value;
+        const valor = document.getElementById('paymentValue').value;
 
-    if (!name || !phone || !valor || valor <= 0) {
-        alert('Por favor, preencha todos os campos corretamente!');
-        return;
-    }
+        if (!name || !phone || !valor || valor <= 0) {
+            alert('Por favor, preencha todos os campos corretamente!');
+            return;
+        }
 
-    const btn = document.getElementById('btnPagar');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PROCESSANDO...';
+        const btn = document.getElementById('btnPagar');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PROCESSANDO...';
 
-    try {
-
-        const response = await fetch(scriptURL, {
-            method: 'POST',
-            body: JSON.stringify({
-                name: name,
-                phone: phone,
-                valor: parseFloat(valor)
-            })
-        });
-
-        const res = await response.json(); // 🔥 apenas uma vez
-
-        if (res.status === 'ok') {
-
-            const pixSection = document.getElementById('pixSection');
-            pixSection.style.display = 'block';
-
-            pixSection.offsetHeight;
-
-            document.getElementById('pixKeyDisplay').value = res.pix_key;
-
-            const qrContainer = document.getElementById('qrcode');
-            qrContainer.innerHTML = '';
-
-            setTimeout(() => {
+        try {
+            const response = await fetch(scriptURL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    name: name,
+                    phone: phone,
+                    valor: parseFloat(valor)
+                })
+            });
+            
+            const res = await response.json();
+            
+            if (res.status === 'ok') {
+                document.getElementById('pixSection').style.display = 'block';
+                document.getElementById('pixKeyDisplay').value = res.pix_key;
+                
+                // Limpa e gera o QR Code
+                const qrContainer = document.getElementById('qrcode');
+                qrContainer.innerHTML = '';
                 new QRCode(qrContainer, {
                     text: res.pix_key,
                     width: 200,
                     height: 200,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff"
+                    colorDark : "#000000",
+                    colorLight : "#ffffff"
                 });
-            }, 150);
-
-            btn.style.display = 'none';
-            pixSection.scrollIntoView({ behavior: 'smooth' });
-
-        } else {
-
-            alert('Erro: ' + res.message);
+                
+                btn.style.display = 'none';
+                // Rola a tela para o QR Code
+                document.getElementById('pixSection').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                alert('Erro: ' + res.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-qrcode"></i> CONFIRMAR PEDIDO';
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Erro na comunicação com o servidor. Verifique sua conexão.');
             btn.disabled = false;
             btn.innerHTML = '<i class="fas fa-qrcode"></i> CONFIRMAR PEDIDO';
-
         }
-
-    } catch (e) {
-
-        console.error(e);
-        alert('Erro na comunicação com o servidor.');
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-qrcode"></i> CONFIRMAR PEDIDO';
-
     }
-}
 
-function copyPix() {
-    const copyText = document.getElementById('pixKeyDisplay');
-    copyText.select();
-    copyText.setSelectionRange(0, 99999);
-    document.execCommand('copy');
-    alert('Código PIX copiado com sucesso!');
-}
+    function copyPix() {
+        const copyText = document.getElementById('pixKeyDisplay');
+        copyText.select();
+        copyText.setSelectionRange(0, 99999); // Para dispositivos móveis
+        document.execCommand('copy');
+        alert('Código PIX copiado com sucesso!');
+    }
 </script>
-
 
 </body>
 </html>
