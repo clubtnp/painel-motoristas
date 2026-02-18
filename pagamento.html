@@ -159,7 +159,9 @@
             
             const res = await response.json();
             
-            if (res.status === 'ok') {
+            const res = await response.json();
+
+if (res.status === 'ok') {
 
     const pixSection = document.getElementById('pixSection');
     pixSection.style.display = 'block';
@@ -182,24 +184,20 @@
         });
     }, 150);
 
-    // ESCONDE O BOTÃO AQUI DENTRO
+    // esconder botão
     btn.style.display = 'none';
 
-    // Rola até a seção
+    // rolar até o QR
     pixSection.scrollIntoView({ behavior: 'smooth' });
 
 } else {
-                alert('Erro: ' + res.message);
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-qrcode"></i> CONFIRMAR PEDIDO';
-            }
-        } catch (e) {
-            console.error(e);
-            alert('Erro na comunicação com o servidor. Verifique sua conexão.');
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-qrcode"></i> CONFIRMAR PEDIDO';
-        }
-    }
+
+    alert('Erro: ' + res.message);
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-qrcode"></i> CONFIRMAR PEDIDO';
+
+}
+
 
     function copyPix() {
         const copyText = document.getElementById('pixKeyDisplay');
