@@ -160,20 +160,30 @@
             const res = await response.json();
             
             if (res.status === 'ok') {
-                document.getElementById('pixSection').style.display = 'block';
-                document.getElementById('pixKeyDisplay').value = res.pix_key;
-                
-                // Limpa e gera o QR Code
-                const qrContainer = document.getElementById('qrcode');
-                qrContainer.innerHTML = '';
-                new QRCode(qrContainer, {
-                    text: res.pix_key,
-                    width: 200,
-                    height: 200,
-                    colorDark : "#000000",
-                    colorLight : "#ffffff"
-                });
-                
+
+    const pixSection = document.getElementById('pixSection');
+    pixSection.style.display = 'block';
+
+    // força o navegador recalcular layout
+    pixSection.offsetHeight;
+
+    document.getElementById('pixKeyDisplay').value = res.pix_key;
+
+    const qrContainer = document.getElementById('qrcode');
+    qrContainer.innerHTML = '';
+
+    // pequeno delay para garantir que o elemento já está visível
+    setTimeout(() => {
+        new QRCode(qrContainer, {
+            text: res.pix_key,
+            width: 200,
+            height: 200,
+            colorDark: "#000000",
+            colorLight: "#ffffff"
+        });
+    }, 150);
+}
+
                 btn.style.display = 'none';
                 // Rola a tela para o QR Code
                 document.getElementById('pixSection').scrollIntoView({ behavior: 'smooth' });
