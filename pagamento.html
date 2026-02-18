@@ -172,7 +172,6 @@
     const qrContainer = document.getElementById('qrcode');
     qrContainer.innerHTML = '';
 
-    // pequeno delay para garantir que o elemento já está visível
     setTimeout(() => {
         new QRCode(qrContainer, {
             text: res.pix_key,
@@ -182,12 +181,14 @@
             colorLight: "#ffffff"
         });
     }, 150);
-}
 
-                btn.style.display = 'none';
-                // Rola a tela para o QR Code
-                document.getElementById('pixSection').scrollIntoView({ behavior: 'smooth' });
-            } else {
+    // ESCONDE O BOTÃO AQUI DENTRO
+    btn.style.display = 'none';
+
+    // Rola até a seção
+    pixSection.scrollIntoView({ behavior: 'smooth' });
+
+} else {
                 alert('Erro: ' + res.message);
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-qrcode"></i> CONFIRMAR PEDIDO';
