@@ -206,8 +206,8 @@
 }
 
     // FUNÇÃO QUE VIGIA O PAGAMENTO (Polling)
+    // FUNÇÃO QUE VIGIA O PAGAMENTO (Polling)
     function verificarPagamento(pixId) {
-        // 
         const checkTimer = setInterval(async () => {
             try {
                 const response = await fetch(scriptURL, {
@@ -220,13 +220,22 @@
 
                 if (res.pagamento === 'pago') {
                     clearInterval(checkTimer); // Para de perguntar
-                    // Muda a tela para Sucesso
+
+                    // 1. Muda a tela para Sucesso
                     document.getElementById('pixSection').innerHTML = `
                         <div style="text-align: center; padding: 20px;">
                             <i class="fas fa-check-circle" style="font-size: 5rem; color: #27ae60;"></i>
                             <h2 style="color: #27ae60; margin-top: 20px; font-weight: 900;">PAGAMENTO RECEBIDO!</h2>
-                            <p style="color: #fff;">Sua vaga foi confirmada com sucesso.</p>
+                            <p style="color: #fff; margin-bottom: 15px;">Sua vaga foi confirmada com sucesso.</p>
+                            <p style="color: #7f8c8d; font-size: 0.8rem;">Esta página será reiniciada em 5 segundos...</p>
                         </div>`;
+                    
+                    // 2. Aguarda 5 segundos (5000ms) e volta para a página inicial
+                    setTimeout(() => {
+                        window.location.reload(); // Isso limpa o formulário e volta ao início
+                        // Se você quiser mandar para um site específico, use:
+                        // window.location.href = "https://clubtnp.github.io/painel-motoristas/pagamento.html";
+                    }, 5000);
                 }
             } catch (err) {
                 console.log("Aguardando confirmação...");
