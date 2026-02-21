@@ -158,29 +158,38 @@
         const res = await response.json();
         
         if (res.status === 'ok') {
-            // 1. Mostra a seção e preenche o texto do PIX
             const pixSection = document.getElementById('pixSection');
-            pixSection.style.display = 'block';
+            const qrContainer = document.getElementById('qrcode');
+            
+            // 1. Limpa o container e define o valor do campo de copiar
+            qrContainer.innerHTML = ''; 
             document.getElementById('pixKeyDisplay').value = res.pix_key;
             
-            // 2. Tenta gerar o QR Code usando a chave que veio da API
-            try {
-                const qrContainer = document.getElementById('qrcode');
-                qrContainer.innerHTML = '';
-                new QRCode(qrContainer, {
-                    text: res.pix_key,
-                    width: 200,
-                    height: 200,
-                    colorDark : "#000000",
-                    colorLight : "#ffffff"
-                });
-            } catch (qrError) {
-                console.error("Erro ao gerar QR Code:", qrError);
-            }
+            // 2. Torna a seção visível PRIMEIRO
+            pixSection.style.display = 'block';
+
+            // 3. Pequena pausa (100ms) para o navegador criar o espaço visual
+            setTimeout(() => {
+                try {
+                    new QRCode(qrContainer, {
+                        text: res.pix_key,
+                        width: 200,
+                        height: 200,
+                        colorDark : "#000000",
+                        colorLight : "#ffffff",
+                        correctLevel : QRCode.CorrectLevel.M
+                    });
+                } catch (qrError) {
+                    console.error("Erro ao gerar QR Code:", qrError);
+                    qrContainer.innerHTML = '<p style="color:black; font-size:12px;">Erro ao gerar imagem. Use o código copiar e colar.</p>';
+                }
+            }, 100);
             
-            // 3. Esconde o botão de processando e inicia a vigília
+            // 4. Esconde o botão e desce a tela até o QR Code
             btn.style.display = 'none';
             pixSection.scrollIntoView({ behavior: 'smooth' });
+            
+            // Inicia o monitoramento do pagamento
             verificarPagamento(res.pix_id); 
 
         } else {
@@ -190,7 +199,7 @@
         }
     } catch (e) {
         console.error(e);
-        alert('Erro na conexão. Verifique se o Script foi publicado como "Qualquer pessoa".');
+        alert('Erro na conexão com o servidor.');
         btn.disabled = false;
         btn.innerHTML = '<i class="fas fa-qrcode"></i> CONFIRMAR PEDIDO';
     }
