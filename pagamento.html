@@ -113,7 +113,7 @@
         </button>
 
         <!-- Área do QR Code -->
-        <div id="pixSection" id="pixArea">
+        <div id="pixSection">
             <div style="text-align: center;">
                 <div id="qrcode"></div>
                 <p style="font-size: 0.8rem; color: var(--accent); margin-bottom: 10px; font-weight: bold;">ESCANEIE O QR CODE ACIMA</p>
@@ -134,57 +134,67 @@
      const scriptURL = 'https://script.google.com/macros/s/AKfycbwcWYLOz327EIIwQngyEl0w3S0kyRTMtnVHMCPe0P0CEqVl9-btGA_DyBxjLrjn2ozO/exec';
 
     async function gerarPagamento() {
-        const name = document.getElementById('userName').value;
-        const phone = document.getElementById('userPhone').value;
-        const valor = document.getElementById('paymentValue').value;
+    const name = document.getElementById('userName').value;
+    const phone = document.getElementById('userPhone').value;
+    const valor = document.getElementById('paymentValue').value;
 
-        if (!name || !phone || !valor || valor <= 0) {
-            alert('Por favor, preencha todos os campos corretamente!');
-            return;
-        }
+    if (!name || !phone || !valor || valor <= 0) {
+        alert('Por favor, preencha todos os campos corretamente!');
+        return;
+    }
 
-        const btn = document.getElementById('btnPagar');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PROCESSANDO...';
+    const btn = document.getElementById('btnPagar');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PROCESSANDO...';
 
-        try {
-            const response = await fetch(scriptURL, {
-                method: 'POST',
-                mode: 'cors', 
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: JSON.stringify({ name, phone, valor: parseFloat(valor) })
-            });
+    try {
+        const response = await fetch(scriptURL, {
+            method: 'POST',
+            mode: 'cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({ name, phone, valor: parseFloat(valor) })
+        });
+        
+        const res = await response.json();
+        
+        if (res.status === 'ok') {
+            // 1. Mostra a seção e preenche o texto do PIX
+            const pixSection = document.getElementById('pixSection');
+            pixSection.style.display = 'block';
+            document.getElementById('pixKeyDisplay').value = res.pix_key;
             
-            const res = await response.json();
-            
-            if (res.status === 'ok') {
-                document.getElementById('pixSection').style.display = 'block';
-                document.getElementById('pixKeyDisplay').value = res.pix_key;
-                
-                // Gera o QR Code
+            // 2. Tenta gerar o QR Code usando a chave que veio da API
+            try {
                 const qrContainer = document.getElementById('qrcode');
                 qrContainer.innerHTML = '';
                 new QRCode(qrContainer, {
                     text: res.pix_key,
-                    width: 200, height: 200
+                    width: 200,
+                    height: 200,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff"
                 });
-                
-                btn.style.display = 'none';
-                document.getElementById('pixSection').scrollIntoView({ behavior: 'smooth' });
-
-                // --- INICIA A VERIFICAÇÃO AUTOMÁTICA ---
-                verificarPagamento(res.pix_id); 
-
-            } else {
-                alert('Erro: ' + res.message);
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-qrcode"></i> CONFIRMAR PEDIDO';
+            } catch (qrError) {
+                console.error("Erro ao gerar QR Code:", qrError);
             }
-        } catch (e) {
-            alert('Erro na conexão. Verifique se o Script está publicado corretamente.');
+            
+            // 3. Esconde o botão de processando e inicia a vigília
+            btn.style.display = 'none';
+            pixSection.scrollIntoView({ behavior: 'smooth' });
+            verificarPagamento(res.pix_id); 
+
+        } else {
+            alert('Erro: ' + res.message);
             btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-qrcode"></i> CONFIRMAR PEDIDO';
         }
+    } catch (e) {
+        console.error(e);
+        alert('Erro na conexão. Verifique se o Script foi publicado como "Qualquer pessoa".');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-qrcode"></i> CONFIRMAR PEDIDO';
     }
+}
 
     // FUNÇÃO QUE VIGIA O PAGAMENTO (Polling)
     function verificarPagamento(pixId) {
