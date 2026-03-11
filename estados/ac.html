@@ -128,7 +128,7 @@
       border-radius: 12px; 
       padding: 16px; 
       border: 1px solid #334155; 
-      min-height: 420px; /* Aumentado */
+      min-height: 400px; /* Aumentado */
       display: flex; 
       align-items: center; 
       justify-content: center; 
@@ -443,81 +443,83 @@
     });
 
     // Otimização: Renderiza apenas os itens necessários inicialmente e evita sobrecarga
-    function renderizarCarrossel(tipo, itens) {
-  const container = document.getElementById(`carrossel-${tipo}`);
-  const dotsContainer = document.getElementById(`dots-${tipo}`);
-  
-  if (!itens || itens.length === 0) {
-    container.innerHTML = '<div class="carrossel-vazio">Nenhum item cadastrado</div>';
-    dotsContainer.innerHTML = '';
-    return;
-  }
-
-  carrosselState[tipo].total = itens.length;
-  carrosselState[tipo].index = 0;
-
-  const wrapper = document.createElement('div');
-  wrapper.className = 'carrossel-wrapper';
-  wrapper.id = `wrapper-${tipo}`;
-
-  itens.forEach((item, idx) => {
-    const div = document.createElement('div');
-    div.className = 'carrossel-item';
-    div.style.transform = `translateX(${idx * 100}%)`;
     
-    const imgUrl = item.imagem || 'https://cdn-icons-png.flaticon.com/512/174/174855.png';
-    const nomeItem = item.nome || (tipo === 'instagram' ? 'Siga no Instagram' : 'Sem nome');
-    
-    // Pega a cidade que está selecionada no select lá no topo
-    const cidadeAtual = document.getElementById('selectCidade').value || "Não informada";
-    
-    let textoAcao = item.textoBotao; 
-    if (!textoAcao || textoAcao.trim() === "") {
-      textoAcao = (tipo === 'instagram' ? 'Ver Instagram' : 'Entrar no grupo');
-    }
+	function renderizarCarrossel(tipo, itens) {
+      const container = document.getElementById(`carrossel-${tipo}`);
+      const dotsContainer = document.getElementById(`dots-${tipo}`);
+      
+      if (!itens || itens.length === 0) {
+        container.innerHTML = '<div class="carrossel-vazio">Nenhum item cadastrado</div>';
+        dotsContainer.innerHTML = '';
+        return;
+      }
 
-    // LÓGICA DO BOTÃO: Se não for instagram, ele cria o HTML do botão. Se for, fica vazio.
-    const htmlDenuncia = tipo !== 'instagram' ? `
-      <button class="btn-denuncia" 
-          onclick="denunciarGrupo(this)"
-          data-nome="${nomeItem}"
-          data-categoria="${item.categoria || 'Geral'}"
-          data-cidade="${cidadeAtual}">
-          Denunciar irregularidade
-      </button>` : '';
+      carrosselState[tipo].total = itens.length;
+      carrosselState[tipo].index = 0;
 
-    div.innerHTML = `
-      <img class="grupo-imagem" src="${imgUrl}">
-      <div class="grupo-info">
-        <div class="grupo-nome">${nomeItem}</div>
-        <div class="grupo-categoria">${item.categoria || ''}</div>
-        <button class="btn-ver-mais" onclick='abrirModalGrupo(${JSON.stringify(item)})'>Ver descrição</button>
+      const wrapper = document.createElement('div');
+      wrapper.className = 'carrossel-wrapper';
+      wrapper.id = `wrapper-${tipo}`;
+
+      itens.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = 'carrossel-item';
+        div.style.transform = `translateX(${idx * 100}%)`;
         
-        <div class="grupo-botao-container">
-            <button class="grupo-botao" onclick="window.open('${item.link}', '_blank')">${textoAcao}</button>
-            ${htmlDenuncia}
-        </div>
-      </div>
-    `;
-    wrapper.appendChild(div);
-  });
+        const imgUrl = item.imagem || 'https://cdn-icons-png.flaticon.com/512/174/174855.png';
+        const nomeItem = item.nome || (tipo === 'instagram' ? 'Siga no Instagram' : 'Sem nome');
+        const cidadeAtual = document.getElementById('selectCidade').value || "Não informada";
+        
+        let textoAcao = item.textoBotao || (tipo === 'instagram' ? 'Ver Instagram' : 'Entrar no grupo');
 
-  container.innerHTML = '';
-  container.appendChild(wrapper);
+        // Botão de denúncia (apenas se não for instagram)
+        const htmlDenuncia = tipo !== 'instagram' ? `
+          <button class="btn-denuncia" 
+              onclick="denunciarGrupo(this)"
+              data-nome="${nomeItem.replace(/'/g, "&apos;")}"
+              data-categoria="${(item.categoria || 'Geral').replace(/'/g, "&apos;")}"
+              data-cidade="${cidadeAtual.replace(/'/g, "&apos;")}">
+              Denunciar irregularidade
+          </button>` : '';
 
-  if (itens.length > 1) {
-    const prev = document.createElement('button');
-    prev.className = 'carrossel-nav prev'; prev.innerText = '‹';
-    prev.onclick = () => mudarCarrossel(tipo, -1);
-    container.appendChild(prev);
+        div.innerHTML = `
+          <img class="grupo-imagem" src="${imgUrl}">
+          <div class="grupo-info">
+            <div class="grupo-nome">${nomeItem}</div>
+            <div class="grupo-categoria">${item.categoria || ''}</div>
+            
+            <button class="btn-ver-mais" id="btn-desc-${tipo}-${idx}">Ver descrição</button>
+            
+            <div class="grupo-botao-container">
+                <button class="grupo-botao" onclick="window.open('${item.link}', '_blank')">${textoAcao}</button>
+                ${htmlDenuncia}
+            </div>
+          </div>
+        `;
+        
+        // Adiciona o evento de clique de forma segura
+        div.querySelector(`#btn-desc-${tipo}-${idx}`).onclick = () => abrirModalGrupo(item);
+        
+        wrapper.appendChild(div);
+      });
 
-    const next = document.createElement('button');
-    next.className = 'carrossel-nav next'; next.innerText = '›';
-    next.onclick = () => mudarCarrossel(tipo, 1);
-    container.appendChild(next);
-  }
-  renderizarPaginacaoNumerica(tipo);
-}
+      container.innerHTML = '';
+      container.appendChild(wrapper);
+
+      // Adiciona setas se houver mais de um item
+      if (itens.length > 1) {
+        const prev = document.createElement('button');
+        prev.className = 'carrossel-nav prev'; prev.innerText = '‹';
+        prev.onclick = () => mudarCarrossel(tipo, -1);
+        container.appendChild(prev);
+
+        const next = document.createElement('button');
+        next.className = 'carrossel-nav next'; next.innerText = '›';
+        next.onclick = () => mudarCarrossel(tipo, 1);
+        container.appendChild(next);
+      }
+      renderizarPaginacaoNumerica(tipo);
+    }
 
     function mudarCarrossel(tipo, direcao) {
       const state = carrosselState[tipo];
@@ -714,6 +716,19 @@
 
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fecharModal(); });
     document.getElementById('modal-overlay').addEventListener('click', (e) => { if (e.target.id === 'modal-overlay') fecharModal(); });
+function denunciarGrupo(btn) {
+  const nome = btn.dataset.nome;
+  const categoria = btn.dataset.categoria;
+  const cidade = btn.dataset.cidade;
+
+  const link = `https://docs.google.com/forms/d/e/1FAIpQLSeWVDmszwv-eRQBz1CfobQjXghfPMoA0_GvebTUCtFGK9w9oQ/viewform?usp=pp_url` +
+    `&entry.1258565769=${encodeURIComponent(nome)}` +
+    `&entry.752710010=${encodeURIComponent(categoria)}` +
+    `&entry.1085438218=AC` +
+    `&entry.1075575459=${encodeURIComponent(cidade)}`;
+
+  window.open(link, "_blank");
+}
 
   </script>
 </body>
