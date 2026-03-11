@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Rede de Motoristas</title>
   <style>
-  
     /* Estilos Gerais */
     body { font-family: Arial, sans-serif; background: #0f172a; color: #fff; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; padding: 40px 16px; box-sizing: border-box; }
     .container { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 24px; }
@@ -251,19 +250,20 @@
     .modal-descricao-scroll::-webkit-scrollbar-thumb:hover { 
       background: #16a34a; 
     }
-	.btn-denuncia {
-  background: #450a0a; /* Vermelho escuro */
-  color: #fca5a5;
+	/* Estilo do botão de denúncia */
+.btn-denuncia {
+  background: #450a0a; /* Vermelho bem escuro */
+  color: #fca5a5;      /* Texto rosado claro */
   border: 1px solid #7f1d1d;
   padding: 8px;
   font-size: 11px;
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
-  transition: all 0.2s;
   width: 100%;
   text-transform: uppercase;
   margin-top: 4px;
+  transition: 0.2s;
 }
 
 .btn-denuncia:hover {
@@ -271,6 +271,7 @@
   color: white;
 }
 
+/* Container para empilhar os botões */
 .grupo-botao-container {
   display: flex;
   flex-direction: column;
@@ -455,7 +456,7 @@
       textoAcao = (tipo === 'instagram' ? 'Ver Instagram' : 'Entrar no grupo');
     }
 
-    // Só gera o HTML da denúncia se NÃO for instagram
+    // 1. CRIAMOS A LÓGICA DO BOTÃO DE DENÚNCIA AQUI
     const htmlDenuncia = tipo !== 'instagram' ? `
       <button class="btn-denuncia" 
           onclick="denunciarGrupo(this)"
@@ -466,6 +467,7 @@
           Denunciar irregularidade
       </button>` : '';
 
+    // 2. COLOCAMOS O BOTÃO DENTRO DO CONTAINER DE BOTÕES
     div.innerHTML = `
       <img class="grupo-imagem" src="${imgUrl}">
       <div class="grupo-info">
@@ -496,20 +498,6 @@
     container.appendChild(next);
   }
   renderizarPaginacaoNumerica(tipo);
-}
-function denunciarGrupo(btn) {
-  const nome = btn.dataset.nome;
-  const categoria = btn.dataset.categoria;
-  const estado = btn.dataset.estado;
-  const cidade = btn.dataset.cidade;
-
-  const link = `https://docs.google.com/forms/d/e/1FAIpQLSeWVDmszwv-eRQBz1CfobQjXghfPMoA0_GvebTUCtFGK9w9oQ/viewform?usp=pp_url` +
-    `&entry.1258565769=${encodeURIComponent(nome)}` +
-    `&entry.752710010=${encodeURIComponent(categoria)}` +
-    `&entry.1085438218=${encodeURIComponent(estado)}` +
-    `&entry.1075575459=${encodeURIComponent(cidade)}`;
-
-  window.open(link, "_blank");
 }
 
     function mudarCarrossel(tipo, direcao) {
@@ -707,6 +695,21 @@ function denunciarGrupo(btn) {
 
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fecharModal(); });
     document.getElementById('modal-overlay').addEventListener('click', (e) => { if (e.target.id === 'modal-overlay') fecharModal(); });
+function denunciarGrupo(btn) {
+  const nome = btn.dataset.nome;
+  const categoria = btn.dataset.categoria;
+  const estado = btn.dataset.estado;
+  const cidade = btn.dataset.cidade;
+
+  // Monta o link com os campos do seu formulário já preenchidos
+  const link = `https://docs.google.com/forms/d/e/1FAIpQLSeWVDmszwv-eRQBz1CfobQjXghfPMoA0_GvebTUCtFGK9w9oQ/viewform?usp=pp_url` +
+    `&entry.1258565769=${encodeURIComponent(nome)}` +
+    `&entry.752710010=${encodeURIComponent(categoria)}` +
+    `&entry.1085438218=${encodeURIComponent(estado)}` +
+    `&entry.1075575459=${encodeURIComponent(cidade)}`;
+
+  window.open(link, "_blank");
+}
 
   </script>
 </body>
