@@ -121,8 +121,26 @@
       box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
     }
     /* Estilos do Carrossel (Unificado para Grupos e Instagram) */
-    .carrossel-container { position: relative; margin-top: 16px; background: #1e293b; border-radius: 12px; padding: 16px; border: 1px solid #334155; min-height: 370px; display: flex; align-items: center; justify-content: center; }
-    .carrossel-wrapper { display: flex; overflow: hidden; width: 100%; border-radius: 8px; position: relative; min-height: 330px; }
+    .carrossel-container { 
+      position: relative; 
+      margin-top: 16px; 
+      background: #1e293b; 
+      border-radius: 12px; 
+      padding: 16px; 
+      border: 1px solid #334155; 
+      min-height: 420px; /* Aumentado */
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+    }
+    .carrossel-wrapper { 
+      display: flex; 
+      overflow: hidden; 
+      width: 100%; 
+      border-radius: 8px; 
+      position: relative; 
+      min-height: 380px; /* Aumentado */
+    }
     .carrossel-item { flex: 0 0 100%; display: flex; flex-direction: column; gap: 12px; transition: transform 0.3s ease; align-items: center; text-align: center; position: absolute; top: 0; left: 0; width: 100%; }
     .grupo-imagem { width: 150px; height: 150px; border-radius: 12px; object-fit: cover; background: #0f172a; border: 1px solid #334155; }
     .grupo-info { display: flex; flex-direction: column; gap: 6px; width: 100%; }
