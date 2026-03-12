@@ -787,14 +787,26 @@
 
     function fecharModal() {
       const modal = document.getElementById('modal-overlay');
+      const content = document.getElementById('modal-content');
+
       if (modal) {
         modal.style.display = 'none';
+        // Remove o vídeo do HTML para silenciar o áudio e liberar memória
+        if (content) content.innerHTML = ''; 
         document.body.style.overflow = 'auto';
       }
     }
 
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fecharModal(); });
-    document.getElementById('modal-overlay').addEventListener('click', (e) => { if (e.target.id === 'modal-overlay') fecharModal(); });
+    // Fecha o modal ao apertar a tecla ESC
+    document.addEventListener('keydown', (e) => { 
+      if (e.key === 'Escape') fecharModal(); 
+    });
+
+    // Fecha o modal ao clicar na parte escura (fora da janelinha)
+    document.getElementById('modal-overlay').addEventListener('click', (e) => { 
+      if (e.target.id === 'modal-overlay') fecharModal(); 
+    });
+	
 function denunciarGrupo(btn) {
   const nome = btn.dataset.nome;
   const categoria = btn.dataset.categoria;
