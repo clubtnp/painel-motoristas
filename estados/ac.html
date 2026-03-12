@@ -718,7 +718,7 @@
     const modal = document.getElementById('modal-overlay');
     const content = document.getElementById('modal-content');
     
-    // Tratamento do link
+    // Tratamento do link para o formato de incorporação
     let embedLink = link;
     if (embedLink.includes("instagram.com")) {
         embedLink = embedLink.split('?')[0]; 
@@ -726,14 +726,27 @@
         embedLink += 'embed/';
     }
 
-    // Mudamos a largura máxima e a altura para o formato 9:16 aparecer completo
+    // Detecta se é mobile (tela menor que 768px)
+    const isMobile = window.innerWidth <= 768;
+
+    // Configuração de estilo dinâmica
+    const alturaVideo = isMobile ? 'calc(100vh - 120px)' : '560px';
+    const borderRadius = isMobile ? '0' : '20px';
+    const paddingModal = isMobile ? '10px' : '24px';
+
+    // Aplicando ajustes no container do modal
+    content.style.maxWidth = isMobile ? '100%' : '380px';
+    content.style.width = '100%';
+    content.style.height = isMobile ? '100%' : 'auto';
+    content.style.borderRadius = borderRadius;
+    content.style.padding = paddingModal;
+
     content.innerHTML = `
-        <h2 style="margin: 0 0 10px 0; color: #22c55e; font-size: 18px; flex-shrink: 0;">Vídeo da Rede</h2>
+        <h2 style="margin: 0 0 10px 0; color: #22c55e; font-size: 18px; flex-shrink: 0;">🎥 Vídeo da Rede</h2>
         
         <div style="
             width: 100%; 
-            height: 560px; /* Aumentamos para caber o formato vertical */
-            max-height: 65vh; /* Garante que não fuja da tela em celulares pequenos */
+            height: ${alturaVideo}; 
             background: #000; 
             border-radius: 12px; 
             overflow: hidden; 
@@ -752,20 +765,24 @@
             </iframe>
         </div>
 
-        <p style="font-size: 11px; color: #94a3b8; margin: 8px 0;">
-            Toque no vídeo para dar o Play 
-        </p>
-        
-        <button class="btn-secondary" onclick="fecharModal()" style="width: 100%; padding: 14px; cursor: pointer; flex-shrink: 0;">
-            Fechar
+        <button class="btn-secondary" onclick="fecharModal()" style="
+            width: 100%; 
+            padding: 16px; 
+            margin-top: 10px; 
+            cursor: pointer; 
+            flex-shrink: 0;
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #fff;
+            font-weight: bold;
+            border-radius: 12px;
+        ">
+            Fechar Vídeo
         </button>
     `;
 
-    // Ajuste extra: permite que o modal cresça um pouco mais para o vídeo brilhar
-    content.style.maxWidth = "380px"; 
-
     modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden'; // Trava o scroll do fundo
 }
 
     function fecharModal() {
