@@ -464,46 +464,55 @@
       wrapper.id = `wrapper-${tipo}`;
 
       itens.forEach((item, idx) => {
-        const div = document.createElement('div');
-        div.className = 'carrossel-item';
-        div.style.transform = `translateX(${idx * 100}%)`;
-        
-        const imgUrl = item.imagem || 'https://cdn-icons-png.flaticon.com/512/174/174855.png';
-        const nomeItem = item.nome || (tipo === 'instagram' ? 'Siga no Instagram' : 'Sem nome');
-        const cidadeAtual = document.getElementById('selectCidade').value || "Não informada";
-        
-        let textoAcao = item.textoBotao || (tipo === 'instagram' ? 'Ver Instagram' : 'Entrar no grupo');
+    const div = document.createElement('div');
+    div.className = 'carrossel-item';
+    div.style.transform = `translateX(${idx * 100}%)`;
+    
+    const imgUrl = item.imagem || 'https://cdn-icons-png.flaticon.com/512/174/174855.png';
+    const nomeItem = item.nome || (tipo === 'instagram' ? 'Siga no Instagram' : 'Sem nome');
+    const cidadeAtual = document.getElementById('selectCidade').value || "Não informada";
+    
+    let textoAcao = item.textoBotao || (tipo === 'instagram' ? 'Ver Instagram' : 'Entrar no grupo');
 
-        // Botão de denúncia (apenas se não for instagram)
-        const htmlDenuncia = tipo !== 'instagram' ? `
-          <button class="btn-denuncia" 
-              onclick="denunciarGrupo(this)"
-              data-nome="${nomeItem.replace(/'/g, "&apos;")}"
-              data-categoria="${(item.categoria || 'Geral').replace(/'/g, "&apos;")}"
-              data-cidade="${cidadeAtual.replace(/'/g, "&apos;")}">
-              Denunciar irregularidade
-          </button>` : '';
+    // Botão de vídeo (Apenas para Instagram)
+    const htmlBotaoVideo = tipo === 'instagram' ? `
+      <button class="btn-ver-mais" style="margin-top: 8px; background: #22c55e; color: #020617;" id="btn-video-${tipo}-${idx}">Ver vídeo aqui no site</button>
+    ` : '';
 
-        div.innerHTML = `
-          <img class="grupo-imagem" src="${imgUrl}">
-          <div class="grupo-info">
-            <div class="grupo-nome">${nomeItem}</div>
-            <div class="grupo-categoria">${item.categoria || ''}</div>
-            
-            <button class="btn-ver-mais" id="btn-desc-${tipo}-${idx}">Ver descrição</button>
-            
-            <div class="grupo-botao-container">
-                <button class="grupo-botao" onclick="window.open('${item.link}', '_blank')">${textoAcao}</button>
-                ${htmlDenuncia}
-            </div>
-          </div>
-        `;
+    const htmlDenuncia = tipo !== 'instagram' ? `
+      <button class="btn-denuncia" 
+          onclick="denunciarGrupo(this)"
+          data-nome="${nomeItem.replace(/'/g, "&apos;")}"
+          data-categoria="${(item.categoria || 'Geral').replace(/'/g, "&apos;")}"
+          data-cidade="${cidadeAtual.replace(/'/g, "&apos;")}">
+          Denunciar irregularidade
+      </button>` : '';
+
+    div.innerHTML = `
+      <img class="grupo-imagem" src="${imgUrl}">
+      <div class="grupo-info">
+        <div class="grupo-nome">${nomeItem}</div>
+        <div class="grupo-categoria">${item.categoria || ''}</div>
         
-        // Adiciona o evento de clique de forma segura
-        div.querySelector(`#btn-desc-${tipo}-${idx}`).onclick = () => abrirModalGrupo(item);
+        <button class="btn-ver-mais" id="btn-desc-${tipo}-${idx}">Ver descrição</button>
+        ${htmlBotaoVideo}
         
-        wrapper.appendChild(div);
-      });
+        <div class="grupo-botao-container">
+            <button class="grupo-botao" onclick="window.open('${item.link}', '_blank')">${textoAcao}</button>
+            ${htmlDenuncia}
+        </div>
+      </div>
+    `;
+    
+    div.querySelector(`#btn-desc-${tipo}-${idx}`).onclick = () => abrirModalGrupo(item);
+    
+    // Configura o clique do botão de vídeo se ele existir
+    if (tipo === 'instagram') {
+        div.querySelector(`#btn-video-${tipo}-${idx}`).onclick = () => abrirModalVideo(item.link);
+    }
+    
+    wrapper.appendChild(div);
+});
 
       container.innerHTML = '';
       container.appendChild(wrapper);
@@ -707,17 +716,99 @@
       document.body.style.overflow = 'hidden';
       setTimeout(() => { content.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
     }
+	function abrirModalVideo(link) {
+    const modal = document.getElementById('modal-overlay');
+    const content = document.getElementById('modal-content');
+    
+    // Tratamento do link para o formato de incorporação
+    let embedLink = link;
+    if (embedLink.includes("instagram.com")) {
+        embedLink = embedLink.split('?')[0]; 
+        if (!embedLink.endsWith('/')) embedLink += '/';
+        embedLink += 'embed/';
+    }
+
+    // Detecta se é mobile (tela menor que 768px)
+    const isMobile = window.innerWidth <= 768;
+
+    // Configuração de estilo dinâmica
+    const alturaVideo = isMobile ? 'calc(100vh - 120px)' : '560px';
+    const borderRadius = isMobile ? '0' : '20px';
+    const paddingModal = isMobile ? '10px' : '24px';
+
+    // Aplicando ajustes no container do modal
+    content.style.maxWidth = isMobile ? '100%' : '380px';
+    content.style.width = '100%';
+    content.style.height = isMobile ? '100%' : 'auto';
+    content.style.borderRadius = borderRadius;
+    content.style.padding = paddingModal;
+
+    content.innerHTML = `
+        <h2 style="margin: 0 0 10px 0; color: #22c55e; font-size: 18px; flex-shrink: 0;">🎥 Vídeo da Rede</h2>
+        
+        <div style="
+            width: 100%; 
+            height: ${alturaVideo}; 
+            background: #000; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            border: 1px solid #334155;
+            position: relative;
+        ">
+            <iframe 
+                src="${embedLink}" 
+                width="100%" 
+                height="100%" 
+                frameborder="0" 
+                scrolling="no" 
+                allowtransparency="true"
+                allow="autoplay"
+                style="position: absolute; top: 0; left: 0;">
+            </iframe>
+        </div>
+
+        <button class="btn-secondary" onclick="fecharModal()" style="
+            width: 100%; 
+            padding: 16px; 
+            margin-top: 10px; 
+            cursor: pointer; 
+            flex-shrink: 0;
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #fff;
+            font-weight: bold;
+            border-radius: 12px;
+        ">
+            Fechar Vídeo
+        </button>
+    `;
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden'; // Trava o scroll do fundo
+}	
 
     function fecharModal() {
       const modal = document.getElementById('modal-overlay');
+      const content = document.getElementById('modal-content');
+
       if (modal) {
         modal.style.display = 'none';
+        // Remove o vídeo do HTML para silenciar o áudio e liberar memória
+        if (content) content.innerHTML = ''; 
         document.body.style.overflow = 'auto';
       }
     }
 
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fecharModal(); });
-    document.getElementById('modal-overlay').addEventListener('click', (e) => { if (e.target.id === 'modal-overlay') fecharModal(); });
+    // Fecha o modal ao apertar a tecla ESC
+    document.addEventListener('keydown', (e) => { 
+      if (e.key === 'Escape') fecharModal(); 
+    });
+
+    // Fecha o modal ao clicar na parte escura (fora da janelinha)
+    document.getElementById('modal-overlay').addEventListener('click', (e) => { 
+      if (e.target.id === 'modal-overlay') fecharModal(); 
+    });
+	
 function denunciarGrupo(btn) {
   const nome = btn.dataset.nome;
   const categoria = btn.dataset.categoria;
