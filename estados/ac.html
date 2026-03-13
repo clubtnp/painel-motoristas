@@ -322,7 +322,9 @@
       <h1>Árvore da Rede</h1>
       <p>Arraste para explorar</p>
       <div id="container-arvore"><div id="wrapper-arvore"></div></div>
-      <button id="btnCadastrarArvore">Cadastrar na árvore</button>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSekq7ntpdLLrjK0tLy8Sm0DQ9uY_HRSxQPTQwJ68xuhaHHYfw/viewform" target="_blank" style="text-decoration:none;">
+    <button id="btnCadastrarArvore">Cadastrar na árvore</button>
+  </a>
     </div>
 
     <div class="box">
@@ -334,7 +336,7 @@
         <option value="">Filtrar por Categoria (Motoristas )</option>
       </select>
       <a href="https://docs.google.com/forms/d/e/1FAIpQLSfQ1Ur4_46Qm6P0IhyN1-0OpppYujKHID6OJw31XdR6LZpmyw/viewform" target="_blank" style="text-decoration:none;">
-  <button class="btn-secondary">Cadastrar meu grupo</button>
+  <button class="btn-secondary" >Cadastrar meu grupo</button>
 	</a>
     </div>
 
@@ -462,55 +464,46 @@
       wrapper.id = `wrapper-${tipo}`;
 
       itens.forEach((item, idx) => {
-    const div = document.createElement('div');
-    div.className = 'carrossel-item';
-    div.style.transform = `translateX(${idx * 100}%)`;
-    
-    const imgUrl = item.imagem || 'https://cdn-icons-png.flaticon.com/512/174/174855.png';
-    const nomeItem = item.nome || (tipo === 'instagram' ? 'Siga no Instagram' : 'Sem nome');
-    const cidadeAtual = document.getElementById('selectCidade').value || "Não informada";
-    
-    let textoAcao = item.textoBotao || (tipo === 'instagram' ? 'Ver Instagram' : 'Entrar no grupo');
-
-    // Botão de vídeo (Apenas para Instagram)
-    const htmlBotaoVideo = tipo === 'instagram' ? `
-      <button class="btn-ver-mais" style="margin-top: 8px; background: #22c55e; color: #020617;" id="btn-video-${tipo}-${idx}">Ver vídeo aqui no site</button>
-    ` : '';
-
-    const htmlDenuncia = tipo !== 'instagram' ? `
-      <button class="btn-denuncia" 
-          onclick="denunciarGrupo(this)"
-          data-nome="${nomeItem.replace(/'/g, "&apos;")}"
-          data-categoria="${(item.categoria || 'Geral').replace(/'/g, "&apos;")}"
-          data-cidade="${cidadeAtual.replace(/'/g, "&apos;")}">
-          Denunciar irregularidade
-      </button>` : '';
-
-    div.innerHTML = `
-      <img class="grupo-imagem" src="${imgUrl}">
-      <div class="grupo-info">
-        <div class="grupo-nome">${nomeItem}</div>
-        <div class="grupo-categoria">${item.categoria || ''}</div>
+        const div = document.createElement('div');
+        div.className = 'carrossel-item';
+        div.style.transform = `translateX(${idx * 100}%)`;
         
-        <button class="btn-ver-mais" id="btn-desc-${tipo}-${idx}">Ver descrição</button>
-        ${htmlBotaoVideo}
+        const imgUrl = item.imagem || 'https://cdn-icons-png.flaticon.com/512/174/174855.png';
+        const nomeItem = item.nome || (tipo === 'instagram' ? 'Siga no Instagram' : 'Sem nome');
+        const cidadeAtual = document.getElementById('selectCidade').value || "Não informada";
         
-        <div class="grupo-botao-container">
-            <button class="grupo-botao" onclick="window.open('${item.link}', '_blank')">${textoAcao}</button>
-            ${htmlDenuncia}
-        </div>
-      </div>
-    `;
-    
-    div.querySelector(`#btn-desc-${tipo}-${idx}`).onclick = () => abrirModalGrupo(item);
-    
-    // Configura o clique do botão de vídeo se ele existir
-    if (tipo === 'instagram') {
-        div.querySelector(`#btn-video-${tipo}-${idx}`).onclick = () => abrirModalVideo(item.link);
-    }
-    
-    wrapper.appendChild(div);
-});
+        let textoAcao = item.textoBotao || (tipo === 'instagram' ? 'Ver Instagram' : 'Entrar no grupo');
+
+        // Botão de denúncia (apenas se não for instagram)
+        const htmlDenuncia = tipo !== 'instagram' ? `
+          <button class="btn-denuncia" 
+              onclick="denunciarGrupo(this)"
+              data-nome="${nomeItem.replace(/'/g, "&apos;")}"
+              data-categoria="${(item.categoria || 'Geral').replace(/'/g, "&apos;")}"
+              data-cidade="${cidadeAtual.replace(/'/g, "&apos;")}">
+              Denunciar irregularidade
+          </button>` : '';
+
+        div.innerHTML = `
+          <img class="grupo-imagem" src="${imgUrl}">
+          <div class="grupo-info">
+            <div class="grupo-nome">${nomeItem}</div>
+            <div class="grupo-categoria">${item.categoria || ''}</div>
+            
+            <button class="btn-ver-mais" id="btn-desc-${tipo}-${idx}">Ver descrição</button>
+            
+            <div class="grupo-botao-container">
+                <button class="grupo-botao" onclick="window.open('${item.link}', '_blank')">${textoAcao}</button>
+                ${htmlDenuncia}
+            </div>
+          </div>
+        `;
+        
+        // Adiciona o evento de clique de forma segura
+        div.querySelector(`#btn-desc-${tipo}-${idx}`).onclick = () => abrirModalGrupo(item);
+        
+        wrapper.appendChild(div);
+      });
 
       container.innerHTML = '';
       container.appendChild(wrapper);
@@ -714,26 +707,35 @@
       document.body.style.overflow = 'hidden';
       setTimeout(() => { content.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
     }
-	function abrirModalVideo(link) {
-    const modal = document.getElementById('modal-overlay');
-    const content = document.getElementById('modal-content');
-    
-    let embedLink = link;
-    if (embedLink.includes("instagram.com")) {
-        embedLink = embedLink.split('?')[0]; 
-        if (!embedLink.endsWith('/')) embedLink += '/';
-        embedLink += 'embed/';
+
+    function fecharModal() {
+      const modal = document.getElementById('modal-overlay');
+      if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+      }
     }
 
-    const isMobile = window.innerWidth <= 768;
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fecharModal(); });
+    document.getElementById('modal-overlay').addEventListener('click', (e) => { if (e.target.id === 'modal-overlay') fecharModal(); });
+function denunciarGrupo(btn) {
+  const nome = btn.dataset.nome;
+  const categoria = btn.dataset.categoria;
+  const cidade = btn.dataset.cidade;
 
-    // Ajustes para o "Full Screen" no Mobile
-    if (isMobile) {
-        modal.style.padding = "0"; // Remove o recuo de 20px do fundo
-        content.style.maxWidth = "100vw";
-        content.style.width = "100vw";
-        content.style.height = "100vh";
-        content.style.borderRadius = "0"; // Tira as bordas arredondadas
+  const link = `https://docs.google.com/forms/d/e/1FAIpQLSeWVDmszwv-eRQBz1CfobQjXghfPMoA0_GvebTUCtFGK9w9oQ/viewform?usp=pp_url` +
+    `&entry.1258565769=${encodeURIComponent(nome)}` +
+    `&entry.752710010=${encodeURIComponent(categoria)}` +
+    `&entry.1085438218=AC` +
+    `&entry.1075575459=${encodeURIComponent(cidade)}`;
+
+  window.open(link, "_blank");
+}
+
+  </script>
+</body>
+</html>
+ordas arredondadas
         content.style.margin = "0";
     } else {
         modal.style.padding = "20px";
