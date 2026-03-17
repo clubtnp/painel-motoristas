@@ -15,5 +15,13 @@ b <div class="box">
       <h1>Grupo de Motoristas</h1>
 c <div class="box">
       <h1>Grupos de Comércios</h1>
-2 troque o URL do Script (Front-end)
+2 Troque o URL do Script (Front-end)
 const SCRIPT_URL =
+3 Troque const response
+await fetch(`${SCRIPT_URL}?estado=AL&cidade=${encodeURIComponent(cidade)}`);
+
+
+obs tem que conferir se vai precisar 
+troque const link
+`&entry.1085438218=AC` +
+
