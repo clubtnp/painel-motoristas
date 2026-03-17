@@ -1,1 +1,828 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Rede de Motoristas</title>
+  <style>
+    /* Estilos Gerais */
+    body { font-family: Arial, sans-serif; background: #0f172a; color: #fff; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; margin: 0; padding: 40px 16px; box-sizing: border-box; }
+    .container { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 24px; }
+    .box { background: #020617; padding: 24px; border-radius: 16px; box-shadow: 0 0 20px rgba(0,0,0,.5); }
+    
+    /* Estilo da Capa */
+    .capa-container { text-align: center; margin-bottom: 8px; }
+    .capa-img { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #22c55e; object-fit: cover; box-shadow: 0 0 15px rgba(34, 197, 94, 0.3); }
+    .capa-titulo { margin-top: 12px; font-size: 18px; font-weight: bold; color: #22c55e; }
 
+    h1 { text-align: center; margin-bottom: 10px; font-size: 22px; }
+    p { text-align: center; font-size: 14px; opacity: .8; }
+    select, button { width: 100%; padding: 14px; margin-top: 16px; border-radius: 12px; border: none; font-size: 16px; }
+    select { background: #1e293b; color: #fff; }
+    button { background: #22c55e; color: #020617; font-weight: bold; cursor: pointer; transition: opacity 0.2s; }
+    .btn-secondary { background: #1e293b; color: #fff; }
+    button:hover { opacity: .9; }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    #status { text-align: center; font-size: 12px; margin-top: 8px; color: #22c55e; display: none; }
+
+    /* Estilos da Árvore Vertical Atualizados */
+    #container-arvore { 
+      margin-top: 20px; 
+      overflow: auto; 
+      height: 255px; 
+      border: 1px solid #1e293b; 
+      border-radius: 12px; 
+      background: #020617;
+      padding: 20px 0; 
+      box-sizing: border-box;
+      position: relative;
+    }
+		  
+	/* Estilo para os filtros de categoria */
+	.filtro-categoria {
+	  width: 100%;
+	  padding: 10px;
+	  margin-top: 10px;
+	  border-radius: 8px;
+	  background: #1e293b;
+	  color: #fff;
+	  border: 1px solid #334155;
+	  font-size: 14px;
+	  outline: none;
+	}
+		  
+	.filtro-categoria:focus {
+	  border-color: #22c55e;
+	}
+
+    
+    #wrapper-arvore { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 20px; 
+      width: max-content; 
+      min-width: 100%;
+      padding: 0 20px;
+      align-items: center; 
+    }
+
+    /* Estilização da Barra de Rolagem (Scrollbar) */
+    #container-arvore::-webkit-scrollbar { width: 8px; height: 8px; }
+    #container-arvore::-webkit-scrollbar-track { background: #020617; border-radius: 10px; }
+    #container-arvore::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    #container-arvore::-webkit-scrollbar-thumb:hover { background: #22c55e; }
+
+    .nivel-arvore { 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      gap: 15px; 
+      min-width: max-content; 
+      position: relative;
+    }
+
+    .label-nivel { 
+      background: #334155; 
+      color: #fff; 
+      padding: 4px 8px; 
+      border-radius: 4px; 
+      font-size: 9px; 
+      font-weight: bold; 
+      text-transform: uppercase; 
+      opacity: 0.6; 
+      flex-shrink: 0; 
+    }
+
+    .item-motorista { 
+      background: #1e293b; 
+      border-radius: 8px; 
+      border: 1px solid #334155; 
+      cursor: pointer; 
+      transition: all 0.2s; 
+      flex-shrink: 0; 
+      width: 110px; 
+      height: 38px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3); 
+    }
+
+    .item-motorista span { 
+      white-space: nowrap; 
+      font-size: 12px; 
+      font-weight: 500;
+      color: #e2e8f0;
+    }
+
+    .item-motorista:hover { 
+      background-color: #334155; 
+      transform: scale(1.05); 
+      border-color: #22c55e; 
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
+    }
+    /* Estilos do Carrossel (Unificado para Grupos e Instagram) */
+    .carrossel-container { 
+      position: relative; 
+      margin-top: 16px; 
+      background: #1e293b; 
+      border-radius: 12px; 
+      padding: 16px; 
+      border: 1px solid #334155; 
+      min-height: 400px; /* Aumentado */
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+    }
+    .carrossel-wrapper { 
+      display: flex; 
+      overflow: hidden; 
+      width: 100%; 
+      border-radius: 8px; 
+      position: relative; 
+      min-height: 380px; /* Aumentado */
+    }
+    .carrossel-item { flex: 0 0 100%; display: flex; flex-direction: column; gap: 12px; transition: transform 0.3s ease; align-items: center; text-align: center; position: absolute; top: 0; left: 0; width: 100%; }
+    .grupo-imagem { width: 150px; height: 150px; border-radius: 12px; object-fit: cover; background: #0f172a; border: 1px solid #334155; }
+    .grupo-info { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+    .grupo-nome { font-size: 18px; font-weight: bold; color: #22c55e; line-height: 1.2; cursor: pointer; padding: 0 10px; word-wrap: break-word; }
+    .grupo-categoria { font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+    .btn-ver-mais { background: #334155; color: #fff; border: 1px solid #475569; border-radius: 8px; padding: 6px 16px; font-size: 12px; font-weight: bold; cursor: pointer; }
+    .grupo-botao { 
+      min-height: 44px; /* Garante que o botão tenha altura mesmo sem texto */
+      display: flex;
+      align-items: center;
+      justify-content: center }
+    
+    /* Navegação Carrossel */
+.carrossel-nav { 
+  position: absolute; top: 50%; transform: translateY(-50%); 
+  background: rgba(34, 197, 94, 0.8); color: #020617; border: none; 
+  width: 36px; height: 36px; border-radius: 50%; cursor: pointer; 
+  font-size: 18px; font-weight: bold; z-index: 10; 
+  display: flex; align-items: center; justify-content: center; 
+}
+.carrossel-nav.prev { left: 8px; }
+.carrossel-nav.next { right: 8px; }
+
+/* Nova Paginação Numérica */
+.carrossel-dots { 
+  display: flex; justify-content: center; align-items: center; 
+  gap: 6px; margin-top: 14px; min-height: 32px; flex-wrap: wrap;
+}
+
+.num-page { 
+  min-width: 30px; height: 30px; padding: 0 4px; border-radius: 6px; 
+  background: #1e293b; color: #fff; font-size: 12px; font-weight: bold;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  border: 1px solid #334155; transition: 0.2s;
+}
+
+.num-page.active { 
+  background: #22c55e; color: #020617; border-color: #22c55e; 
+}
+
+.num-page.dots { 
+  background: transparent; border: none; cursor: default; color: #94a3b8; 
+}
+
+.num-page:hover:not(.dots):not(.active) { 
+  background: #334155; border-color: #22c55e; 
+}
+
+.carrossel-vazio { 
+  text-align: center; color: #94a3b8; font-style: italic; padding: 20px; 
+}
+
+   /* Modal Modernizado com Quebra de Texto */
+    /* Modal Corrigido e Centralizado */
+    .modal-overlay { 
+      position: fixed; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      background: rgba(0, 0, 0, 0.85); 
+      display: none; 
+      justify-content: center; 
+      align-items: center; 
+      z-index: 100000; 
+      backdrop-filter: blur(5px); 
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    
+    .modal-content { 
+      background: #1e293b; 
+      padding: 24px; 
+      border-radius: 20px; 
+      width: 100%;
+      max-width: 360px; 
+      text-align: center; 
+      border: 1px solid #334155; 
+      display: flex; 
+      flex-direction: column; 
+      max-height: 85vh; /* Altura máxima para não sumir no mobile */
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+      position: relative;
+      margin: auto;
+    }
+
+    .modal-descricao-scroll { 
+      flex: 1; 
+      overflow-y: scroll !important; /* Força a barra de rolagem a existir */
+      overflow-x: hidden; 
+      padding: 15px; 
+      background: #0f172a; 
+      border-radius: 12px; 
+      text-align: left; 
+      margin: 15px 0; 
+      border: 1px solid #334155;
+      /* Previne que o conteúdo "cole" nas bordas */
+      -webkit-overflow-scrolling: touch; 
+    }
+
+    .modal-descricao-scroll p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #cbd5e1;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      white-space: pre-wrap;
+    }
+
+    /* Scrollbar Visível (Estilo Mobile/Moderno) */
+    .modal-descricao-scroll::-webkit-scrollbar { 
+      width: 8px !important; 
+      display: block !important;
+    }
+    .modal-descricao-scroll::-webkit-scrollbar-track { 
+      background: #020617; 
+      border-radius: 10px;
+    }
+    .modal-descricao-scroll::-webkit-scrollbar-thumb { 
+      background: #22c55e; 
+      border-radius: 10px;
+      border: 2px solid #0f172a; /* Dá um efeito de espaçamento */
+    }
+    .modal-descricao-scroll::-webkit-scrollbar-thumb:hover { 
+      background: #16a34a; 
+    }
+	/* --- NOVOS ESTILOS DO BOTÃO DE DENÚNCIA --- */
+    .btn-denuncia {
+      background: #450a0a; /* Vermelho escuro */
+      color: #fca5a5;      /* Texto rosado */
+      border: 1px solid #7f1d1d;
+      padding: 8px;
+      font-size: 11px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      width: 100%;
+      text-transform: uppercase;
+      margin-top: 4px;
+      transition: 0.2s;
+    }
+
+    .btn-denuncia:hover {
+      background: #7f1d1d;
+      color: white;
+    }
+
+    /* Container para empilhar os botões um sobre o outro */
+    .grupo-botao-container {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 100%;
+      padding: 0 10px;
+      box-sizing: border-box;
+      margin-top: 10px;
+    }
+		
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="capa-container">
+      <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663183776805/TBToCHjaxmWFWXCg.png" alt="Capa" class="capa-img">
+      <div class="capa-titulo">Pessoas Colaborativas ganham até dormindo</div>
+    </div>
+
+    <div class="box">
+      <h1>Buscar motoristas</h1>
+      <p>Escolha sua cidade</p>
+      <select id="selectCidade"><option value="">Carregando cidades...</option></select>
+      <button id="btnBuscar">Buscar motoristas</button>
+      <div id="status"></div>
+    </div>
+
+    <div class="box">
+      <h1>Árvore da Rede</h1>
+      <p>Arraste para explorar</p>
+      <div id="container-arvore"><div id="wrapper-arvore"></div></div>
+	  <a href="https://docs.google.com/forms/d/e/1FAIpQLSekq7ntpdLLrjK0tLy8Sm0DQ9uY_HRSxQPTQwJ68xuhaHHYfw/viewform" target="_blank" style="text-decoration:none;">
+      <button id="btnCadastrarArvore">Cadastrar na árvore</button>
+      </a>
+	</div>
+
+    <div class="box">
+      <h1>Grupo de Motoristas</h1>
+      <div id="carrossel-motoristas" class="carrossel-container"></div>
+      <div id="dots-motoristas" class="carrossel-dots"></div>
+      <!-- SELETOR DE CATEGORIA MOTORISTAS -->
+      <select id="filtro-motoristas" class="filtro-categoria">
+        <option value="">Filtrar por Categoria (Motoristas )</option>
+      </select>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSfQ1Ur4_46Qm6P0IhyN1-0OpppYujKHID6OJw31XdR6LZpmyw/viewform" target="_blank" style="text-decoration:none;">
+  <button class="btn-secondary">Cadastrar meu grupo</button>
+	</a>
+    </div>
+
+    <div class="box">
+      <h1>Grupos de Comércios</h1>
+      <div id="carrossel-comercio" class="carrossel-container"></div>
+      <div id="dots-comercio" class="carrossel-dots"></div>
+      <!-- SELETOR DE CATEGORIA COMÉRCIO -->
+      <select id="filtro-comercio" class="filtro-categoria">
+        <option value="">Filtrar por Categoria (Comércio)</option>
+      </select>
+	  <a href="https://docs.google.com/forms/d/e/1FAIpQLScztOu5urLKRYc0tMg9mzYGBzLMwWls37G0b1bICq5yPH4EFw/viewform" target="_blank" style="text-decoration:none;">
+      <button class="btn-secondary" id="btnCadastrarComercio">Cadastrar grupo comercial</button>
+	</a>
+	</div>
+
+    <div class="box">
+      <h1>Instagram</h1>
+      <p>Nossas Redes Oficiais</p>
+      <div id="carrossel-instagram" class="carrossel-container"></div>
+      <div id="dots-instagram" class="carrossel-dots"></div>
+      <!-- SELETOR DE CATEGORIA INSTAGRAM -->
+      <select id="filtro-instagram" class="filtro-categoria">
+        <option value="">Filtrar por Categoria (Instagram)</option>
+      </select>
+    </div>
+
+    <!-- NOVO QUADRO "VOLTAR AO INÍCIO" COLADO AQUI -->
+    <div class="box" style="text-align: center;">
+        <p style="margin-bottom: 15px; font-size: 14px; opacity: 0.8;">Deseja retornar ao mapa principal?</p>
+        <a href="../index.html" style="text-decoration: none;">
+            <button style="
+                background: #22c55e; 
+                color: #020617; 
+                font-weight: bold; 
+                border-radius: 12px; 
+                padding: 14px 24px; 
+                width: 100%;
+                border: none;
+                cursor: pointer;
+                transition: opacity 0.2s;
+                font-size: 16px;
+            ">
+                Voltar ao Mapa Principal
+            </button>
+        </a>
+    </div>
+
+  </div>
+
+  <!-- Modal -->
+  <div id="modal-overlay" class="modal-overlay">
+    <div id="modal-content" class="modal-content"></div>
+  </div>
+
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzIsmfQTV5OO1ubdGsTeCPHYSd5JzIp1NVIVvBlPIHRXkSC_FpO_gx-nuu05cpTXdIC/exec";
+    const ADMIN_WHATSAPP = "+5511999999999"; 
+    const FORM_URL_CADASTRO_ARVORE = "https://docs.google.com/forms/d/e/1FAIpQLSekq7ntpdLLrjK0tLy8Sm0DQ9uY_HRSxQPTQwJ68xuhaHHYfw/viewform";
+
+    const carrosselState = {
+      motoristas: { index: 0, total: 0 },
+      comercio: { index: 0, total: 0 },
+      instagram: { index: 0, total: 0 }
+    };
+
+    let dadosAtuais = null;
+
+    window.onload = carregarCidades;
+
+    async function carregarCidades() {
+      try {
+        const response = await fetch(`${SCRIPT_URL}?listar=cidades`);
+        const cidades = await response.json();
+        const select = document.getElementById('selectCidade');
+        select.innerHTML = '<option value="">Selecione a cidade</option>';
+        cidades.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = opt.textContent = c;
+          select.appendChild(opt);
+        });
+      } catch (e) { console.error(e); }
+    }
+
+    document.getElementById('btnBuscar').addEventListener('click', async () => {
+      const cidade = document.getElementById('selectCidade').value;
+      if (!cidade) return alert("Selecione uma cidade");
+      
+      document.getElementById('status').style.display = "block";
+      document.getElementById('status').innerText = "Carregando...";
+      
+      try {
+        const response = await fetch(`${SCRIPT_URL}?estado=AC&cidade=${encodeURIComponent(cidade)}`);
+        const data = await response.json();
+        dadosAtuais = data; 
+			
+        atualizarFiltrosCategorias(data);
+        renderizarArvorePorNiveis(data.arvore);
+        renderizarCarrossel('motoristas', data.gruposMotoristas);
+        renderizarCarrossel('comercio', data.gruposComercio);
+        renderizarCarrossel('instagram', data.instagram);
+        
+        document.getElementById('status').innerText = "Sucesso!";
+        setTimeout(() => document.getElementById('status').style.display = "none", 2000);
+      } catch (e) { document.getElementById('status').innerText = "Erro ao carregar"; }
+    });
+
+    // Otimização: Renderiza apenas os itens necessários inicialmente e evita sobrecarga
+    
+	function renderizarCarrossel(tipo, itens) {
+      const container = document.getElementById(`carrossel-${tipo}`);
+      const dotsContainer = document.getElementById(`dots-${tipo}`);
+      
+      if (!itens || itens.length === 0) {
+        container.innerHTML = '<div class="carrossel-vazio">Nenhum item cadastrado</div>';
+        dotsContainer.innerHTML = '';
+        return;
+      }
+
+      carrosselState[tipo].total = itens.length;
+      carrosselState[tipo].index = 0;
+
+      const wrapper = document.createElement('div');
+      wrapper.className = 'carrossel-wrapper';
+      wrapper.id = `wrapper-${tipo}`;
+
+      itens.forEach((item, idx) => {
+    const div = document.createElement('div');
+    div.className = 'carrossel-item';
+    div.style.transform = `translateX(${idx * 100}%)`;
+    
+    const imgUrl = item.imagem || 'https://cdn-icons-png.flaticon.com/512/174/174855.png';
+    const nomeItem = item.nome || (tipo === 'instagram' ? 'Siga no Instagram' : 'Sem nome');
+    const cidadeAtual = document.getElementById('selectCidade').value || "Não informada";
+    
+    let textoAcao = item.textoBotao || (tipo === 'instagram' ? 'Ver Instagram' : 'Entrar no grupo');
+
+    // Botão de vídeo (Apenas para Instagram)
+    const htmlBotaoVideo = tipo === 'instagram' ? `
+      <button class="btn-ver-mais" style="margin-top: 8px; background: #22c55e; color: #020617;" id="btn-video-${tipo}-${idx}">Ver vídeo aqui no site</button>
+    ` : '';
+
+    const htmlDenuncia = tipo !== 'instagram' ? `
+      <button class="btn-denuncia" 
+          onclick="denunciarGrupo(this)"
+          data-nome="${nomeItem.replace(/'/g, "&apos;")}"
+          data-categoria="${(item.categoria || 'Geral').replace(/'/g, "&apos;")}"
+          data-cidade="${cidadeAtual.replace(/'/g, "&apos;")}">
+          Denunciar irregularidade
+      </button>` : '';
+
+    div.innerHTML = `
+      <img class="grupo-imagem" src="${imgUrl}">
+      <div class="grupo-info">
+        <div class="grupo-nome">${nomeItem}</div>
+        <div class="grupo-categoria">${item.categoria || ''}</div>
+        
+        <button class="btn-ver-mais" id="btn-desc-${tipo}-${idx}">Ver descrição</button>
+        ${htmlBotaoVideo}
+        
+        <div class="grupo-botao-container">
+            <button class="grupo-botao" onclick="window.open('${item.link}', '_blank')">${textoAcao}</button>
+            ${htmlDenuncia}
+        </div>
+      </div>
+    `;
+    
+    div.querySelector(`#btn-desc-${tipo}-${idx}`).onclick = () => abrirModalGrupo(item);
+    
+    // Configura o clique do botão de vídeo se ele existir
+    if (tipo === 'instagram') {
+        div.querySelector(`#btn-video-${tipo}-${idx}`).onclick = () => abrirModalVideo(item.link);
+    }
+    
+    wrapper.appendChild(div);
+});
+
+      container.innerHTML = '';
+      container.appendChild(wrapper);
+
+      // Adiciona setas se houver mais de um item
+      if (itens.length > 1) {
+        const prev = document.createElement('button');
+        prev.className = 'carrossel-nav prev'; prev.innerText = '‹';
+        prev.onclick = () => mudarCarrossel(tipo, -1);
+        container.appendChild(prev);
+
+        const next = document.createElement('button');
+        next.className = 'carrossel-nav next'; next.innerText = '›';
+        next.onclick = () => mudarCarrossel(tipo, 1);
+        container.appendChild(next);
+      }
+      renderizarPaginacaoNumerica(tipo);
+    }
+
+    function mudarCarrossel(tipo, direcao) {
+      const state = carrosselState[tipo];
+      let novoIndex = state.index + direcao;
+      if (novoIndex < 0) novoIndex = state.total - 1;
+      if (novoIndex >= state.total) novoIndex = 0;
+      irParaCarrossel(tipo, novoIndex);
+    }
+
+    function irParaCarrossel(tipo, index) {
+      carrosselState[tipo].index = index;
+      const wrapper = document.getElementById(`wrapper-${tipo}`);
+      if (wrapper) {
+        const itens = wrapper.querySelectorAll('.carrossel-item');
+        itens.forEach((item, i) => {
+          item.style.transform = `translateX(${(i - index) * 100}%)`;
+        });
+      }
+      renderizarPaginacaoNumerica(tipo);
+    }
+
+    function renderizarPaginacaoNumerica(tipo) {
+      const dotsContainer = document.getElementById(`dots-${tipo}`);
+      const total = carrosselState[tipo].total;
+      const atual = carrosselState[tipo].index;
+      dotsContainer.innerHTML = '';
+      if (total <= 1) return;
+
+      const paginas = [];
+      paginas.push(0); 
+      if (atual > 2) paginas.push('...');
+      
+      for (let i = Math.max(1, atual - 1); i <= Math.min(total - 2, atual + 1); i++) {
+        if (!paginas.includes(i)) paginas.push(i);
+      }
+
+      if (atual < total - 3) paginas.push('...');
+      if (total > 1 && !paginas.includes(total - 1)) paginas.push(total - 1);
+
+      paginas.forEach(p => {
+        const btn = document.createElement('div');
+        if (p === '...') {
+          btn.className = 'num-page dots';
+          btn.innerText = '...';
+        } else {
+          btn.className = `num-page ${p === atual ? 'active' : ''}`;
+          btn.innerText = p + 1;
+          btn.onclick = () => irParaCarrossel(tipo, p);
+        }
+        dotsContainer.appendChild(btn);
+      });
+    }
+
+    function atualizarFiltrosCategorias(dados) {
+      const mapeamento = [
+        { id: 'filtro-motoristas', tipo: 'motoristas', lista: dados.gruposMotoristas, label: 'Motoristas' },
+        { id: 'filtro-comercio', tipo: 'comercio', lista: dados.gruposComercio, label: 'Comércio' },
+        { id: 'filtro-instagram', tipo: 'instagram', lista: dados.instagram, label: 'Instagram' }
+      ];
+
+      mapeamento.forEach(item => {
+        const select = document.getElementById(item.id);
+        if (!select) return;
+
+        const categorias = [...new Set(item.lista.map(i => i.categoria))]
+          .filter(c => c && c.trim() !== "")
+          .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
+        select.innerHTML = `<option value="">Todas as Categorias (${item.label})</option>`;
+        categorias.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat;
+          option.textContent = cat;
+          select.appendChild(option);
+        });
+
+        select.onchange = () => {
+          const selecionada = select.value;
+          const listaOriginal = item.tipo === 'motoristas' ? dadosAtuais.gruposMotoristas : 
+                                item.tipo === 'comercio' ? dadosAtuais.gruposComercio : 
+                                dadosAtuais.instagram;
+          
+          const filtrados = selecionada 
+            ? listaOriginal.filter(i => i.categoria === selecionada)
+            : listaOriginal;
+          
+          renderizarCarrossel(item.tipo, filtrados);
+        };
+      });
+    }
+
+    // Tratamento de performance para a árvore: evita travamentos se houver muitos motoristas
+    function renderizarArvorePorNiveis(arvore) {
+      const wrapper = document.getElementById('wrapper-arvore');
+      wrapper.innerHTML = "";
+      if (!arvore || arvore.length === 0) {
+        wrapper.innerHTML = "<p style='opacity:0.5;'>Nenhum motorista.</p>";
+        return;
+      }
+
+      // Renderização fragmentada para performance
+      const fragment = document.createDocumentFragment();
+      
+      arvore.forEach((nivelLista, indexNivel) => {
+        const divNivel = document.createElement('div');
+        divNivel.className = 'nivel-arvore';
+        const label = document.createElement('div');
+        label.className = 'label-nivel';
+        label.innerText = `Nível ${indexNivel + 1}`;
+        divNivel.appendChild(label);
+        
+        nivelLista.forEach(m => {
+          const item = document.createElement('div');
+          item.className = 'item-motorista';
+          item.innerHTML = `<span>${(m.nome || "Motorista").split(" ")[0]}</span>`;
+          item.onclick = () => abrirModalMotorista(m);
+          divNivel.appendChild(item);
+        });
+        
+        const labelFim = label.cloneNode(true);
+        divNivel.appendChild(labelFim);
+        fragment.appendChild(divNivel);
+      });
+      
+      wrapper.appendChild(fragment);
+    }
+
+    function abrirModalGrupo(item) {
+      const modal = document.getElementById('modal-overlay');
+      const content = document.getElementById('modal-content');
+      content.innerHTML = `
+        <h2 style="margin: 0 0 10px 0; color: #22c55e; font-size: 20px; flex-shrink: 0;">Descrição</h2>
+        <div class="modal-descricao-scroll">
+            <p>${item.descricao || 'Sem descrição disponível.'}</p>
+        </div>
+        <button class="btn-secondary" onclick="fecharModal()" style="cursor: pointer; width: 100%; flex-shrink: 0; margin-top: 10px; padding: 14px;">Fechar</button>
+      `;
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => { content.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+    }
+
+    function abrirModalMotorista(m) {
+      const modal = document.getElementById('modal-overlay');
+      const content = document.getElementById('modal-content');
+      const nome = m.nome || "Motorista";
+      
+      // RESTAURAÇÃO: Usa o campo 'icone' para o telefone e verifica 'telefoneVisivel'
+      let numeroLimpo = String(m.icone || '').replace(/\D/g, '');
+      const podeMostrar = m.telefoneVisivel === true && numeroLimpo.length >= 10;
+
+      let corpo = "";
+      if (podeMostrar) {
+        const ddd = numeroLimpo.substring(0, 2);
+        const ini = numeroLimpo.substring(2, 7);
+        const fim = numeroLimpo.substring(7);
+        const numeroFormatado = `(${ddd}) ${ini}-${fim}`;
+
+        corpo = `
+          <div style="font-size:22px;font-weight:bold;color:#22c55e;">${nome}</div>
+          <p style="font-size:13px;color:#94a3b8;margin:6px 0 18px 0;">Motorista da rede</p>
+          <div style="font-size:20px;font-weight:bold;margin-bottom:20px;">
+            📞 ${numeroFormatado}
+          </div>
+          <button class="grupo-botao"
+            onclick="window.open('https://wa.me/55${numeroLimpo}','_blank')"
+            style="cursor:pointer;background:#22c55e;color:#020617;width:100%;padding:14px;border-radius:10px;">
+            Chamar no WhatsApp
+          </button>
+        `;
+      } else {
+        corpo = `
+          <div style="font-size:22px;font-weight:bold;">${nome}</div>
+          <p style="font-size:13px;color:#94a3b8;margin:10px 0 20px 0;">Motorista da rede</p>
+          <div style="background:#0f172a;padding:16px;border-radius:10px;border:1px solid #334155;">
+            <strong style="color:#ef4444;">Número privado</strong>
+            <p style="font-size:12px;color:#94a3b8;margin-top:6px;">Este motorista optou por não exibir o contato.</p>
+          </div>
+        `;
+      }
+      content.innerHTML = `${corpo}<button class="btn-secondary" onclick="fecharModal()" style="margin-top:16px;width:100%;padding:14px;">Voltar</button>`;
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => { content.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
+    }
+	function abrirModalVideo(link) {
+    const modal = document.getElementById('modal-overlay');
+    const content = document.getElementById('modal-content');
+    
+    // Tratamento do link para o formato de incorporação
+    let embedLink = link;
+    if (embedLink.includes("instagram.com")) {
+        embedLink = embedLink.split('?')[0]; 
+        if (!embedLink.endsWith('/')) embedLink += '/';
+        embedLink += 'embed/';
+    }
+
+    // Detecta se é mobile (tela menor que 768px)
+    const isMobile = window.innerWidth <= 768;
+
+    // Configuração de estilo dinâmica
+    const alturaVideo = isMobile ? 'calc(100vh - 120px)' : '560px';
+    const borderRadius = isMobile ? '0' : '20px';
+    const paddingModal = isMobile ? '10px' : '24px';
+
+    // Aplicando ajustes no container do modal
+    content.style.maxWidth = isMobile ? '100%' : '380px';
+    content.style.width = '100%';
+    content.style.height = isMobile ? '100%' : 'auto';
+    content.style.borderRadius = borderRadius;
+    content.style.padding = paddingModal;
+
+    content.innerHTML = `
+        <h2 style="margin: 0 0 10px 0; color: #22c55e; font-size: 18px; flex-shrink: 0;">🎥 Vídeo da Rede</h2>
+        
+        <div style="
+            width: 100%; 
+            height: ${alturaVideo}; 
+            background: #000; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            border: 1px solid #334155;
+            position: relative;
+        ">
+            <iframe 
+                src="${embedLink}" 
+                width="100%" 
+                height="100%" 
+                frameborder="0" 
+                scrolling="no" 
+                allowtransparency="true"
+                allow="autoplay"
+                style="position: absolute; top: 0; left: 0;">
+            </iframe>
+        </div>
+
+        <button class="btn-secondary" onclick="fecharModal()" style="
+            width: 100%; 
+            padding: 16px; 
+            margin-top: 10px; 
+            cursor: pointer; 
+            flex-shrink: 0;
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #fff;
+            font-weight: bold;
+            border-radius: 12px;
+        ">
+            Fechar Vídeo
+        </button>
+    `;
+
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden'; // Trava o scroll do fundo
+}	
+
+    function fecharModal() {
+      const modal = document.getElementById('modal-overlay');
+      const content = document.getElementById('modal-content');
+
+      if (modal) {
+        modal.style.display = 'none';
+        // Remove o vídeo do HTML para silenciar o áudio e liberar memória
+        if (content) content.innerHTML = ''; 
+        document.body.style.overflow = 'auto';
+      }
+    }
+
+    // Fecha o modal ao apertar a tecla ESC
+    document.addEventListener('keydown', (e) => { 
+      if (e.key === 'Escape') fecharModal(); 
+    });
+
+    // Fecha o modal ao clicar na parte escura (fora da janelinha)
+    document.getElementById('modal-overlay').addEventListener('click', (e) => { 
+      if (e.target.id === 'modal-overlay') fecharModal(); 
+    });
+	
+function denunciarGrupo(btn) {
+  const nome = btn.dataset.nome;
+  const categoria = btn.dataset.categoria;
+  const cidade = btn.dataset.cidade;
+
+  const link = `https://docs.google.com/forms/d/e/1FAIpQLSeWVDmszwv-eRQBz1CfobQjXghfPMoA0_GvebTUCtFGK9w9oQ/viewform?usp=pp_url` +
+    `&entry.1258565769=${encodeURIComponent(nome)}` +
+    `&entry.752710010=${encodeURIComponent(categoria)}` +
+    `&entry.1085438218=AC` +
+    `&entry.1075575459=${encodeURIComponent(cidade)}`;
+
+  window.open(link, "_blank");
+}
+
+  </script>
+</body>
+</html>
