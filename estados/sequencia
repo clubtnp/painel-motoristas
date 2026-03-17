@@ -1,3 +1,13 @@
+Troca no Script
+1 troque o id da planilha:
+const PLANILHA_PUBLICA_ID
+2 Troque const estadoBusca 
+= String(params.estado || 'AL').toUpperCase().trim();
+3 Troque const idxEstado 
+= col['confirme seu estado [alagoas (al)]'] || col['estado'];
+Obs: você tem que implantar como app web pra pegar o codigo da url do script
+
+Trocar no HTML
 1 troque os direcionamento dos formularios na
 a <div class="box">
       <h1>Árvore da Rede</h1>
@@ -5,3 +15,5 @@ b <div class="box">
       <h1>Grupo de Motoristas</h1>
 c <div class="box">
       <h1>Grupos de Comércios</h1>
+2 troque o URL do Script (Front-end)
+const SCRIPT_URL =
