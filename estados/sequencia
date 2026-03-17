@@ -19,9 +19,6 @@ c <div class="box">
 const SCRIPT_URL =
 3 Troque const response
 await fetch(`${SCRIPT_URL}?estado=AL&cidade=${encodeURIComponent(cidade)}`);
-
-
-obs tem que conferir se vai precisar 
-troque const link
+4 troque const link
 `&entry.1085438218=AC` +
-
+obs tem que confirmar o nome da coluna estado na planilha
