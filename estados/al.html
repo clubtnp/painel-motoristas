@@ -303,100 +303,10 @@
   </style>
 </head>
 <body>
-
-  <div class="container">
-    <div class="capa-container">
-      <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663183776805/TBToCHjaxmWFWXCg.png" alt="Capa" class="capa-img">
-      <div class="capa-titulo">Pessoas Colaborativas ganham até dormindo</div>
-    </div>
-
-    <div class="box">
-      <h1>Buscar motoristas</h1>
-      <p>Escolha sua cidade</p>
-      <select id="selectCidade"><option value="">Carregando cidades...</option></select>
-      <button id="btnBuscar">Buscar motoristas</button>
-      <div id="status"></div>
-    </div>
-
-    <div class="box">
-      <h1>Árvore da Rede</h1>
-      <p>Arraste para explorar</p>
-      <div id="container-arvore"><div id="wrapper-arvore"></div></div>
-	  <a href="https://forms.gle/tw257UsEibG2BV588" target="_blank" style="text-decoration:none;">
-      <button id="btnCadastrarArvore">Cadastrar na árvore</button>
-      </a>
-	</div>
-
-    <div class="box">
-      <h1>Grupo de Motoristas</h1>
-      <div id="carrossel-motoristas" class="carrossel-container"></div>
-      <div id="dots-motoristas" class="carrossel-dots"></div>
-      <!-- SELETOR DE CATEGORIA MOTORISTAS -->
-      <select id="filtro-motoristas" class="filtro-categoria">
-        <option value="">Filtrar por Categoria (Motoristas )</option>
-      </select>
-      <a href="https://forms.gle/4iPifW7uJDAVwozG6" target="_blank" style="text-decoration:none;">
-  <button class="btn-secondary">Cadastrar meu grupo</button>
-	</a>
-    </div>
-
-    <div class="box">
-      <h1>Grupos de Comércios</h1>
-      <div id="carrossel-comercio" class="carrossel-container"></div>
-      <div id="dots-comercio" class="carrossel-dots"></div>
-      <!-- SELETOR DE CATEGORIA COMÉRCIO -->
-      <select id="filtro-comercio" class="filtro-categoria">
-        <option value="">Filtrar por Categoria (Comércio)</option>
-      </select>
-	  <a href="https://forms.gle/V8sbGP98yg7FA3UbA" target="_blank" style="text-decoration:none;">
-      <button class="btn-secondary" id="btnCadastrarComercio">Cadastrar grupo comercial</button>
-	</a>
-	</div>
-
-    <div class="box">
-      <h1>Instagram</h1>
-      <p>Nossas Redes Oficiais</p>
-      <div id="carrossel-instagram" class="carrossel-container"></div>
-      <div id="dots-instagram" class="carrossel-dots"></div>
-      <!-- SELETOR DE CATEGORIA INSTAGRAM -->
-      <select id="filtro-instagram" class="filtro-categoria">
-        <option value="">Filtrar por Categoria (Instagram)</option>
-      </select>
-    </div>
-
-    <!-- NOVO QUADRO "VOLTAR AO INÍCIO" COLADO AQUI -->
-    <div class="box" style="text-align: center;">
-        <p style="margin-bottom: 15px; font-size: 14px; opacity: 0.8;">Deseja retornar ao mapa principal?</p>
-        <a href="../index.html" style="text-decoration: none;">
-            <button style="
-                background: #22c55e; 
-                color: #020617; 
-                font-weight: bold; 
-                border-radius: 12px; 
-                padding: 14px 24px; 
-                width: 100%;
-                border: none;
-                cursor: pointer;
-                transition: opacity 0.2s;
-                font-size: 16px;
-            ">
-                Voltar ao Mapa Principal
-            </button>
-        </a>
-    </div>
-
-  </div>
-
-  <!-- Modal -->
-  <div id="modal-overlay" class="modal-overlay">
-    <div id="modal-content" class="modal-content"></div>
-  </div>
-
   <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwnNySwqVK2EJqikNEYemzkFfUtateOKtZp8CYtpzDIK-PggWhH5OEkK_q4i5ZvuUns/exec";
-    const ADMIN_WHATSAPP = "+5511999999999"; 
-    const FORM_URL_CADASTRO_ARVORE = "https://docs.google.com/forms/d/e/1FAIpQLSekq7ntpdLLrjK0tLy8Sm0DQ9uY_HRSxQPTQwJ68xuhaHHYfw/viewform";
-
+    
+    // Variáveis de Controle de Estado
     const carrosselState = {
       motoristas: { index: 0, total: 0 },
       comercio: { index: 0, total: 0 },
@@ -405,6 +315,7 @@
 
     let dadosAtuais = null;
 
+    // Inicialização
     window.onload = carregarCidades;
 
     async function carregarCidades() {
@@ -418,54 +329,57 @@
           opt.value = opt.textContent = c;
           select.appendChild(opt);
         });
-      } catch (e) { console.error(e); }
+      } catch (e) { 
+        console.error("Erro ao carregar cidades:", e); 
+      }
     }
 
+    // --- LÓGICA DO BOTÃO BUSCAR (O CORAÇÃO DO SITE) ---
     document.getElementById('btnBuscar').addEventListener('click', async () => {
-  const cidade = document.getElementById('selectCidade').value;
-  if (!cidade) return alert("Selecione uma cidade");
-  
-  const statusDiv = document.getElementById('status');
-  statusDiv.style.display = "block";
-  statusDiv.innerText = "Carregando...";
-  
-  try {
-    // Faz a chamada para o seu Google Script
-    const response = await fetch(`${SCRIPT_URL}?estado=AL&cidade=${encodeURIComponent(cidade)}`);
-    const data = await response.json();
-    
-    // Guarda os dados na variável global para os filtros funcionarem depois
-    dadosAtuais = data; 
+      const cidade = document.getElementById('selectCidade').value;
+      if (!cidade) return alert("Selecione uma cidade");
+      
+      const statusDiv = document.getElementById('status');
+      statusDiv.style.display = "block";
+      statusDiv.innerText = "Carregando...";
+      statusDiv.style.color = "#22c55e";
+      
+      try {
+        const response = await fetch(`${SCRIPT_URL}?estado=AL&cidade=${encodeURIComponent(cidade)}`);
+        const data = await response.json();
+        
+        // 1. Salva os dados para uso dos filtros laterais
+        dadosAtuais = data; 
 
-    // 1. Atualiza os filtros de categoria (Motoristas, Comércio, Instagram)
-    atualizarFiltrosCategorias(data);
+        // 2. Renderiza a Árvore de Motoristas Individuais
+        renderizarArvorePorNiveis(data.arvore || []);
 
-    // 2. Renderiza a Árvore (se não houver motoristas, envia lista vazia para não dar erro)
-    renderizarArvorePorNiveis(data.arvore || []);
+        // 3. Renderiza os Carrosséis de Grupos
+        renderizarCarrossel('motoristas', data.gruposMotoristas || []);
+        renderizarCarrossel('comercio', data.gruposComercio || []);
+        renderizarCarrossel('instagram', data.instagram || []);
+        
+        // 4. Configura os Filtros de Categoria baseados nos novos dados
+        atualizarFiltrosCategorias(data);
+        
+        statusDiv.innerText = "Sucesso!";
+        setTimeout(() => statusDiv.style.display = "none", 2000);
 
-    // 3. Renderiza os Carrosséis (usando || [] para garantir que o código continue rodando)
-    renderizarCarrossel('motoristas', data.gruposMotoristas || []);
-    renderizarCarrossel('comercio', data.gruposComercio || []);
-    renderizarCarrossel('instagram', data.instagram || []);
-    
-    statusDiv.innerText = "Sucesso!";
-    setTimeout(() => statusDiv.style.display = "none", 2000);
+      } catch (e) { 
+        console.error("Erro na busca:", e);
+        statusDiv.innerText = "Erro ao carregar dados"; 
+        statusDiv.style.color = "#ef4444";
+      }
+    });
 
-  } catch (e) { 
-    console.error("Erro na busca:", e);
-    statusDiv.innerText = "Erro ao carregar dados"; 
-    statusDiv.style.color = "#ef4444"; // Muda para vermelho em caso de erro
-  }
-});
+    // --- FUNÇÕES DE RENDERIZAÇÃO ---
 
-    // Otimização: Renderiza apenas os itens necessários inicialmente e evita sobrecarga
-    
-	function renderizarCarrossel(tipo, itens) {
+    function renderizarCarrossel(tipo, itens) {
       const container = document.getElementById(`carrossel-${tipo}`);
       const dotsContainer = document.getElementById(`dots-${tipo}`);
       
       if (!itens || itens.length === 0) {
-        container.innerHTML = '<div class="carrossel-vazio">Nenhum item cadastrado</div>';
+        container.innerHTML = '<div class="carrossel-vazio">Nenhum item encontrado nesta categoria</div>';
         dotsContainer.innerHTML = '';
         return;
       }
@@ -478,60 +392,49 @@
       wrapper.id = `wrapper-${tipo}`;
 
       itens.forEach((item, idx) => {
-    const div = document.createElement('div');
-    div.className = 'carrossel-item';
-    div.style.transform = `translateX(${idx * 100}%)`;
-    
-    const imgUrl = item.imagem || 'https://cdn-icons-png.flaticon.com/512/174/174855.png';
-    const nomeItem = item.nome || (tipo === 'instagram' ? 'Siga no Instagram' : 'Sem nome');
-    const cidadeAtual = document.getElementById('selectCidade').value || "Não informada";
-    
-    let textoAcao = item.textoBotao || (tipo === 'instagram' ? 'Ver Instagram' : 'Entrar no grupo');
-
-    // Botão de vídeo (Apenas para Instagram)
-    const htmlBotaoVideo = tipo === 'instagram' ? `
-      <button class="btn-ver-mais" style="margin-top: 8px; background: #22c55e; color: #020617;" id="btn-video-${tipo}-${idx}">Ver vídeo aqui no site</button>
-    ` : '';
-
-    const htmlDenuncia = tipo !== 'instagram' ? `
-      <button class="btn-denuncia" 
-          onclick="denunciarGrupo(this)"
-          data-nome="${nomeItem.replace(/'/g, "&apos;")}"
-          data-categoria="${(item.categoria || 'Geral').replace(/'/g, "&apos;")}"
-          data-cidade="${cidadeAtual.replace(/'/g, "&apos;")}">
-          Denunciar irregularidade
-      </button>` : '';
-
-    div.innerHTML = `
-      <img class="grupo-imagem" src="${imgUrl}">
-      <div class="grupo-info">
-        <div class="grupo-nome">${nomeItem}</div>
-        <div class="grupo-categoria">${item.categoria || ''}</div>
+        const div = document.createElement('div');
+        div.className = 'carrossel-item';
+        div.style.transform = `translateX(${idx * 100}%)`;
         
-        <button class="btn-ver-mais" id="btn-desc-${tipo}-${idx}">Ver descrição</button>
-        ${htmlBotaoVideo}
+        const imgUrl = item.imagem || 'https://cdn-icons-png.flaticon.com/512/174/174855.png';
+        const nomeItem = item.nome || (tipo === 'instagram' ? 'Siga no Instagram' : 'Sem nome');
+        const cidadeAtual = document.getElementById('selectCidade').value || "AL";
         
-        <div class="grupo-botao-container">
-            <button class="grupo-botao" onclick="window.open('${item.link}', '_blank')">${textoAcao}</button>
-            ${htmlDenuncia}
-        </div>
-      </div>
-    `;
-    
-    div.querySelector(`#btn-desc-${tipo}-${idx}`).onclick = () => abrirModalGrupo(item);
-    
-    // Configura o clique do botão de vídeo se ele existir
-    if (tipo === 'instagram') {
-        div.querySelector(`#btn-video-${tipo}-${idx}`).onclick = () => abrirModalVideo(item.link);
-    }
-    
-    wrapper.appendChild(div);
-});
+        let textoAcao = item.textoBotao || (tipo === 'instagram' ? 'Ver Instagram' : 'Entrar no grupo');
+
+        const htmlBotaoVideo = (tipo === 'instagram' && item.link) ? `
+          <button class="btn-ver-mais" style="margin-top: 8px; background: #22c55e; color: #020617;" 
+            onclick="abrirModalVideo('${item.link}')">Ver vídeo aqui</button>
+        ` : '';
+
+        const htmlDenuncia = tipo !== 'instagram' ? `
+          <button class="btn-denuncia" 
+              onclick="denunciarGrupo(this)"
+              data-nome="${nomeItem.replace(/"/g, '&quot;')}"
+              data-categoria="${(item.categoria || 'Geral').replace(/"/g, '&quot;')}"
+              data-cidade="${cidadeAtual}">
+              Denunciar irregularidade
+          </button>` : '';
+
+        div.innerHTML = `
+          <img class="grupo-imagem" src="${imgUrl}">
+          <div class="grupo-info">
+            <div class="grupo-nome">${nomeItem}</div>
+            <div class="grupo-categoria">${item.categoria || ''}</div>
+            <button class="btn-ver-mais" onclick='abrirModalGrupo(${JSON.stringify(item).replace(/'/g, "&apos;")})'>Ver descrição</button>
+            ${htmlBotaoVideo}
+            <div class="grupo-botao-container">
+                <button class="grupo-botao" onclick="window.open('${item.link}', '_blank')">${textoAcao}</button>
+                ${htmlDenuncia}
+            </div>
+          </div>
+        `;
+        wrapper.appendChild(div);
+      });
 
       container.innerHTML = '';
       container.appendChild(wrapper);
 
-      // Adiciona setas se houver mais de um item
       if (itens.length > 1) {
         const prev = document.createElement('button');
         prev.className = 'carrossel-nav prev'; prev.innerText = '‹';
@@ -599,64 +502,61 @@
     }
 
     function atualizarFiltrosCategorias(dados) {
-  const mapeamento = [
-    { id: 'filtro-motoristas', tipo: 'motoristas', lista: dados.gruposMotoristas || [], label: 'Motoristas' },
-    { id: 'filtro-comercio', tipo: 'comercio', lista: dados.gruposComercio || [], label: 'Comércio' },
-    { id: 'filtro-instagram', tipo: 'instagram', lista: dados.instagram || [], label: 'Instagram' }
-  ];
+      const mapeamento = [
+        { id: 'filtro-motoristas', tipo: 'motoristas', lista: dados.gruposMotoristas || [], label: 'Motoristas' },
+        { id: 'filtro-comercio', tipo: 'comercio', lista: dados.gruposComercio || [], label: 'Comércio' },
+        { id: 'filtro-instagram', tipo: 'instagram', lista: dados.instagram || [], label: 'Instagram' }
+      ];
 
-  mapeamento.forEach(item => {
-    const select = document.getElementById(item.id);
-    if (!select) return;
+      mapeamento.forEach(item => {
+        const select = document.getElementById(item.id);
+        if (!select) return;
 
-    // Pega categorias únicas, ignora vazios e ordena
-    const categorias = [...new Set(item.lista.map(i => i.categoria))]
-      .filter(c => c && c.trim() !== "")
-      .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+        const categorias = [...new Set(item.lista.map(i => i.categoria))]
+          .filter(c => c && c.trim() !== "")
+          .sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
-    select.innerHTML = `<option value="">Todas as Categorias (${item.label})</option>`;
-    
-    if (categorias.length === 0) {
-       select.style.display = 'none'; // Esconde o filtro se não houver categorias
-    } else {
-       select.style.display = 'block';
-       categorias.forEach(cat => {
-         const option = document.createElement('option');
-         option.value = cat;
-         option.textContent = cat;
-         select.appendChild(option);
-       });
+        select.innerHTML = `<option value="">Todas as Categorias (${item.label})</option>`;
+        
+        if (categorias.length === 0) {
+           select.style.display = 'none';
+        } else {
+           select.style.display = 'block';
+           categorias.forEach(cat => {
+             const option = document.createElement('option');
+             option.value = cat;
+             option.textContent = cat;
+             select.appendChild(option);
+           });
+        }
+
+        select.onchange = () => {
+          const selecionada = select.value;
+          const filtrados = selecionada 
+            ? item.lista.filter(i => i.categoria === selecionada)
+            : item.lista;
+          renderizarCarrossel(item.tipo, filtrados);
+        };
+      });
     }
 
-    select.onchange = () => {
-      const selecionada = select.value;
-      const filtrados = selecionada 
-        ? item.lista.filter(i => i.categoria === selecionada)
-        : item.lista;
-      renderizarCarrossel(item.tipo, filtrados);
-    };
-  });
-}
-
-    // Tratamento de performance para a árvore: evita travamentos se houver muitos motoristas
     function renderizarArvorePorNiveis(arvore) {
       const wrapper = document.getElementById('wrapper-arvore');
       wrapper.innerHTML = "";
       if (!arvore || arvore.length === 0) {
-        wrapper.innerHTML = "<p style='opacity:0.5;'>Nenhum motorista.</p>";
+        wrapper.innerHTML = "<p style='opacity:0.5; padding: 20px;'>Nenhum motorista individual disponível nesta cidade.</p>";
         return;
       }
 
-      // Renderização fragmentada para performance
       const fragment = document.createDocumentFragment();
-      
       arvore.forEach((nivelLista, indexNivel) => {
         const divNivel = document.createElement('div');
         divNivel.className = 'nivel-arvore';
-        const label = document.createElement('div');
-        label.className = 'label-nivel';
-        label.innerText = `Nível ${indexNivel + 1}`;
-        divNivel.appendChild(label);
+        
+        const labelIni = document.createElement('div');
+        labelIni.className = 'label-nivel';
+        labelIni.innerText = `Nível ${indexNivel + 1}`;
+        divNivel.appendChild(labelIni);
         
         nivelLista.forEach(m => {
           const item = document.createElement('div');
@@ -666,27 +566,27 @@
           divNivel.appendChild(item);
         });
         
-        const labelFim = label.cloneNode(true);
+        const labelFim = labelIni.cloneNode(true);
         divNivel.appendChild(labelFim);
         fragment.appendChild(divNivel);
       });
-      
       wrapper.appendChild(fragment);
     }
+
+    // --- FUNÇÕES DE MODAL ---
 
     function abrirModalGrupo(item) {
       const modal = document.getElementById('modal-overlay');
       const content = document.getElementById('modal-content');
       content.innerHTML = `
-        <h2 style="margin: 0 0 10px 0; color: #22c55e; font-size: 20px; flex-shrink: 0;">Descrição</h2>
+        <h2 style="margin: 0 0 10px 0; color: #22c55e; font-size: 20px;">Descrição</h2>
         <div class="modal-descricao-scroll">
             <p>${item.descricao || 'Sem descrição disponível.'}</p>
         </div>
-        <button class="btn-secondary" onclick="fecharModal()" style="cursor: pointer; width: 100%; flex-shrink: 0; margin-top: 10px; padding: 14px;">Fechar</button>
+        <button class="btn-secondary" onclick="fecharModal()" style="width: 100%; margin-top: 10px; padding: 14px;">Fechar</button>
       `;
       modal.style.display = 'flex';
       document.body.style.overflow = 'hidden';
-      setTimeout(() => { content.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
     }
 
     function abrirModalMotorista(m) {
@@ -694,7 +594,6 @@
       const content = document.getElementById('modal-content');
       const nome = m.nome || "Motorista";
       
-      // RESTAURAÇÃO: Usa o campo 'icone' para o telefone e verifica 'telefoneVisivel'
       let numeroLimpo = String(m.icone || '').replace(/\D/g, '');
       const podeMostrar = m.telefoneVisivel === true && numeroLimpo.length >= 10;
 
@@ -703,17 +602,12 @@
         const ddd = numeroLimpo.substring(0, 2);
         const ini = numeroLimpo.substring(2, 7);
         const fim = numeroLimpo.substring(7);
-        const numeroFormatado = `(${ddd}) ${ini}-${fim}`;
-
         corpo = `
           <div style="font-size:22px;font-weight:bold;color:#22c55e;">${nome}</div>
           <p style="font-size:13px;color:#94a3b8;margin:6px 0 18px 0;">Motorista da rede</p>
-          <div style="font-size:20px;font-weight:bold;margin-bottom:20px;">
-            📞 ${numeroFormatado}
-          </div>
-          <button class="grupo-botao"
-            onclick="window.open('https://wa.me/55${numeroLimpo}','_blank')"
-            style="cursor:pointer;background:#22c55e;color:#020617;width:100%;padding:14px;border-radius:10px;">
+          <div style="font-size:20px;font-weight:bold;margin-bottom:20px;">📞 (${ddd}) ${ini}-${fim}</div>
+          <button class="grupo-botao" onclick="window.open('https://wa.me/55${numeroLimpo}','_blank')"
+            style="background:#22c55e;color:#020617;width:100%;padding:14px;border-radius:10px;font-weight:bold;border:none;cursor:pointer;">
             Chamar no WhatsApp
           </button>
         `;
@@ -723,121 +617,56 @@
           <p style="font-size:13px;color:#94a3b8;margin:10px 0 20px 0;">Motorista da rede</p>
           <div style="background:#0f172a;padding:16px;border-radius:10px;border:1px solid #334155;">
             <strong style="color:#ef4444;">Número privado</strong>
-            <p style="font-size:12px;color:#94a3b8;margin-top:6px;">Este motorista optou por não exibir o contato.</p>
+            <p style="font-size:12px;color:#94a3b8;margin-top:6px;">Este motorista optou por não exibir o contato publicamente.</p>
           </div>
         `;
       }
       content.innerHTML = `${corpo}<button class="btn-secondary" onclick="fecharModal()" style="margin-top:16px;width:100%;padding:14px;">Voltar</button>`;
       modal.style.display = 'flex';
       document.body.style.overflow = 'hidden';
-      setTimeout(() => { content.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 100);
     }
-	function abrirModalVideo(link) {
-    const modal = document.getElementById('modal-overlay');
-    const content = document.getElementById('modal-content');
-    
-    // Tratamento do link para o formato de incorporação
-    let embedLink = link;
-    if (embedLink.includes("instagram.com")) {
-        embedLink = embedLink.split('?')[0]; 
+
+    function abrirModalVideo(link) {
+        const modal = document.getElementById('modal-overlay');
+        const content = document.getElementById('modal-content');
+        
+        let embedLink = link.split('?')[0]; 
         if (!embedLink.endsWith('/')) embedLink += '/';
         embedLink += 'embed/';
+
+        const isMobile = window.innerWidth <= 768;
+        content.style.maxWidth = isMobile ? '100%' : '380px';
+        content.style.height = isMobile ? '90vh' : 'auto';
+
+        content.innerHTML = `
+            <h2 style="margin: 0 0 10px 0; color: #22c55e; font-size: 18px;">🎥 Vídeo da Rede</h2>
+            <div style="width: 100%; height: ${isMobile ? '70%' : '450px'}; background: #000; border-radius: 12px; overflow: hidden; position: relative;">
+                <iframe src="${embedLink}" width="100%" height="100%" frameborder="0" scrolling="no" allowtransparency="true" allow="autoplay"></iframe>
+            </div>
+            <button class="btn-secondary" onclick="fecharModal()" style="width: 100%; padding: 16px; margin-top: 10px; font-weight: bold;">Fechar Vídeo</button>
+        `;
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
     }
-
-    // Detecta se é mobile (tela menor que 768px)
-    const isMobile = window.innerWidth <= 768;
-
-    // Configuração de estilo dinâmica
-    const alturaVideo = isMobile ? 'calc(100vh - 120px)' : '560px';
-    const borderRadius = isMobile ? '0' : '20px';
-    const paddingModal = isMobile ? '10px' : '24px';
-
-    // Aplicando ajustes no container do modal
-    content.style.maxWidth = isMobile ? '100%' : '380px';
-    content.style.width = '100%';
-    content.style.height = isMobile ? '100%' : 'auto';
-    content.style.borderRadius = borderRadius;
-    content.style.padding = paddingModal;
-
-    content.innerHTML = `
-        <h2 style="margin: 0 0 10px 0; color: #22c55e; font-size: 18px; flex-shrink: 0;">🎥 Vídeo da Rede</h2>
-        
-        <div style="
-            width: 100%; 
-            height: ${alturaVideo}; 
-            background: #000; 
-            border-radius: 12px; 
-            overflow: hidden; 
-            border: 1px solid #334155;
-            position: relative;
-        ">
-            <iframe 
-                src="${embedLink}" 
-                width="100%" 
-                height="100%" 
-                frameborder="0" 
-                scrolling="no" 
-                allowtransparency="true"
-                allow="autoplay"
-                style="position: absolute; top: 0; left: 0;">
-            </iframe>
-        </div>
-
-        <button class="btn-secondary" onclick="fecharModal()" style="
-            width: 100%; 
-            padding: 16px; 
-            margin-top: 10px; 
-            cursor: pointer; 
-            flex-shrink: 0;
-            background: #1e293b;
-            border: 1px solid #334155;
-            color: #fff;
-            font-weight: bold;
-            border-radius: 12px;
-        ">
-            Fechar Vídeo
-        </button>
-    `;
-
-    modal.style.display = 'flex';
-    document.body.style.overflow = 'hidden'; // Trava o scroll do fundo
-}	
 
     function fecharModal() {
-      const modal = document.getElementById('modal-overlay');
-      const content = document.getElementById('modal-content');
-
-      if (modal) {
-        modal.style.display = 'none';
-        // Remove o vídeo do HTML para silenciar o áudio e liberar memória
-        if (content) content.innerHTML = ''; 
-        document.body.style.overflow = 'auto';
-      }
+      document.getElementById('modal-overlay').style.display = 'none';
+      document.getElementById('modal-content').innerHTML = ''; 
+      document.body.style.overflow = 'auto';
     }
 
-    // Fecha o modal ao apertar a tecla ESC
-    document.addEventListener('keydown', (e) => { 
-      if (e.key === 'Escape') fecharModal(); 
-    });
+    function denunciarGrupo(btn) {
+      const link = `https://docs.google.com/forms/d/e/1FAIpQLSeWVDmszwv-eRQBz1CfobQjXghfPMoA0_GvebTUCtFGK9w9oQ/viewform?usp=pp_url` +
+        `&entry.1258565769=${encodeURIComponent(btn.dataset.nome)}` +
+        `&entry.752710010=${encodeURIComponent(btn.dataset.categoria)}` +
+        `&entry.1085438218=AL` +
+        `&entry.1075575459=${encodeURIComponent(btn.dataset.cidade)}`;
+      window.open(link, "_blank");
+    }
 
-    // Fecha o modal ao clicar na parte escura (fora da janelinha)
-    document.getElementById('modal-overlay').addEventListener('click', (e) => { 
-      if (e.target.id === 'modal-overlay') fecharModal(); 
-    });
-	
-function denunciarGrupo(btn) {
-  const nome = btn.dataset.nome;
-  const categoria = btn.dataset.categoria;
-  const cidade = btn.dataset.cidade;
-
-  const link = `https://docs.google.com/forms/d/e/1FAIpQLSeWVDmszwv-eRQBz1CfobQjXghfPMoA0_GvebTUCtFGK9w9oQ/viewform?usp=pp_url` +
-    `&entry.1258565769=${encodeURIComponent(nome)}` +
-    `&entry.752710010=${encodeURIComponent(categoria)}` +
-    `&entry.1085438218=AL` +
-    `&entry.1075575459=${encodeURIComponent(cidade)}`;
-
-  window.open(link, "_blank");
-}
+    // Eventos de fechamento extra
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fecharModal(); });
+    document.getElementById('modal-overlay').addEventListener('click', (e) => { if (e.target.id === 'modal-overlay') fecharModal(); });
 
   </script>
 </body>
