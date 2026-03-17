@@ -422,27 +422,41 @@
     }
 
     document.getElementById('btnBuscar').addEventListener('click', async () => {
-      const cidade = document.getElementById('selectCidade').value;
-      if (!cidade) return alert("Selecione uma cidade");
-      
-      document.getElementById('status').style.display = "block";
-      document.getElementById('status').innerText = "Carregando...";
-      
-      try {
-        const response = await fetch(`${SCRIPT_URL}?estado=AL&cidade=${encodeURIComponent(cidade)}`);
-        const data = await response.json();
-        dadosAtuais = data; 
-			
-        atualizarFiltrosCategorias(data);
-        renderizarArvorePorNiveis(data.arvore);
-        renderizarCarrossel('motoristas', data.gruposMotoristas);
-        renderizarCarrossel('comercio', data.gruposComercio);
-        renderizarCarrossel('instagram', data.instagram);
-        
-        document.getElementById('status').innerText = "Sucesso!";
-        setTimeout(() => document.getElementById('status').style.display = "none", 2000);
-      } catch (e) { document.getElementById('status').innerText = "Erro ao carregar"; }
-    });
+  const cidade = document.getElementById('selectCidade').value;
+  if (!cidade) return alert("Selecione uma cidade");
+  
+  const statusDiv = document.getElementById('status');
+  statusDiv.style.display = "block";
+  statusDiv.innerText = "Carregando...";
+  
+  try {
+    // Faz a chamada para o seu Google Script
+    const response = await fetch(`${SCRIPT_URL}?estado=AL&cidade=${encodeURIComponent(cidade)}`);
+    const data = await response.json();
+    
+    // Guarda os dados na variável global para os filtros funcionarem depois
+    dadosAtuais = data; 
+
+    // 1. Atualiza os filtros de categoria (Motoristas, Comércio, Instagram)
+    atualizarFiltrosCategorias(data);
+
+    // 2. Renderiza a Árvore (se não houver motoristas, envia lista vazia para não dar erro)
+    renderizarArvorePorNiveis(data.arvore || []);
+
+    // 3. Renderiza os Carrosséis (usando || [] para garantir que o código continue rodando)
+    renderizarCarrossel('motoristas', data.gruposMotoristas || []);
+    renderizarCarrossel('comercio', data.gruposComercio || []);
+    renderizarCarrossel('instagram', data.instagram || []);
+    
+    statusDiv.innerText = "Sucesso!";
+    setTimeout(() => statusDiv.style.display = "none", 2000);
+
+  } catch (e) { 
+    console.error("Erro na busca:", e);
+    statusDiv.innerText = "Erro ao carregar dados"; 
+    statusDiv.style.color = "#ef4444"; // Muda para vermelho em caso de erro
+  }
+});
 
     // Otimização: Renderiza apenas os itens necessários inicialmente e evita sobrecarga
     
@@ -585,42 +599,44 @@
     }
 
     function atualizarFiltrosCategorias(dados) {
-      const mapeamento = [
-        { id: 'filtro-motoristas', tipo: 'motoristas', lista: dados.gruposMotoristas, label: 'Motoristas' },
-        { id: 'filtro-comercio', tipo: 'comercio', lista: dados.gruposComercio, label: 'Comércio' },
-        { id: 'filtro-instagram', tipo: 'instagram', lista: dados.instagram, label: 'Instagram' }
-      ];
+  const mapeamento = [
+    { id: 'filtro-motoristas', tipo: 'motoristas', lista: dados.gruposMotoristas || [], label: 'Motoristas' },
+    { id: 'filtro-comercio', tipo: 'comercio', lista: dados.gruposComercio || [], label: 'Comércio' },
+    { id: 'filtro-instagram', tipo: 'instagram', lista: dados.instagram || [], label: 'Instagram' }
+  ];
 
-      mapeamento.forEach(item => {
-        const select = document.getElementById(item.id);
-        if (!select) return;
+  mapeamento.forEach(item => {
+    const select = document.getElementById(item.id);
+    if (!select) return;
 
-        const categorias = [...new Set(item.lista.map(i => i.categoria))]
-          .filter(c => c && c.trim() !== "")
-          .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    // Pega categorias únicas, ignora vazios e ordena
+    const categorias = [...new Set(item.lista.map(i => i.categoria))]
+      .filter(c => c && c.trim() !== "")
+      .sort((a, b) => a.localeCompare(b, 'pt-BR'));
 
-        select.innerHTML = `<option value="">Todas as Categorias (${item.label})</option>`;
-        categorias.forEach(cat => {
-          const option = document.createElement('option');
-          option.value = cat;
-          option.textContent = cat;
-          select.appendChild(option);
-        });
-
-        select.onchange = () => {
-          const selecionada = select.value;
-          const listaOriginal = item.tipo === 'motoristas' ? dadosAtuais.gruposMotoristas : 
-                                item.tipo === 'comercio' ? dadosAtuais.gruposComercio : 
-                                dadosAtuais.instagram;
-          
-          const filtrados = selecionada 
-            ? listaOriginal.filter(i => i.categoria === selecionada)
-            : listaOriginal;
-          
-          renderizarCarrossel(item.tipo, filtrados);
-        };
-      });
+    select.innerHTML = `<option value="">Todas as Categorias (${item.label})</option>`;
+    
+    if (categorias.length === 0) {
+       select.style.display = 'none'; // Esconde o filtro se não houver categorias
+    } else {
+       select.style.display = 'block';
+       categorias.forEach(cat => {
+         const option = document.createElement('option');
+         option.value = cat;
+         option.textContent = cat;
+         select.appendChild(option);
+       });
     }
+
+    select.onchange = () => {
+      const selecionada = select.value;
+      const filtrados = selecionada 
+        ? item.lista.filter(i => i.categoria === selecionada)
+        : item.lista;
+      renderizarCarrossel(item.tipo, filtrados);
+    };
+  });
+}
 
     // Tratamento de performance para a árvore: evita travamentos se houver muitos motoristas
     function renderizarArvorePorNiveis(arvore) {
